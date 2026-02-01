@@ -20,7 +20,7 @@ type InvitationSettings = {
 export default function EditorPage() {
   const [settings, setSettings] = useState<InvitationSettings>({
     brideName: "Sine123",
-    groomName: "Murat",
+    groomName: "Murat123",
     title: "Nişanımıza davetlisiniz!",
     date: "12 Ekim 2026 Cumartesi",
     time: "18:30 - 22:00",
