@@ -1,7 +1,7 @@
 // app/page.tsx
 
 "use client";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import React, { useState } from "react";
 
 type InvitationSettings = {
@@ -11,10 +11,13 @@ type InvitationSettings = {
   date: string;
   time: string;
   location: string;
+  inviteText: string;
+  donationText: string;
   backgroundColor: string;
   primaryTextColor: string;
   buttonBackground: string;
   buttonTextColor: string;
+  fontFamily: "great-vibes" | "cormorant";
 };
 
 export default function EditorPage() {
@@ -29,6 +32,9 @@ export default function EditorPage() {
     primaryTextColor: "#000000",
     buttonBackground: "#000000",
     buttonTextColor: "#ffffff",
+    inviteText: "Bu özel günümüze davetlisiniz!",
+    donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
+    fontFamily: "cormorant",
   });
 
   const handleChange = (field: keyof InvitationSettings, value: string) => {
@@ -54,7 +60,7 @@ export default function EditorPage() {
           value={settings.groomName}
           onChange={(v) => handleChange("groomName", v)}
         />
-
+        <SpeedInsights />
         <TextField
           label="Başlık"
           value={settings.title}
@@ -80,6 +86,16 @@ export default function EditorPage() {
           value={settings.location}
           onChange={(v) => handleChange("location", v)}
         />
+        <SectionTitle label="Yazı Tipi" />
+
+        <select
+          value={settings.fontFamily}
+          onChange={(e) => handleChange("fontFamily", e.target.value as any)}
+          className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
+        >
+          <option value="great-vibes">Great Vibes</option>
+          <option value="cormorant">Cormorant Garamond</option>
+        </select>
 
         <SectionTitle label="Renkler" />
 
@@ -124,9 +140,7 @@ export default function EditorPage() {
 
 function SectionTitle({ label }: { label: string }) {
   return (
-    <h2 className="mt-4 mb-2 text-sm font-semibold text-slate-200">
-      {label}
-    </h2>
+    <h2 className="mt-4 mb-2 text-sm font-semibold text-slate-200">{label}</h2>
   );
 }
 
@@ -198,102 +212,95 @@ function InvitationPreview({ settings }: { settings: InvitationSettings }) {
     date,
     time,
     location,
+    inviteText,
+    donationText,
     backgroundColor,
     primaryTextColor,
     buttonBackground,
     buttonTextColor,
+    fontFamily,
   } = settings;
+
+  const [openDonation, setOpenDonation] = useState(false);
+  const fontClass =
+    fontFamily === "great-vibes" ? "font-great-vibes" : "font-cormorant";
 
   return (
     <div
-      className="w-full max-w-xl rounded-2xl shadow-2xl p-6 md:p-8"
+      className={`w-full max-w-3xl rounded-3xl shadow-2xl p-6 md:p-8 ${fontClass}`}
       style={{ backgroundColor, color: primaryTextColor }}
     >
-      <section className="text-center mb-8">
-        <p className="tracking-[0.28em] text-[0.7rem] uppercase">
-          {brideName} &amp; {groomName}
-        </p>
-        <h1 className="mt-3 text-2xl font-medium">{title}</h1>
+      {/* HERO */}
+      <section className="relative min-h-[420px] flex items-center justify-center text-center px-6">
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10">
+          <p className="tracking-[0.3em] text-xs uppercase mb-3">
+            Biz Evleniyoruz
+          </p>
+
+          <h1 className="text-4xl md:text-5xl font-light leading-tight">
+            <span className="block">{brideName}</span>
+            <span className="block my-2">&amp;</span>
+            <span className="block">{groomName}</span>
+          </h1>
+
+          <div className="my-6 flex items-center justify-center gap-3">
+            <span className="h-px w-12 bg-current opacity-40" />
+            <span className="text-sm">✦</span>
+            <span className="h-px w-12 bg-current opacity-40" />
+          </div>
+
+          <p className="text-sm">{date}</p>
+          <p className="text-sm mt-1">{time}</p>
+        </div>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-base font-semibold mb-2">Konum &amp; Tarih</h2>
-        <p className="text-sm mb-0.5">{date}</p>
-        <p className="text-sm mb-3">{time}</p>
-        <p className="text-sm whitespace-pre-line">{location}</p>
+      {/* DAVET KARTI */}
+      <section className="px-6 py-10 text-center">
+        <p className="text-xs uppercase tracking-widest mb-2">Değerli</p>
+        <p className="font-medium mb-4">{title}</p>
+        <p className="text-sm mb-6">{inviteText}</p>
+
+        {/* FİDAN BAĞIŞI */}
         <button
-          type="button"
-          className="mt-3 px-4 py-2 rounded-full text-xs font-medium"
-          style={{
-            backgroundColor: buttonBackground,
-            color: buttonTextColor,
-          }}
+          onClick={() => setOpenDonation(!openDonation)}
+          className="mx-auto flex items-center gap-2 text-xs px-4 py-2 rounded-full border"
         >
-          Yol Tarifi
+          🌱 {donationText}
+          <span
+            className={`transition-transform ${
+              openDonation ? "rotate-180" : ""
+            }`}
+          >
+            ▼
+          </span>
         </button>
+
+        {openDonation && (
+          <div className="mt-4">
+            <div className="mx-auto w-full max-w-sm h-48 bg-slate-200 rounded-xl flex items-center justify-center text-slate-500 text-xs">
+              Fidan Sertifikası Görseli
+            </div>
+          </div>
+        )}
       </section>
 
-      <section>
-        <h2 className="text-base font-semibold mb-3">
-          Katılım Durumunuz &amp; Hatıra Notunuz
-        </h2>
+      {/* KONUM */}
+      <section className="px-6 pb-10">
+        <div className="rounded-2xl border p-6 text-center">
+          <h3 className="text-lg font-medium mb-3">Konum</h3>
+          <p className="text-sm whitespace-pre-line mb-4">{location}</p>
 
-        <div className="mb-3">
-          <label className="block mb-1 text-xs font-medium">Ad Soyad</label>
-          <input
-            disabled
-            placeholder="Ad Soyad"
-            className="w-full px-2.5 py-2 rounded-md border border-slate-300 text-xs bg-white text-slate-900"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="block mb-1 text-xs font-medium">
-            Katılım Durumu
-          </label>
-          <select
-            disabled
-            className="w-full px-2.5 py-2 rounded-md border border-slate-300 text-xs bg-white text-slate-900"
+          <button
+            style={{
+              backgroundColor: buttonBackground,
+              color: buttonTextColor,
+            }}
+            className="px-5 py-2 rounded-full text-xs font-medium"
           >
-            <option>Seçiniz</option>
-          </select>
+            Haritada Aç
+          </button>
         </div>
-
-        <div className="mb-3">
-          <label className="block mb-1 text-xs font-medium">
-            Toplam katılımcı sayısı
-          </label>
-          <select
-            disabled
-            className="w-full px-2.5 py-2 rounded-md border border-slate-300 text-xs bg-white text-slate-900"
-          >
-            <option>Seçiniz</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-1 text-xs font-medium">
-            Hatıra notunuz
-          </label>
-          <textarea
-            disabled
-            rows={3}
-            className="w-full px-2.5 py-2 rounded-md border border-slate-300 text-xs bg-white text-slate-900 resize-y"
-          />
-        </div>
-
-        <button
-          type="button"
-          disabled
-          className="px-5 py-2 rounded-full text-xs font-medium bg-slate-900 text-slate-50"
-        >
-          Gönder
-        </button>
-
-        <p className="mt-3 text-[0.7rem] text-slate-600">
-          Hatıra defteri aktif. Davetliler not bıraktıkça kayıtlar burada
-          gözükecek.
-        </p>
       </section>
     </div>
   );
