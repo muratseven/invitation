@@ -1,3 +1,5 @@
+// app/layout.tsx
+
 import "./globals.css";
 import { Great_Vibes, Cormorant_Garamond } from "next/font/google";
 
@@ -20,6 +22,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
+      <head>
+        {/* static style.css for invitation UI */}
+        <link rel="stylesheet" href="./style.css" />
+      </head>
       <body className={`${greatVibes.variable} ${cormorant.variable}`}>
         {children}
       </body>
