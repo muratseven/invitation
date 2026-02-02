@@ -11,18 +11,27 @@ type InvitationSettings = {
   brideName: string;
   groomName: string;
   title: string;
+  heroSubtitle: string; // "Biz evleniyoruz" için
   dateRaw: string; // YYYY-MM-DD
   eventDate: Date | null;
   time: string;
   locationText: string;
   mapsUrl: string;
+  locationImageUrl: string; // mekan görseli (data URL veya URL)
   inviteText: string;
   donationText: string;
-  backgroundColor: string;
+  backgroundColor: string; // video üzerindeki overlay rengi
+  backgroundOverlayOpacity: number; // 0–1 arası
   primaryTextColor: string;
   buttonBackground: string;
   buttonTextColor: string;
   fontFamily: FontFamily;
+  family1Mother: string;
+  family1Father: string;
+  family1Surname: string;
+  family2Mother: string;
+  family2Father: string;
+  family2Surname: string;
 };
 
 type Guest = {
@@ -40,6 +49,53 @@ type Countdown = {
   seconds: number;
   finished: boolean;
 };
+
+const HERO_SUBTITLE_OPTIONS = [
+  "Biz evleniyoruz",
+  "Hayatımızın en özel günü",
+  "Bu mutlu günümüzde yanımızda olun",
+  "Bir ömür boyu mutluluğa evet",
+  "Sevgiyle başlayan yolculuğumuzda bize katılın",
+];
+
+// HEX → rgba string
+function hexToRgba(hex: string, alpha: number): string {
+  let clean = hex.replace("#", "").trim();
+
+  if (clean.length === 3) {
+    clean = clean
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  }
+
+  const bigint = parseInt(clean || "000000", 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+// UTF-8 güvenli base64 encode/decode helper'ları
+
+function base64EncodeUnicode(str: string): string {
+  // UTF-8 string'i Latin1'e çevirip btoa ile encode eder
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+      String.fromCharCode(Number("0x" + p1))
+    )
+  );
+}
+
+function base64DecodeUnicode(str: string): string {
+  // btoa ile encode edilmiş Latin1 string'i tekrar UTF-8'e çevirir
+  return decodeURIComponent(
+    atob(str)
+      .split("")
+      .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+      .join("")
+  );
+}
 
 function computeCountdown(eventDate: Date | null): Countdown {
   if (!eventDate) {
@@ -90,30 +146,138 @@ export default function EditorPage() {
     brideName: "Sine",
     groomName: "Murat",
     title: "Nişanımıza davetlisiniz!",
+    heroSubtitle: "Biz evleniyoruz",
     dateRaw: "",
     eventDate: null,
     time: "18:30 - 22:00",
     locationText:
       "Saraç İshak, Tavşantaşı Sk. No:5, 34130 Fatih/İstanbul, Türkiye",
     mapsUrl: "https://maps.google.com",
-    backgroundColor: "#f7f3ef",
-    primaryTextColor: "#000000",
-    buttonBackground: "#000000",
-    buttonTextColor: "#ffffff",
+    locationImageUrl: "/vedat-dalokay-nikah-salonu.png",
+    backgroundColor: "#000000",
+    backgroundOverlayOpacity: 0.6,
+    primaryTextColor: "#ffffff",
+    buttonBackground: "#d9e2c0",
+    buttonTextColor: "#1f2620",
     inviteText: "Bu özel günümüze davetlisiniz!",
     donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
     fontFamily: "cormorant",
+    family1Mother: "",
+    family1Father: "",
+    family1Surname: "",
+    family2Mother: "",
+    family2Father: "",
+    family2Surname: "",
   });
 
   const [countdown, setCountdown] = useState<Countdown>(
     computeCountdown(settings.eventDate)
   );
-
   const [guests, setGuests] = useState<Guest[]>([]);
   const [csvError, setCsvError] = useState<string | null>(null);
 
   const [origin, setOrigin] = useState<string>("");
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(true);
+  function base64EncodeUnicode(str: string): string {
+    return btoa(
+      encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+        String.fromCharCode(Number("0x" + p1))
+      )
+    );
+  }
+
+  function base64DecodeUnicode(str: string): string {
+    return decodeURIComponent(
+      atob(str)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+  }
+
+  const handleDownloadCsvExample = () => {
+    const sample = [
+      "name;email;phone;max_guests",
+      "Murat Yıldırım;murat@yildirim.com;5551112233;2",
+      "Ayşe Demir;ayse@example.com;;1",
+    ].join("\n");
+
+    const blob = new Blob([sample], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "davetli_ornek.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleLocationImageUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === "string") {
+        setSettings((prev) => ({
+          ...prev,
+          locationImageUrl: result,
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // localStorage'dan oku
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const savedSettings = window.localStorage.getItem("invitationSettings");
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings) as Partial<InvitationSettings>;
+        const dateRaw = parsed.dateRaw ?? "";
+        const eventDate = dateRaw ? new Date(dateRaw + "T00:00:00") : null;
+        setSettings((prev) => ({
+          ...prev,
+          ...parsed,
+          // yeni alanların default'u kaybolmasın
+          backgroundOverlayOpacity:
+            parsed.backgroundOverlayOpacity ?? prev.backgroundOverlayOpacity,
+          dateRaw,
+          eventDate,
+        }));
+      } catch {
+        // ignore
+      }
+    }
+
+    const savedGuests = window.localStorage.getItem("invitationGuests");
+    if (savedGuests) {
+      try {
+        const parsedGuests = JSON.parse(savedGuests) as Guest[];
+        setGuests(parsedGuests);
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  // ayarları yaz (eventDate hariç)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const toStore: any = { ...settings };
+    delete toStore.eventDate;
+
+    window.localStorage.setItem("invitationSettings", JSON.stringify(toStore));
+  }, [settings]);
+
+  // davetlileri yaz
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("invitationGuests", JSON.stringify(guests));
+  }, [guests]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -239,9 +403,13 @@ export default function EditorPage() {
       })
     : null;
 
+  const overlayColor = hexToRgba(
+    settings.backgroundColor,
+    settings.backgroundOverlayOpacity
+  );
+
   return (
-    <div className="relative min-h-screen bg-[#f0e6dc] text-slate-900">
-      {/* Düzenle butonu */}
+    <div className="relative min-h-screen text-slate-900">
       {!isEditorOpen && (
         <button
           onClick={() => setIsEditorOpen(true)}
@@ -251,7 +419,7 @@ export default function EditorPage() {
         </button>
       )}
 
-      {/* Sağdan kayan editor paneli */}
+      {/* Editör paneli */}
       <div
         className={`fixed top-0 right-0 h-full w-full max-w-md bg-slate-900 text-slate-50 border-l border-slate-800 z-40 transform transition-transform duration-300 ease-in-out ${
           isEditorOpen ? "translate-x-0" : "translate-x-full"
@@ -269,14 +437,46 @@ export default function EditorPage() {
         </div>
 
         <div className="h-[calc(100%-44px)] overflow-y-auto px-4 pb-6 pt-3">
-          <SectionTitle label="Çift Bilgileri" />
+          {/* Üst başlık + random zar */}
+          <SectionTitle label="Üst Başlık" />
+          <div className="mb-3">
+            <label className="block mb-1 text-xs font-medium text-slate-300">
+              Üst metin
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                value={settings.heroSubtitle}
+                onChange={(e) => handleChange("heroSubtitle", e.target.value)}
+                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const options = HERO_SUBTITLE_OPTIONS.filter(
+                    (o) => o !== settings.heroSubtitle
+                  );
+                  const pool =
+                    options.length > 0 ? options : HERO_SUBTITLE_OPTIONS;
+                  const next = pool[Math.floor(Math.random() * pool.length)];
+                  setSettings((prev) => ({
+                    ...prev,
+                    heroSubtitle: next,
+                  }));
+                }}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
+                title="Rastgele başlık"
+              >
+                🎲
+              </button>
+            </div>
+          </div>
 
+          <SectionTitle label="Çift Bilgileri" />
           <TextField
             label="Gelin Adı"
             value={settings.brideName}
             onChange={(v) => handleChange("brideName", v)}
           />
-
           <TextField
             label="Damat Adı"
             value={settings.groomName}
@@ -285,14 +485,89 @@ export default function EditorPage() {
 
           <SpeedInsights />
 
+          <SectionTitle label="Aile Bilgileri" />
+          <p className="text-[0.7rem] text-slate-400 mb-1">
+            Birinci ve ikinci aileyi ayrı alanlarda doldurun.
+          </p>
           <TextField
-            label="Başlık"
+            label="Birinci Aile - Anne Adı"
+            value={settings.family1Mother}
+            onChange={(v) => handleChange("family1Mother", v)}
+          />
+          <TextField
+            label="Birinci Aile - Baba Adı"
+            value={settings.family1Father}
+            onChange={(v) => handleChange("family1Father", v)}
+          />
+          <TextField
+            label="Birinci Aile - Soyadı"
+            value={settings.family1Surname}
+            onChange={(v) => handleChange("family1Surname", v)}
+          />
+          <div className="h-px bg-slate-700 my-2" />
+          <TextField
+            label="İkinci Aile - Anne Adı"
+            value={settings.family2Mother}
+            onChange={(v) => handleChange("family2Mother", v)}
+          />
+          <TextField
+            label="İkinci Aile - Baba Adı"
+            value={settings.family2Father}
+            onChange={(v) => handleChange("family2Father", v)}
+          />
+          <TextField
+            label="İkinci Aile - Soyadı"
+            value={settings.family2Surname}
+            onChange={(v) => handleChange("family2Surname", v)}
+          />
+
+          <SectionTitle label="Etkinlik Mekanı Görseli" />
+          <div className="mb-3 text-xs">
+            <p className="mb-1 text-slate-300">
+              Sabit bir boyutta, davetiyede kırpılarak gösterilir (16:9–4:3
+              oranı en iyi sonucu verir).
+            </p>
+            <div className="flex items-center gap-2">
+              <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
+                Dosya Seç
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleLocationImageUpload(file);
+                    }
+                  }}
+                  className="hidden"
+                />
+              </label>
+              {settings.locationImageUrl && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      locationImageUrl: "",
+                    }))
+                  }
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
+                  title="Görseli kaldır"
+                >
+                  🗑
+                </button>
+              )}
+            </div>
+          </div>
+
+          <SectionTitle label="Başlık" />
+          <TextField
+            label="Davetiye Başlığı"
             value={settings.title}
             onChange={(v) => handleChange("title", v)}
           />
 
           <SectionTitle label="Tarih & Konum" />
-
           <div className="mb-3">
             <label className="block mb-1 text-xs font-medium text-slate-300">
               Tarih
@@ -327,13 +602,11 @@ export default function EditorPage() {
           />
 
           <SectionTitle label="Metinler" />
-
           <TextAreaField
             label="Davet Metni"
             value={settings.inviteText}
             onChange={(v) => handleChange("inviteText", v)}
           />
-
           <TextAreaField
             label="Bağış / Not Metni"
             value={settings.donationText}
@@ -341,7 +614,6 @@ export default function EditorPage() {
           />
 
           <SectionTitle label="Yazı Tipi" />
-
           <select
             value={settings.fontFamily}
             onChange={(e) =>
@@ -354,25 +626,43 @@ export default function EditorPage() {
           </select>
 
           <SectionTitle label="Renkler" />
-
           <ColorField
-            label="Arkaplan Rengi"
+            label="Arkaplan Rengi (video üstü)"
             value={settings.backgroundColor}
             onChange={(v) => handleChange("backgroundColor", v)}
           />
+          <div className="mb-3">
+            <label className="block mb-1 text-xs font-medium text-slate-300">
+              Arkaplan Opaklığı (%)
+            </label>
+            <input
+              type="range"
+              min={10}
+              max={90}
+              value={Math.round(settings.backgroundOverlayOpacity * 100)}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  backgroundOverlayOpacity: Number(e.target.value) / 100,
+                }))
+              }
+              className="w-full"
+            />
+            <p className="mt-1 text-[0.7rem] text-slate-400">
+              Mevcut: %{Math.round(settings.backgroundOverlayOpacity * 100)}
+            </p>
+          </div>
 
           <ColorField
             label="Yazı Rengi"
             value={settings.primaryTextColor}
             onChange={(v) => handleChange("primaryTextColor", v)}
           />
-
           <ColorField
             label="Buton Arkaplan"
             value={settings.buttonBackground}
             onChange={(v) => handleChange("buttonBackground", v)}
           />
-
           <ColorField
             label="Buton Yazı Rengi"
             value={settings.buttonTextColor}
@@ -380,27 +670,34 @@ export default function EditorPage() {
           />
 
           <SectionTitle label="CSV ile Davetli Yükle" />
-
           <div className="mb-3 text-xs">
-            <p className="mb-1 text-slate-300">
-              Önerilen format (virgül veya noktalı virgül ile ayrılmış):
-            </p>
-            <pre className="bg-slate-950/60 rounded-md p-2 text-[0.7rem] text-slate-200 mb-2">
-              {`name;email;phone;max_guests
-Murat Yıldırım;murat@yildirim.com;5551112233;2
-Ayşe Demir;ayse@example.com;;1`}
-            </pre>
-            <input
-              type="file"
-              accept=".csv,.txt"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  handleCsvUpload(file);
-                }
-              }}
-              className="block w-full text-xs text-slate-200 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-sky-600 file:text-white hover:file:bg-sky-500 cursor-pointer"
-            />
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                type="button"
+                onClick={handleDownloadCsvExample}
+                className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
+              >
+                Örnek CSV’yi indir
+              </button>
+            </div>
+
+            <div>
+              <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-700 text-white text-[0.7rem] font-medium hover:bg-slate-600 cursor-pointer">
+                Dosya Seç
+                <input
+                  type="file"
+                  accept=".csv,.txt"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleCsvUpload(file);
+                    }
+                  }}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
             {csvError && (
               <p className="mt-1 text-[0.7rem] text-red-400">{csvError}</p>
             )}
@@ -410,18 +707,16 @@ Ayşe Demir;ayse@example.com;;1`}
               </p>
             )}
           </div>
-
-          <p className="mt-4 text-xs text-slate-400">
-            Not: Şu an için bu editör sadece tarayıcıda çalışıyor. Sayfayı
-            yenilediğinizde veriler sıfırlanır. Sonraki adımda bunları
-            veritabanına kaydedebiliriz.
-          </p>
         </div>
       </div>
 
       {/* Orta kısım: Davetiye + Davetli Linkleri */}
       <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
-        <InvitationPreview settings={settings} countdown={countdown} />
+        <InvitationPreview
+          settings={settings}
+          countdown={countdown}
+          overlayColor={overlayColor}
+        />
         <div className="mt-6">
           <GuestLinks guests={guests} origin={origin} settings={settings} />
         </div>
@@ -500,13 +795,16 @@ function ColorField({ label, value, onChange }: FieldProps) {
   );
 }
 
+/* ---- Davetiye önizleme ---- */
 
 function InvitationPreview({
   settings,
   countdown,
+  overlayColor,
 }: {
   settings: InvitationSettings;
   countdown: Countdown;
+  overlayColor: string;
 }) {
   const {
     brideName,
@@ -518,6 +816,17 @@ function InvitationPreview({
     inviteText,
     donationText,
     eventDate,
+    heroSubtitle,
+    primaryTextColor,
+    family1Mother,
+    family1Father,
+    family1Surname,
+    family2Mother,
+    family2Father,
+    family2Surname,
+    locationImageUrl,
+    buttonBackground,
+    buttonTextColor,
   } = settings;
 
   const [openDonation, setOpenDonation] = useState(false);
@@ -531,12 +840,26 @@ function InvitationPreview({
       })
     : "Tarih seçilmedi";
 
-  const weddingDateForHero = dateText; // hero date
-
+  const weddingDateForHero = dateText;
   const countdownFinished = countdown.finished;
 
+  const rawMapsUrl = mapsUrl || "";
+  let embedUrl = "about:blank";
+
+  if (
+    rawMapsUrl.includes("google.com/maps") &&
+    !rawMapsUrl.includes("/embed")
+  ) {
+    embedUrl = rawMapsUrl.replace("/maps/", "/maps/embed/");
+  } else if (rawMapsUrl) {
+    embedUrl = rawMapsUrl;
+  }
+
+  const hasFamily1 = family1Mother || family1Father;
+  const hasFamily2 = family2Mother || family2Father;
+
   return (
-    <div className="">
+    <div className="page-overlay" style={{ background: overlayColor }}>
       {/* Arka plan video */}
       <video className="bg-video" autoPlay muted loop playsInline>
         <source src="/bg.webm" type="video/webm" />
@@ -546,12 +869,33 @@ function InvitationPreview({
       {/* Hero */}
       <header className="hero" id="top">
         <div className="hero-inner">
-          <p className="hero-subtitle">Biz evleniyoruz</p>
-          <h1 className="hero-title">
+          <p className="hero-subtitle" style={{ color: primaryTextColor }}>
+            {heroSubtitle}
+          </p>
+          <h1 className="hero-title" style={{ color: primaryTextColor }}>
             <span className="hero-line">{brideName}</span>
             <span className="hero-ampersand">&amp;</span>
             <span className="hero-line">{groomName}</span>
           </h1>
+
+          {/* Aile bilgileri küçük alt satır */}
+          {(hasFamily1 || hasFamily2) && (
+            <div
+              className="mt-3 text-sm"
+              style={{ color: "rgba(255,255,255,0.8)" }}
+            >
+              {hasFamily1 && (
+                <p>
+                  {family1Mother} &amp; {family1Father} {family1Surname}
+                </p>
+              )}
+              {hasFamily2 && (
+                <p>
+                  {family2Mother} &amp; {family2Father} {family2Surname}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="fancy-divider">
             <span className="fancy-divider-line" />
@@ -608,7 +952,6 @@ function InvitationPreview({
         <section className="section section-invite" id="invite">
           <div className="section-inner invite-card">
             <p className="invite-label">Değerli</p>
-            {/* Buraya misafir adı yerine başlığı kullanıyoruz, ileride davetli bazlı personalize edebiliriz */}
             <p className="invite-name">{title}</p>
 
             <p className="invite-text">{inviteText}</p>
@@ -617,6 +960,10 @@ function InvitationPreview({
               type="button"
               className="donation-toggle"
               onClick={() => setOpenDonation((prev) => !prev)}
+              style={{
+                background: "none",
+                color: primaryTextColor,
+              }}
             >
               🌱 {donationText} 🌱
               <svg
@@ -639,9 +986,7 @@ function InvitationPreview({
             </button>
 
             <div
-              className={
-                "donation-collapse" + (openDonation ? " active" : "")
-              }
+              className={"donation-collapse" + (openDonation ? " active" : "")}
             >
               <img
                 src="/fidan_ga_wm.jpg"
@@ -651,6 +996,85 @@ function InvitationPreview({
             </div>
           </div>
         </section>
+
+        {/* Ailelerimiz - ayrı UI bölümü */}
+        {(hasFamily1 || hasFamily2) && (
+          <section className="section">
+            <div className="section-inner" style={{ textAlign: "center" }}>
+              <h2>Ailelerimiz</h2>
+              <p className="section-subtitle">
+                Bu mutlu günümüzde bizimle olan ailelerimiz
+              </p>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "1.5rem",
+                  justifyContent: "center",
+                }}
+              >
+                {hasFamily1 && (
+                  <div
+                    style={{
+                      minWidth: "220px",
+                      padding: "1.2rem 1rem",
+                      borderRadius: "18px",
+                      background: "rgba(0,0,0,0.4)",
+                      border: "1px solid rgba(255,255,255,0.18)",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: "Great Vibes, cursive",
+                        fontSize: "1.5rem",
+                        marginBottom: "0.4rem",
+                      }}
+                    >
+                      {family1Surname} Ailesi
+                    </p>
+                    <p
+                      className="invite-text"
+                      style={{ marginBottom: "0.15rem" }}
+                    >
+                      {family1Mother}
+                    </p>
+                    <p className="invite-text">{family1Father}</p>
+                  </div>
+                )}
+
+                {hasFamily2 && (
+                  <div
+                    style={{
+                      minWidth: "220px",
+                      padding: "1.2rem 1rem",
+                      borderRadius: "18px",
+                      background: "rgba(0,0,0,0.4)",
+                      border: "1px solid rgba(255,255,255,0.18)",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: "Great Vibes, cursive",
+                        fontSize: "1.5rem",
+                        marginBottom: "0.4rem",
+                      }}
+                    >
+                      {family2Surname} Ailesi
+                    </p>
+                    <p
+                      className="invite-text"
+                      style={{ marginBottom: "0.15rem" }}
+                    >
+                      {family2Mother}
+                    </p>
+                    <p className="invite-text">{family2Father}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Geri Sayım */}
         <section className="section" id="countdown">
@@ -740,7 +1164,7 @@ function InvitationPreview({
             <div className="location-media">
               <div className="location-image-wrapper">
                 <img
-                  src="/vedat-dalokay-nikah-salonu.png"
+                  src={locationImageUrl || "/vedat-dalokay-nikah-salonu.png"}
                   alt="Etkinlik mekanı"
                   className="location-image"
                 />
@@ -749,7 +1173,7 @@ function InvitationPreview({
 
               <div className="location-map-wrapper">
                 <iframe
-                  src={mapsUrl || "about:blank"}
+                  src={embedUrl}
                   width="100%"
                   height="220"
                   allowFullScreen
@@ -767,6 +1191,11 @@ function InvitationPreview({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="location-button"
+                style={{
+                  background: "transparent",
+                  borderColor: buttonBackground,
+                  color: buttonBackground,
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -802,7 +1231,7 @@ function InvitationPreview({
             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
           </svg>
 
-          <p className="footer-names">
+          <p className="footer-names" style={{ color: primaryTextColor }}>
             {brideName} &amp; {groomName}
           </p>
           <p className="footer-date">{weddingDateForHero}</p>
@@ -813,19 +1242,7 @@ function InvitationPreview({
   );
 }
 
-
-function CountdownBadge({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="min-w-[64px] px-3 py-2 rounded-xl bg-black/10 text-center">
-      <div className="text-sm font-semibold">
-        {value.toString().padStart(2, "0")}
-      </div>
-      <div className="text-[0.7rem] mt-0.5 uppercase tracking-wide">
-        {label}
-      </div>
-    </div>
-  );
-}
+/* ---- Guest linkleri ---- */
 
 function GuestLinks({
   guests,
@@ -840,6 +1257,8 @@ function GuestLinks({
     return null;
   }
 
+  const baseUrl = origin || "";
+
   return (
     <div className="w-full max-w-3xl mx-auto rounded-2xl bg-white/80 border border-slate-200 p-4 text-xs">
       <h3 className="text-sm font-semibold mb-2 text-slate-900">
@@ -848,7 +1267,8 @@ function GuestLinks({
 
       <div className="max-h-40 overflow-y-auto divide-y divide-slate-200">
         {guests.map((guest) => {
-          const params = new URLSearchParams({
+          // Linkte gönderilecek minimal payload
+          const payload = {
             bride: settings.brideName,
             groom: settings.groomName,
             date: settings.dateRaw || "",
@@ -856,13 +1276,20 @@ function GuestLinks({
             location: settings.locationText,
             mapsUrl: settings.mapsUrl,
             guestName: guest.name,
-          });
+          };
 
-          const base = origin || "";
+          // JSON -> base64 (UTF‑8 safe) -> URL encode
+          const encoded = encodeURIComponent(
+            base64EncodeUnicode(JSON.stringify(payload))
+          );
+
           const href =
-            base.length > 0
-              ? `${base}/invite/${guest.slug}?${params.toString()}`
-              : `/invite/${guest.slug}?${params.toString()}`;
+            baseUrl.length > 0
+              ? `${baseUrl}/invite/${guest.slug}?d=${encoded}`
+              : `/invite/${guest.slug}?d=${encoded}`;
+
+          const displayText =
+            (baseUrl.length > 0 ? `${baseUrl}` : "") + `/invite/${guest.slug}`;
 
           return (
             <div
@@ -870,9 +1297,7 @@ function GuestLinks({
               className="flex items-center justify-between gap-3 py-1.5"
             >
               <div className="flex flex-col">
-                <span className="text-slate-900 font-medium">
-                  {guest.name}
-                </span>
+                <span className="text-slate-900 font-medium">{guest.name}</span>
               </div>
               <a
                 href={href}
@@ -880,7 +1305,7 @@ function GuestLinks({
                 target="_blank"
                 rel="noreferrer"
               >
-                {href}
+                {displayText}
               </a>
             </div>
           );
