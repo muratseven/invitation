@@ -191,7 +191,7 @@ export default function EditorPage() {
     buttonBackground: "#d9e2c0",
     buttonTextColor: "#1f2620",
 
-    fontFamily: "cormorant",
+    fontFamily: "pacifico",
     family1Mother: "",
     family1Father: "",
     family1Surname: "",
