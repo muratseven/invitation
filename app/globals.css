@@ -1,18 +1,21 @@
 /* app/globals.css */
+
+/* Tailwind */
 @import "tailwindcss";
 
+/* Tema değişkenleri */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* Tailwind theme override (gerekirse) */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode desteği */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -20,16 +23,508 @@
   }
 }
 
+/* Genel body ayarı – font burada kilitlenmesin */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
 }
 
+/* --------- EDITÖR FONTU --------- */
+/* Editör paneli için Roboto (layout.tsx’te var(--font-roboto) tanımlı) */
+.editor-font {
+  font-family: var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+/* --------- DAVETİYE FONT HELPER’LARI --------- */
+/* Bunlar sadece InvitationPreview root’una uygulanan class’lar; bileşenler fontu inherit eder. */
+
 .font-great-vibes {
-  font-family: "Great Vibes", cursive;
+  font-family: var(--font-great-vibes), cursive !important;
 }
 
 .font-cormorant {
-  font-family: "Cormorant Garamond", serif;
+  font-family: var(--font-cormorant), "Times New Roman", serif !important;
+}
+
+.font-pacifico {
+  font-family: var(--font-pacifico), cursive !important;
+}
+
+.font-sofia {
+  font-family: var(--font-sofia), cursive !important;
+}
+
+.font-cookie {
+  font-family: var(--font-cookie), cursive !important;
+}
+
+.font-dancing-script {
+  font-family: var(--font-dancing-script), cursive !important;
+}
+
+.font-parisienne {
+  font-family: var(--font-parisienne), cursive !important;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair), "Times New Roman", serif !important;
+}
+
+/* Davetiye kökünde her şey fontu inherit etsin */
+.invitation-root,
+.invitation-root * {
+  font-family: inherit;
+}
+
+/* --------- GENEL DAVETİYE YAPISI --------- */
+
+.bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+/* JS’ten overlayColor geliyor, burada sadece pozisyonlama var */
+.page-overlay {
+  position: relative;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.hero-inner {
+  max-width: 640px;
+  background: none;
+  backdrop-filter: none;
+  padding: 3rem 2.6rem;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+.hero-subtitle {
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.25rem;
+  opacity: 0.85;
+}
+
+.hero-title {
+  font-size: clamp(2.8rem, 5vw, 4.6rem);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.hero-title .hero-line {
+  display: block;
+}
+
+.hero-ampersand {
+  display: block;
+  font-size: clamp(2rem, 4vw, 2.4rem);
+  margin: 0.2rem 0 0.3rem;
+}
+
+.hero-date {
+  font-size: 1.4rem;
+  margin-bottom: 0;
+  opacity: 0.85;
+}
+
+/* Çizgili ✦ ayırıcı */
+.fancy-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.fancy-divider-line {
+  height: 1px;
+  width: 3rem;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.fancy-divider-icon {
+  font-size: 1.125rem;
+}
+
+/* Aşağı ok */
+.hero-scroll {
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-scroll-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transform: translateY(3px);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.hero-scroll-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.hero-scroll-link:hover {
+  transform: translateY(8px);
+}
+
+/* --------- BÖLÜMLER --------- */
+
+.section {
+  padding: 4rem 1.5rem;
+}
+
+.section-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Geri Sayım başlığı */
+.section h2 {
+  font-size: 2.4rem;
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+
+/* Alt başlık */
+.section-subtitle {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-size: 1.4rem;
+  opacity: 0.85;
+}
+
+/* --------- GERİ SAYIM --------- */
+
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Kart hissini kaldırdık */
+.countdown-item {
+  background: none;
+  border-radius: 0;
+  padding: 1.4rem 1rem;
+  box-shadow: none;
+  border: none;
+  text-align: center;
+}
+
+.count-number {
+  display: block;
+  font-size: 1.9rem;
+  font-weight: 600;
+}
+
+.count-label {
+  display: block;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
+}
+
+.countdown-note {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* --------- DAVET MESAJI BÖLÜMÜ --------- */
+
+.section-invite {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Kart hissi kaldırıldı */
+.invite-card {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  background: none;
+  border-radius: 0;
+  padding: 2.2rem 2rem;
+  border: none;
+  box-shadow: none;
+}
+
+.invite-label {
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.85;
+}
+
+.invite-name {
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.invite-text {
+  font-size: 1.05rem;
+  opacity: 0.9;
+}
+
+/* --------- TEMA / BAĞIŞ BÖLÜMÜ --------- */
+
+.donation-toggle {
+  margin-top: 14px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.donation-collapse {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s ease, opacity 0.3s ease;
+  opacity: 0;
+  margin-top: 12px;
+}
+
+.donation-collapse.active {
+  max-height: 1200px;
+  opacity: 1;
+}
+
+.donation-image {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* --------- KONUM BÖLÜMÜ --------- */
+
+.section-location {
+  padding-top: 3rem;
+  padding-bottom: 4rem;
+}
+
+/* Kart hissi kaldırıldı */
+.location-card {
+  padding: 2.5rem 2rem;
+  text-align: center;
+  max-width: 960px;
+  margin: 0 auto;
+  background: none;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+/* Üst yuvarlak ikon */
+.location-icon-wrapper {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.5rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.location-main-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.location-title {
+  font-size: 2.2rem;
+  margin-bottom: 1.25rem;
+}
+
+.location-info {
+  margin-bottom: 1.75rem;
+}
+
+.location-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.location-name {
+  font-size: 1.8rem;
+}
+
+.location-time-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.location-time-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.location-time-text {
+  font-size: 0.95rem;
+}
+
+/* Görsel + Harita */
+.location-media {
+  margin-bottom: 1.75rem;
+}
+
+.location-image-wrapper,
+.location-map-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  border: none;
+}
+
+.location-image {
+  width: 100%;
+  height: 18rem;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.location-image-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.location-image-wrapper:hover .location-image {
+  transform: scale(1.02);
+}
+
+.location-map {
+  width: 100%;
+  height: 220px;
+  border: 0;
+}
+
+/* Haritada Aç butonu */
+.location-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.location-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: transparent;
+  font-size: 0.9rem;
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.location-button-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* --------- FOOTER --------- */
+
+.footer {
+  text-align: center;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+.footer-heart {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0 auto 1rem;
+}
+
+.footer-names {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer-date {
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+}
+
+.footer-credit {
+  opacity: 0.6;
+}
+
+/* --------- RESPONSIVE --------- */
+
+@media (max-width: 720px) {
+  .hero-inner {
+    padding: 2.4rem 1.6rem;
+  }
+
+  .section {
+    padding: 3rem 1.25rem;
+  }
+
+  .countdown-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .location-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .location-image {
+    height: 14rem;
+  }
+
+  .location-map {
+    height: 200px;
+  }
+}
+
+@media (min-width: 768px) {
+  .fancy-divider {
+    margin: 2rem 0;
+  }
+
+  .fancy-divider-line {
+    width: 5rem;
+  }
 }

@@ -145,7 +145,7 @@ export default function InviteClient({
   const displayGuestName = settings.guestName || slug.replace(/-/g, " ");
 
   return (
-    <div className="page-overlay">
+    <div className="page-overlay invitation-root font-cormorant">
       {/* Arka plan video */}
       <video className="bg-video" autoPlay muted loop playsInline>
         <source src="/bg.webm" type="video/webm" />

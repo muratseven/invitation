@@ -5,26 +5,39 @@
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import React, { useEffect, useState } from "react";
 
-type FontFamily = "great-vibes" | "cormorant";
+type FontFamily =
+  | "great-vibes"
+  | "cormorant"
+  | "pacifico"
+  | "sofia"
+  | "cookie"
+  | "dancing-script"
+  | "parisienne"
+  | "playfair";
 
 type InvitationSettings = {
   brideName: string;
   groomName: string;
   title: string;
-  heroSubtitle: string; // "Biz evleniyoruz" için
-  dateRaw: string; // YYYY-MM-DD
+  heroSubtitle: string;
+  dateRaw: string;
   eventDate: Date | null;
   time: string;
   locationText: string;
   mapsUrl: string;
-  locationImageUrl: string; // mekan görseli (data URL veya URL)
+  locationImageUrl: string;
   inviteText: string;
   donationText: string;
-  backgroundColor: string; // video üzerindeki overlay rengi
-  backgroundOverlayOpacity: number; // 0–1 arası
+
+  // Arkaplan overlay rengi (video üstü)
+  backgroundColor: string;
+  backgroundOverlayOpacity: number;
+
+  // Eski alanlar (istersen sonra kaldırırsın)
   primaryTextColor: string;
   buttonBackground: string;
   buttonTextColor: string;
+
   fontFamily: FontFamily;
   family1Mother: string;
   family1Father: string;
@@ -32,6 +45,16 @@ type InvitationSettings = {
   family2Mother: string;
   family2Father: string;
   family2Surname: string;
+
+  // Yeni renk alanları (ekran görüntüsüne göre)
+  backgroundBaseColor: string; // Arka Plan Rengi (#111111)
+  headingColor: string; // Başlık Rengi
+  personNameColor: string; // Kişi İsimleri Rengi
+  familyRowColor: string; // Aile Satırı Rengi
+  parentRowColor: string; // Ebeveyn Satırı Rengi
+  photoBorderColor: string; // Fotoğraf Kenarlık Rengi
+  lowerMessageColor: string; // Alt Mesaj Rengi
+  lowerCoupleNameColor: string; // Alt Çift İsmi Rengi
 };
 
 type Guest = {
@@ -154,13 +177,18 @@ export default function EditorPage() {
       "Saraç İshak, Tavşantaşı Sk. No:5, 34130 Fatih/İstanbul, Türkiye",
     mapsUrl: "https://maps.google.com",
     locationImageUrl: "/vedat-dalokay-nikah-salonu.png",
+    inviteText: "Bu özel günümüze davetlisiniz!",
+    donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
+
+    // Video üstü overlay
     backgroundColor: "#000000",
     backgroundOverlayOpacity: 0.6,
+
+    // Eski alanlar (şimdilik aynı kalsın)
     primaryTextColor: "#ffffff",
     buttonBackground: "#d9e2c0",
     buttonTextColor: "#1f2620",
-    inviteText: "Bu özel günümüze davetlisiniz!",
-    donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
+
     fontFamily: "cormorant",
     family1Mother: "",
     family1Father: "",
@@ -168,6 +196,16 @@ export default function EditorPage() {
     family2Mother: "",
     family2Father: "",
     family2Surname: "",
+
+    // Yeni renk alanları - ekran görüntüsüne göre default
+    backgroundBaseColor: "#111111", // Arka Plan Rengi
+    headingColor: "#ffffff", // Başlık Rengi
+    personNameColor: "#ffffff", // Kişi isimleri
+    familyRowColor: "#ffffff", // Aile satırı
+    parentRowColor: "#ffffff", // Ebeveyn satırı
+    photoBorderColor: "#ffffff", // Fotoğraf kenarlık
+    lowerMessageColor: "#ffffff", // Alt mesaj
+    lowerCoupleNameColor: "#ffffff", // Alt çift ismi
   });
 
   const [countdown, setCountdown] = useState<Countdown>(
@@ -178,6 +216,7 @@ export default function EditorPage() {
 
   const [origin, setOrigin] = useState<string>("");
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(true);
+  const [familyTab, setFamilyTab] = useState<"family1" | "family2">("family1");
   function base64EncodeUnicode(str: string): string {
     return btoa(
       encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
@@ -407,9 +446,36 @@ export default function EditorPage() {
     settings.backgroundColor,
     settings.backgroundOverlayOpacity
   );
+  const handleDatePartChange = (
+    part: "day" | "month" | "year",
+    value: string
+  ) => {
+    const [currentYear = "", currentMonth = "", currentDay = ""] =
+      settings.dateRaw ? settings.dateRaw.split("-") : ["", "", ""];
+
+    const next = {
+      day: currentDay,
+      month: currentMonth,
+      year: currentYear,
+      [part]: value,
+    } as { day: string; month: string; year: string };
+
+    if (next.year && next.month && next.day) {
+      const raw = `${next.year.padStart(4, "0")}-${next.month.padStart(
+        2,
+        "0"
+      )}-${next.day.padStart(2, "0")}`;
+      handleChange("dateRaw", raw);
+    } else {
+      handleChange("dateRaw", "");
+    }
+  };
 
   return (
-    <div className="relative min-h-screen text-slate-900">
+    <div
+      className="relative min-h-screen text-slate-900"
+      style={{ background: overlayColor }}
+    >
       {!isEditorOpen && (
         <button
           onClick={() => setIsEditorOpen(true)}
@@ -423,7 +489,7 @@ export default function EditorPage() {
       <div
         className={`fixed top-0 right-0 h-full w-full max-w-md bg-slate-900 text-slate-50 border-l border-slate-800 z-40 transform transition-transform duration-300 ease-in-out ${
           isEditorOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        } editor-font`}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
           <h1 className="text-sm font-semibold">Davetiye Editörü</h1>
@@ -438,6 +504,27 @@ export default function EditorPage() {
 
         <div className="h-[calc(100%-44px)] overflow-y-auto px-4 pb-6 pt-3">
           {/* Üst başlık + random zar */}
+          <SectionTitle label="Yazı Tipi" />
+          <select
+            value={settings.fontFamily}
+            onChange={(e) =>
+              handleChange("fontFamily", e.target.value as FontFamily)
+            }
+            className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
+          >
+            <option value="great-vibes">Great Vibes (script)</option>
+            <option value="cormorant">Cormorant Garamond (klasik serif)</option>
+            <option value="pacifico">Pacifico (eğlenceli script)</option>
+            <option value="sofia">Sofia (yumuşak script)</option>
+            <option value="cookie">Cookie (romantik script)</option>
+            <option value="dancing-script">
+              Dancing Script (serbest script)
+            </option>
+            <option value="parisienne">Parisienne (zarif script)</option>
+            <option value="playfair">
+              Playfair Display (düğün için serif)
+            </option>
+          </select>
           <SectionTitle label="Üst Başlık" />
           <div className="mb-3">
             <label className="block mb-1 text-xs font-medium text-slate-300">
@@ -486,40 +573,75 @@ export default function EditorPage() {
           <SpeedInsights />
 
           <SectionTitle label="Aile Bilgileri" />
-          <p className="text-[0.7rem] text-slate-400 mb-1">
-            Birinci ve ikinci aileyi ayrı alanlarda doldurun.
+          <p className="text-[0.7rem] text-slate-400 mb-2">
+            Birinci ve ikinci aileyi ayrı tablarda doldurun.
           </p>
-          <TextField
-            label="Birinci Aile - Anne Adı"
-            value={settings.family1Mother}
-            onChange={(v) => handleChange("family1Mother", v)}
-          />
-          <TextField
-            label="Birinci Aile - Baba Adı"
-            value={settings.family1Father}
-            onChange={(v) => handleChange("family1Father", v)}
-          />
-          <TextField
-            label="Birinci Aile - Soyadı"
-            value={settings.family1Surname}
-            onChange={(v) => handleChange("family1Surname", v)}
-          />
-          <div className="h-px bg-slate-700 my-2" />
-          <TextField
-            label="İkinci Aile - Anne Adı"
-            value={settings.family2Mother}
-            onChange={(v) => handleChange("family2Mother", v)}
-          />
-          <TextField
-            label="İkinci Aile - Baba Adı"
-            value={settings.family2Father}
-            onChange={(v) => handleChange("family2Father", v)}
-          />
-          <TextField
-            label="İkinci Aile - Soyadı"
-            value={settings.family2Surname}
-            onChange={(v) => handleChange("family2Surname", v)}
-          />
+
+          {/* Tab başlıkları */}
+          <div className="inline-flex mb-3 rounded-full bg-slate-800/70 p-0.5 text-[0.7rem]">
+            <button
+              type="button"
+              onClick={() => setFamilyTab("family1")}
+              className={`px-3 py-1.5 rounded-full transition ${
+                familyTab === "family1"
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              Birinci Aile
+            </button>
+            <button
+              type="button"
+              onClick={() => setFamilyTab("family2")}
+              className={`px-3 py-1.5 rounded-full transition ${
+                familyTab === "family2"
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              İkinci Aile
+            </button>
+          </div>
+
+          {familyTab === "family1" && (
+            <div className="mb-3">
+              <TextField
+                label="Birinci Aile - Anne Adı"
+                value={settings.family1Mother}
+                onChange={(v) => handleChange("family1Mother", v)}
+              />
+              <TextField
+                label="Birinci Aile - Baba Adı"
+                value={settings.family1Father}
+                onChange={(v) => handleChange("family1Father", v)}
+              />
+              <TextField
+                label="Birinci Aile - Soyadı"
+                value={settings.family1Surname}
+                onChange={(v) => handleChange("family1Surname", v)}
+              />
+            </div>
+          )}
+
+          {familyTab === "family2" && (
+            <div className="mb-3">
+              <TextField
+                label="İkinci Aile - Anne Adı"
+                value={settings.family2Mother}
+                onChange={(v) => handleChange("family2Mother", v)}
+              />
+              <TextField
+                label="İkinci Aile - Baba Adı"
+                value={settings.family2Father}
+                onChange={(v) => handleChange("family2Father", v)}
+              />
+              <TextField
+                label="İkinci Aile - Soyadı"
+                value={settings.family2Surname}
+                onChange={(v) => handleChange("family2Surname", v)}
+              />
+            </div>
+          )}
 
           <SectionTitle label="Etkinlik Mekanı Görseli" />
           <div className="mb-3 text-xs">
@@ -572,12 +694,87 @@ export default function EditorPage() {
             <label className="block mb-1 text-xs font-medium text-slate-300">
               Tarih
             </label>
-            <input
-              type="date"
-              value={settings.dateRaw}
-              onChange={(e) => handleChange("dateRaw", e.target.value)}
-              className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-            />
+
+            {(() => {
+              const [year = "", month = "", day = ""] = settings.dateRaw
+                ? settings.dateRaw.split("-")
+                : ["", "", ""];
+
+              return (
+                <div className="flex gap-2">
+                  {/* Gün */}
+                  <select
+                    value={day}
+                    onChange={(e) =>
+                      handleDatePartChange("day", e.target.value)
+                    }
+                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                  >
+                    <option value="">Gün</option>
+                    {Array.from({ length: 31 }, (_, i) => {
+                      const d = String(i + 1).padStart(2, "0");
+                      return (
+                        <option key={d} value={d}>
+                          {i + 1}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  {/* Ay */}
+                  <select
+                    value={month}
+                    onChange={(e) =>
+                      handleDatePartChange("month", e.target.value)
+                    }
+                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                  >
+                    <option value="">Ay</option>
+                    {[
+                      "01|Ocak",
+                      "02|Şubat",
+                      "03|Mart",
+                      "04|Nisan",
+                      "05|Mayıs",
+                      "06|Haziran",
+                      "07|Temmuz",
+                      "08|Ağustos",
+                      "09|Eylül",
+                      "10|Ekim",
+                      "11|Kasım",
+                      "12|Aralık",
+                    ].map((m) => {
+                      const [val, label] = m.split("|");
+                      return (
+                        <option key={val} value={val}>
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  {/* Yıl */}
+                  <select
+                    value={year}
+                    onChange={(e) =>
+                      handleDatePartChange("year", e.target.value)
+                    }
+                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                  >
+                    <option value="">Yıl</option>
+                    {Array.from({ length: 6 }, (_, i) => {
+                      const y = 2024 + i;
+                      return (
+                        <option key={y} value={String(y)}>
+                          {y}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              );
+            })()}
+
             <p className="mt-1 text-[0.7rem] text-slate-400">
               {datePreviewText ?? "Gün / ay / yıl seçin"}
             </p>
@@ -613,61 +810,78 @@ export default function EditorPage() {
             onChange={(v) => handleChange("donationText", v)}
           />
 
-          <SectionTitle label="Yazı Tipi" />
-          <select
-            value={settings.fontFamily}
-            onChange={(e) =>
-              handleChange("fontFamily", e.target.value as FontFamily)
-            }
-            className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
-          >
-            <option value="great-vibes">Great Vibes</option>
-            <option value="cormorant">Cormorant Garamond</option>
-          </select>
-
           <SectionTitle label="Renkler" />
-          <ColorField
-            label="Arkaplan Rengi (video üstü)"
-            value={settings.backgroundColor}
-            onChange={(v) => handleChange("backgroundColor", v)}
-          />
-          <div className="mb-3">
-            <label className="block mb-1 text-xs font-medium text-slate-300">
-              Arkaplan Opaklığı (%)
-            </label>
-            <input
-              type="range"
-              min={10}
-              max={90}
-              value={Math.round(settings.backgroundOverlayOpacity * 100)}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  backgroundOverlayOpacity: Number(e.target.value) / 100,
-                }))
-              }
-              className="w-full"
-            />
-            <p className="mt-1 text-[0.7rem] text-slate-400">
-              Mevcut: %{Math.round(settings.backgroundOverlayOpacity * 100)}
-            </p>
-          </div>
+          <div className="mb-3 text-xs text-slate-300">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[0.7rem] text-slate-400 max-w-xs">
+                Başlık, isimler, aile / ebeveyn satırları, fotoğraf kenarlığı ve
+                alt bölüm renklerini buradan ayarlayabilirsiniz.
+              </p>
+              <button
+                type="button"
+                onClick={() =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    backgroundBaseColor: "#111111",
+                    headingColor: "#ffffff",
+                    personNameColor: "#ffffff",
+                    familyRowColor: "#ffffff",
+                    parentRowColor: "#ffffff",
+                    photoBorderColor: "#ffffff",
+                    lowerMessageColor: "#ffffff",
+                    lowerCoupleNameColor: "#ffffff",
+                  }))
+                }
+                className="px-2.5 py-1 rounded-md border border-slate-600 text-[0.7rem] text-slate-100 hover:bg-slate-800"
+              >
+                Sıfırla
+              </button>
+            </div>
 
-          <ColorField
-            label="Yazı Rengi"
-            value={settings.primaryTextColor}
-            onChange={(v) => handleChange("primaryTextColor", v)}
-          />
-          <ColorField
-            label="Buton Arkaplan"
-            value={settings.buttonBackground}
-            onChange={(v) => handleChange("buttonBackground", v)}
-          />
-          <ColorField
-            label="Buton Yazı Rengi"
-            value={settings.buttonTextColor}
-            onChange={(v) => handleChange("buttonTextColor", v)}
-          />
+            {/* 2 sütun 4 satır grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
+              <ColorField
+                label="Arka Plan Rengi"
+                value={settings.backgroundBaseColor}
+                onChange={(v) => handleChange("backgroundBaseColor", v)}
+              />
+              <ColorField
+                label="Başlık Rengi"
+                value={settings.headingColor}
+                onChange={(v) => handleChange("headingColor", v)}
+              />
+              <ColorField
+                label="Kişi İsimleri Rengi"
+                value={settings.personNameColor}
+                onChange={(v) => handleChange("personNameColor", v)}
+              />
+              <ColorField
+                label="Aile Satırı Rengi"
+                value={settings.familyRowColor}
+                onChange={(v) => handleChange("familyRowColor", v)}
+              />
+              <ColorField
+                label="Ebeveyn Satırı Rengi"
+                value={settings.parentRowColor}
+                onChange={(v) => handleChange("parentRowColor", v)}
+              />
+              <ColorField
+                label="Fotoğraf Kenarlık Rengi"
+                value={settings.photoBorderColor}
+                onChange={(v) => handleChange("photoBorderColor", v)}
+              />
+              <ColorField
+                label="Alt Mesaj Rengi"
+                value={settings.lowerMessageColor}
+                onChange={(v) => handleChange("lowerMessageColor", v)}
+              />
+              <ColorField
+                label="Alt Çift İsmi Rengi"
+                value={settings.lowerCoupleNameColor}
+                onChange={(v) => handleChange("lowerCoupleNameColor", v)}
+              />
+            </div>
+          </div>
 
           <SectionTitle label="CSV ile Davetli Yükle" />
           <div className="mb-3 text-xs">
@@ -817,7 +1031,7 @@ function InvitationPreview({
     donationText,
     eventDate,
     heroSubtitle,
-    primaryTextColor,
+    primaryTextColor, // istersen sonra kaldır
     family1Mother,
     family1Father,
     family1Surname,
@@ -827,6 +1041,14 @@ function InvitationPreview({
     locationImageUrl,
     buttonBackground,
     buttonTextColor,
+    backgroundBaseColor,
+    headingColor,
+    personNameColor,
+    familyRowColor,
+    parentRowColor,
+    photoBorderColor,
+    lowerMessageColor,
+    lowerCoupleNameColor,
   } = settings;
 
   const [openDonation, setOpenDonation] = useState(false);
@@ -857,9 +1079,21 @@ function InvitationPreview({
 
   const hasFamily1 = family1Mother || family1Father;
   const hasFamily2 = family2Mother || family2Father;
+  const fontClassMap: Record<FontFamily, string> = {
+    "great-vibes": "font-great-vibes",
+    cormorant: "font-cormorant",
+    pacifico: "font-pacifico",
+    sofia: "font-sofia",
+    cookie: "font-cookie",
+    "dancing-script": "font-dancing-script",
+    parisienne: "font-parisienne",
+    playfair: "font-playfair",
+  };
+
+  const currentFontClass = fontClassMap[settings.fontFamily] ?? "";
 
   return (
-    <div className="page-overlay" style={{ background: overlayColor }}>
+    <div className={`page-overlay invitation-root ${currentFontClass}`}>
       {/* Arka plan video */}
       <video className="bg-video" autoPlay muted loop playsInline>
         <source src="/bg.webm" type="video/webm" />
@@ -868,17 +1102,16 @@ function InvitationPreview({
 
       {/* Hero */}
       <header className="hero" id="top">
-        <div className="hero-inner">
-          <p className="hero-subtitle" style={{ color: primaryTextColor }}>
+        <div className="hero-inner" style={{ backgroundColor: "transparent" }}>
+          <p className="hero-subtitle" style={{ color: headingColor }}>
             {heroSubtitle}
           </p>
-          <h1 className="hero-title" style={{ color: primaryTextColor }}>
+          <h1 className="hero-title" style={{ color: headingColor }}>
             <span className="hero-line">{brideName}</span>
             <span className="hero-ampersand">&amp;</span>
             <span className="hero-line">{groomName}</span>
           </h1>
 
-          {/* Aile bilgileri küçük alt satır */}
           {(hasFamily1 || hasFamily2) && (
             <div
               className="mt-3 text-sm"
@@ -952,7 +1185,9 @@ function InvitationPreview({
         <section className="section section-invite" id="invite">
           <div className="section-inner invite-card">
             <p className="invite-label">Değerli</p>
-            <p className="invite-name">{title}</p>
+            <p className="invite-name" style={{ color: personNameColor }}>
+              {title}
+            </p>
 
             <p className="invite-text">{inviteText}</p>
 
@@ -965,7 +1200,7 @@ function InvitationPreview({
                 color: primaryTextColor,
               }}
             >
-              🌱 {donationText} 🌱
+              {donationText}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="18"
@@ -1019,9 +1254,6 @@ function InvitationPreview({
                     style={{
                       minWidth: "220px",
                       padding: "1.2rem 1rem",
-                      borderRadius: "18px",
-                      background: "rgba(0,0,0,0.4)",
-                      border: "1px solid rgba(255,255,255,0.18)",
                     }}
                   >
                     <p
@@ -1035,11 +1267,16 @@ function InvitationPreview({
                     </p>
                     <p
                       className="invite-text"
-                      style={{ marginBottom: "0.15rem" }}
+                      style={{ marginBottom: "0.15rem", color: familyRowColor }}
                     >
                       {family1Mother}
                     </p>
-                    <p className="invite-text">{family1Father}</p>
+                    <p
+                      className="invite-text"
+                      style={{ color: parentRowColor }}
+                    >
+                      {family1Father}
+                    </p>
                   </div>
                 )}
 
@@ -1048,9 +1285,6 @@ function InvitationPreview({
                     style={{
                       minWidth: "220px",
                       padding: "1.2rem 1rem",
-                      borderRadius: "18px",
-                      background: "rgba(0,0,0,0.4)",
-                      border: "1px solid rgba(255,255,255,0.18)",
                     }}
                   >
                     <p
@@ -1162,7 +1396,10 @@ function InvitationPreview({
             </div>
 
             <div className="location-media">
-              <div className="location-image-wrapper">
+              <div
+                className="location-image-wrapper"
+                style={{ borderColor: photoBorderColor }}
+              >
                 <img
                   src={locationImageUrl || "/vedat-dalokay-nikah-salonu.png"}
                   alt="Etkinlik mekanı"
@@ -1231,11 +1468,18 @@ function InvitationPreview({
             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
           </svg>
 
-          <p className="footer-names" style={{ color: primaryTextColor }}>
+          <p className="footer-names" style={{ color: lowerCoupleNameColor }}>
             {brideName} &amp; {groomName}
           </p>
-          <p className="footer-date">{weddingDateForHero}</p>
-          <p className="footer-date footer-credit">Sevgiyle hazırlandı</p>
+          <p className="footer-date" style={{ color: lowerMessageColor }}>
+            {weddingDateForHero}
+          </p>
+          <p
+            className="footer-date footer-credit"
+            style={{ color: lowerMessageColor }}
+          >
+            Sevgiyle hazırlandı
+          </p>
         </footer>
       </main>
     </div>

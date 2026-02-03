@@ -333,6 +333,10 @@ body {
   color: rgba(255, 255, 255, 0.8); /* text-white/80 */
   letter-spacing: 0.08em;
 }
+.editor-font {
+  font-family: var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
 
 .footer-credit {
   color: rgba(255, 255, 255, 0.4);
@@ -355,6 +359,37 @@ body {
   .countdown-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+.font-great-vibes {
+  font-family: var(--font-great-vibes), cursive;
+}
+
+.font-cormorant {
+  font-family: var(--font-cormorant), "Times New Roman", serif;
+}
+
+.font-pacifico {
+  font-family: var(--font-pacifico), cursive;
+}
+
+.font-sofia {
+  font-family: var(--font-sofia), cursive;
+}
+
+.font-cookie {
+  font-family: var(--font-cookie), cursive;
+}
+
+.font-dancing-script {
+  font-family: var(--font-dancing-script), cursive;
+}
+
+.font-parisienne {
+  font-family: var(--font-parisienne), cursive;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair), "Times New Roman", serif;
 }
 
 /* fancy-divider için md breakpoint genişlikleri */
