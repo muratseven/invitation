@@ -208,7 +208,7 @@ export default function EditorPage() {
     photoBorderColor: "#ffffff", // Fotoğraf kenarlık
     lowerMessageColor: "#ffffff", // Alt mesaj
     lowerCoupleNameColor: "#ffffff", // Alt çift ismi
-    sectionCardBackground: "rgba(0,0,0,0.18)",
+    sectionCardBackground: "rgba(0,0,0,0.58)",
     sectionCardBorderColor: "rgba(255,255,255,0.18)",
   });
 
