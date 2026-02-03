@@ -55,6 +55,8 @@ type InvitationSettings = {
   photoBorderColor: string; // Fotoğraf Kenarlık Rengi
   lowerMessageColor: string; // Alt Mesaj Rengi
   lowerCoupleNameColor: string; // Alt Çift İsmi Rengi
+  sectionCardBackground: string; // section kart arka planı
+  sectionCardBorderColor: string; // section kart border
 };
 
 type Guest = {
@@ -206,6 +208,8 @@ export default function EditorPage() {
     photoBorderColor: "#ffffff", // Fotoğraf kenarlık
     lowerMessageColor: "#ffffff", // Alt mesaj
     lowerCoupleNameColor: "#ffffff", // Alt çift ismi
+    sectionCardBackground: "rgba(0,0,0,0.18)",
+    sectionCardBorderColor: "rgba(255,255,255,0.18)",
   });
 
   const [countdown, setCountdown] = useState<Countdown>(
@@ -217,6 +221,10 @@ export default function EditorPage() {
   const [origin, setOrigin] = useState<string>("");
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(true);
   const [familyTab, setFamilyTab] = useState<"family1" | "family2">("family1");
+  const [dateDay, setDateDay] = useState<string>("");
+  const [dateMonth, setDateMonth] = useState<string>("");
+  const [dateYear, setDateYear] = useState<string>("");
+
   function base64EncodeUnicode(str: string): string {
     return btoa(
       encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
@@ -301,6 +309,19 @@ export default function EditorPage() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (!settings.dateRaw) {
+      setDateDay("");
+      setDateMonth("");
+      setDateYear("");
+      return;
+    }
+    const [y = "", m = "", d = ""] = settings.dateRaw.split("-");
+    setDateYear(y);
+    setDateMonth(m);
+    setDateDay(d);
+  }, [settings.dateRaw]);
 
   // ayarları yaz (eventDate hariç)
   useEffect(() => {
@@ -450,23 +471,22 @@ export default function EditorPage() {
     part: "day" | "month" | "year",
     value: string
   ) => {
-    const [currentYear = "", currentMonth = "", currentDay = ""] =
-      settings.dateRaw ? settings.dateRaw.split("-") : ["", "", ""];
+    const nextDay = part === "day" ? value : dateDay;
+    const nextMonth = part === "month" ? value : dateMonth;
+    const nextYear = part === "year" ? value : dateYear;
 
-    const next = {
-      day: currentDay,
-      month: currentMonth,
-      year: currentYear,
-      [part]: value,
-    } as { day: string; month: string; year: string };
+    setDateDay(nextDay);
+    setDateMonth(nextMonth);
+    setDateYear(nextYear);
 
-    if (next.year && next.month && next.day) {
-      const raw = `${next.year.padStart(4, "0")}-${next.month.padStart(
+    if (nextYear && nextMonth && nextDay) {
+      const raw = `${nextYear.padStart(4, "0")}-${nextMonth.padStart(
         2,
         "0"
-      )}-${next.day.padStart(2, "0")}`;
+      )}-${nextDay.padStart(2, "0")}`;
       handleChange("dateRaw", raw);
     } else {
+      // Henüz tam tarih seçilmediyse, sadece eventDate'i null yap
       handleChange("dateRaw", "");
     }
   };
@@ -479,8 +499,11 @@ export default function EditorPage() {
       {!isEditorOpen && (
         <button
           onClick={() => setIsEditorOpen(true)}
-          className="fixed bottom-4 right-4 z-30 px-4 py-2 rounded-full bg-black text-white text-xs font-medium shadow-lg hover:bg-black/90 transition"
+          className="fixed bottom-5 right-5 z-30 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/30 text-[0.7rem] font-medium text-white shadow-lg hover:bg-white/20 hover:border-white/60 transition"
         >
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-[0.6rem]">
+            ☰
+          </span>
           Düzenle
         </button>
       )}
@@ -695,85 +718,71 @@ export default function EditorPage() {
               Tarih
             </label>
 
-            {(() => {
-              const [year = "", month = "", day = ""] = settings.dateRaw
-                ? settings.dateRaw.split("-")
-                : ["", "", ""];
+            <div className="flex gap-2">
+              {/* Gün */}
+              <select
+                value={dateDay}
+                onChange={(e) => handleDatePartChange("day", e.target.value)}
+                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+              >
+                <option value="">Gün</option>
+                {Array.from({ length: 31 }, (_, i) => {
+                  const d = String(i + 1).padStart(2, "0");
+                  return (
+                    <option key={d} value={d}>
+                      {i + 1}
+                    </option>
+                  );
+                })}
+              </select>
 
-              return (
-                <div className="flex gap-2">
-                  {/* Gün */}
-                  <select
-                    value={day}
-                    onChange={(e) =>
-                      handleDatePartChange("day", e.target.value)
-                    }
-                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-                  >
-                    <option value="">Gün</option>
-                    {Array.from({ length: 31 }, (_, i) => {
-                      const d = String(i + 1).padStart(2, "0");
-                      return (
-                        <option key={d} value={d}>
-                          {i + 1}
-                        </option>
-                      );
-                    })}
-                  </select>
+              {/* Ay */}
+              <select
+                value={dateMonth}
+                onChange={(e) => handleDatePartChange("month", e.target.value)}
+                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+              >
+                <option value="">Ay</option>
+                {[
+                  "01|Ocak",
+                  "02|Şubat",
+                  "03|Mart",
+                  "04|Nisan",
+                  "05|Mayıs",
+                  "06|Haziran",
+                  "07|Temmuz",
+                  "08|Ağustos",
+                  "09|Eylül",
+                  "10|Ekim",
+                  "11|Kasım",
+                  "12|Aralık",
+                ].map((m) => {
+                  const [val, label] = m.split("|");
+                  return (
+                    <option key={val} value={val}>
+                      {label}
+                    </option>
+                  );
+                })}
+              </select>
 
-                  {/* Ay */}
-                  <select
-                    value={month}
-                    onChange={(e) =>
-                      handleDatePartChange("month", e.target.value)
-                    }
-                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-                  >
-                    <option value="">Ay</option>
-                    {[
-                      "01|Ocak",
-                      "02|Şubat",
-                      "03|Mart",
-                      "04|Nisan",
-                      "05|Mayıs",
-                      "06|Haziran",
-                      "07|Temmuz",
-                      "08|Ağustos",
-                      "09|Eylül",
-                      "10|Ekim",
-                      "11|Kasım",
-                      "12|Aralık",
-                    ].map((m) => {
-                      const [val, label] = m.split("|");
-                      return (
-                        <option key={val} value={val}>
-                          {label}
-                        </option>
-                      );
-                    })}
-                  </select>
-
-                  {/* Yıl */}
-                  <select
-                    value={year}
-                    onChange={(e) =>
-                      handleDatePartChange("year", e.target.value)
-                    }
-                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-                  >
-                    <option value="">Yıl</option>
-                    {Array.from({ length: 6 }, (_, i) => {
-                      const y = 2024 + i;
-                      return (
-                        <option key={y} value={String(y)}>
-                          {y}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              );
-            })()}
+              {/* Yıl */}
+              <select
+                value={dateYear}
+                onChange={(e) => handleDatePartChange("year", e.target.value)}
+                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+              >
+                <option value="">Yıl</option>
+                {Array.from({ length: 6 }, (_, i) => {
+                  const y = 2024 + i;
+                  return (
+                    <option key={y} value={String(y)}>
+                      {y}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
 
             <p className="mt-1 text-[0.7rem] text-slate-400">
               {datePreviewText ?? "Gün / ay / yıl seçin"}
@@ -830,6 +839,8 @@ export default function EditorPage() {
                     photoBorderColor: "#ffffff",
                     lowerMessageColor: "#ffffff",
                     lowerCoupleNameColor: "#ffffff",
+                    sectionCardBackground: "rgba(0,0,0,0.58)",
+                    sectionCardBorderColor: "rgba(255,255,255,0.18)",
                   }))
                 }
                 className="px-2.5 py-1 rounded-md border border-slate-600 text-[0.7rem] text-slate-100 hover:bg-slate-800"
@@ -879,6 +890,16 @@ export default function EditorPage() {
                 label="Alt Çift İsmi Rengi"
                 value={settings.lowerCoupleNameColor}
                 onChange={(v) => handleChange("lowerCoupleNameColor", v)}
+              />
+              <ColorField
+                label="Section Kart Arka Planı"
+                value={settings.sectionCardBackground}
+                onChange={(v) => handleChange("sectionCardBackground", v)}
+              />
+              <ColorField
+                label="Section Kart Kenarlık"
+                value={settings.sectionCardBorderColor}
+                onChange={(v) => handleChange("sectionCardBorderColor", v)}
               />
             </div>
           </div>
@@ -943,9 +964,16 @@ export default function EditorPage() {
 
 function SectionTitle({ label }: { label: string }) {
   return (
-    <h2 className="mt-4 mb-2 text-xs font-semibold text-slate-200 uppercase tracking-wide">
-      {label}
-    </h2>
+    <div className="mt-6 mb-3">
+      <div className="flex items-center gap-2">
+        <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-600/80">
+          <span className="text-[0.65rem] font-semibold tracking-[0.14em] text-slate-200 uppercase">
+            {label}
+          </span>
+        </div>
+        <div className="h-px flex-1 bg-slate-700/80" />
+      </div>
+    </div>
   );
 }
 
@@ -1049,6 +1077,8 @@ function InvitationPreview({
     photoBorderColor,
     lowerMessageColor,
     lowerCoupleNameColor,
+    sectionCardBackground,
+    sectionCardBorderColor,
   } = settings;
 
   const [openDonation, setOpenDonation] = useState(false);
@@ -1183,7 +1213,15 @@ function InvitationPreview({
       <main>
         {/* Davet kartı */}
         <section className="section section-invite" id="invite">
-          <div className="section-inner invite-card">
+          <div
+            className="section-inner invite-card"
+            style={{
+              background: sectionCardBackground,
+              borderRadius: 18,
+              border: `1px solid ${sectionCardBorderColor}`,
+              boxShadow: "none",
+            }}
+          >
             <p className="invite-label">Değerli</p>
             <p className="invite-name" style={{ color: personNameColor }}>
               {title}
@@ -1311,35 +1349,104 @@ function InvitationPreview({
         )}
 
         {/* Geri Sayım */}
+        {/* Geri Sayım */}
         <section className="section" id="countdown">
-          <div className="section-inner">
+          <div
+            className="section-inner"
+            style={{
+              background: sectionCardBackground,
+              borderRadius: 18,
+              border: `1px solid ${sectionCardBorderColor}`,
+              padding: "2rem 1.75rem",
+            }}
+          >
             <h2>Geri Sayım</h2>
             <p className="section-subtitle">Hayatımızın en özel günü için</p>
 
             <div className="countdown-grid">
               <div className="countdown-item">
-                <span id="days" className="count-number">
+                <span
+                  id="days"
+                  className="count-number"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
                   {countdown.days}
                 </span>
-                <span className="count-label">Gün</span>
+                <span
+                  className="count-label"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
+                  Gün
+                </span>
               </div>
               <div className="countdown-item">
-                <span id="hours" className="count-number">
+                <span
+                  id="hours"
+                  className="count-number"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
                   {countdown.hours.toString().padStart(2, "0")}
                 </span>
-                <span className="count-label">Saat</span>
+                <span
+                  className="count-label"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
+                  Saat
+                </span>
               </div>
               <div className="countdown-item">
-                <span id="minutes" className="count-number">
+                <span
+                  id="minutes"
+                  className="count-number"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
                   {countdown.minutes.toString().padStart(2, "0")}
                 </span>
-                <span className="count-label">Dakika</span>
+                <span
+                  className="count-label"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
+                  Dakika
+                </span>
               </div>
               <div className="countdown-item">
-                <span id="seconds" className="count-number">
+                <span
+                  id="seconds"
+                  className="count-number"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
                   {countdown.seconds.toString().padStart(2, "0")}
                 </span>
-                <span className="count-label">Saniye</span>
+                <span
+                  className="count-label"
+                  style={{
+                    fontFamily:
+                      'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  }}
+                >
+                  Saniye
+                </span>
               </div>
             </div>
 
@@ -1353,7 +1460,14 @@ function InvitationPreview({
 
         {/* Konum */}
         <section className="section section-location" id="location">
-          <div className="section-inner location-card">
+          <div
+            className="section-inner location-card"
+            style={{
+              background: sectionCardBackground,
+              borderRadius: 18,
+              border: `1px solid ${sectionCardBorderColor}`,
+            }}
+          >
             <div className="location-icon-wrapper">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1454,7 +1568,13 @@ function InvitationPreview({
         </section>
 
         {/* Footer */}
-        <footer className="footer">
+        <footer
+          className="footer"
+          style={{
+            background: sectionCardBackground,
+            borderTop: `1px solid ${sectionCardBorderColor}`,
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -1504,12 +1624,20 @@ function GuestLinks({
   const baseUrl = origin || "";
 
   return (
-    <div className="w-full max-w-3xl mx-auto rounded-2xl bg-white/80 border border-slate-200 p-4 text-xs">
-      <h3 className="text-sm font-semibold mb-2 text-slate-900">
-        Davetli Linkleri
-      </h3>
+    <div
+      className="w-full max-w-3xl mx-auto rounded-2xl border text-xs text-slate-50"
+      style={{
+        background: "rgba(0,0,0,0.4)",
+        borderColor: "rgba(255,255,255,0.18)",
+      }}
+    >
+      <div className="px-4 pt-3 pb-2 border-b border-white/10">
+        <p className="text-[0.75rem] tracking-[0.16em] uppercase text-slate-200">
+          Davetli Linkleri
+        </p>
+      </div>
 
-      <div className="max-h-40 overflow-y-auto divide-y divide-slate-200">
+      <div className="max-h-40 overflow-y-auto divide-y divide-white/10 px-4 py-2">
         {guests.map((guest) => {
           // Linkte gönderilecek minimal payload
           const payload = {
@@ -1541,11 +1669,11 @@ function GuestLinks({
               className="flex items-center justify-between gap-3 py-1.5"
             >
               <div className="flex flex-col">
-                <span className="text-slate-900 font-medium">{guest.name}</span>
+                <span className="text-slate-50 font-medium">{guest.name}</span>
               </div>
               <a
                 href={href}
-                className="text-sky-700 hover:underline text-[0.7rem] break-all"
+                className="text-[0.7rem] text-amber-200 hover:text-amber-100 hover:underline break-all"
                 target="_blank"
                 rel="noreferrer"
               >
