@@ -177,7 +177,7 @@ export default function EditorPage() {
     time: "18:30 - 22:00",
     locationText:
       "Saraç İshak, Tavşantaşı Sk. No:5, 34130 Fatih/İstanbul, Türkiye",
-    mapsUrl: "https://maps.google.com",
+    mapsUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.672441411698!2d32.85890307731811!3d39.92634597152287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34e5118453e7b%3A0x1a24327dbe143027!2sVedat%20Dalokay%20Nikah%20Salonu!5e0!3m2!1str!2str!4v1770197797747!5m2!1str!2str",
     locationImageUrl: "/vedat-dalokay-nikah-salonu.png",
     inviteText: "Bu özel günümüze davetlisiniz!",
     donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
