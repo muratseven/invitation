@@ -230,11 +230,11 @@ body {
 
 /* Kart hissini kaldırdık */
 .countdown-item {
-  background: none;
-  border-radius: 0;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 18px;
   padding: 1.4rem 1rem;
-  box-shadow: none;
-  border: none;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   text-align: center;
 }
 

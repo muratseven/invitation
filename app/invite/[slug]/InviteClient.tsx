@@ -3,6 +3,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { parseMapInput } from "../../lib/mapUtils"; // relative path’i dosya yapına göre düzelt
 
 type InvitationPayload = {
   bride: string;
@@ -108,9 +109,15 @@ export default function InviteClient({
     };
   });
 
-  const [countdown, setCountdown] = useState<Countdown>(
-    computeCountdown(settings.eventDate)
-  );
+  const emptyCountdown: Countdown = {
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    finished: false,
+  };
+
+  const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
 
   useEffect(() => {
     setCountdown(computeCountdown(settings.eventDate));

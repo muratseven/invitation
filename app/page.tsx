@@ -4,6 +4,7 @@
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import React, { useEffect, useState } from "react";
+import { parseMapInput } from "./lib/mapUtils"; // relative path’i dosya yapına göre düzelt
 
 type FontFamily =
   | "great-vibes"
@@ -28,6 +29,9 @@ type InvitationSettings = {
   locationImageUrl: string;
   inviteText: string;
   donationText: string;
+  showDonationSection: boolean;
+  donationOrganization: "tema" | "cydd" | "kiz-cocuklari" | "losev" | "custom";
+  donationImageUrl: string;
 
   // Arkaplan overlay rengi (video üstü)
   backgroundColor: string;
@@ -177,10 +181,14 @@ export default function EditorPage() {
     time: "18:30 - 22:00",
     locationText:
       "Saraç İshak, Tavşantaşı Sk. No:5, 34130 Fatih/İstanbul, Türkiye",
-    mapsUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.672441411698!2d32.85890307731811!3d39.92634597152287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34e5118453e7b%3A0x1a24327dbe143027!2sVedat%20Dalokay%20Nikah%20Salonu!5e0!3m2!1str!2str!4v1770197797747!5m2!1str!2str",
+    mapsUrl:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.672441411698!2d32.85890307731811!3d39.92634597152287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34e5118453e7b%3A0x1a24327dbe143027!2sVedat%20Dalokay%20Nikah%20Salonu!5e0!3m2!1str!2str!4v1770197797747!5m2!1str!2str",
     locationImageUrl: "/vedat-dalokay-nikah-salonu.png",
     inviteText: "Bu özel günümüze davetlisiniz!",
     donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
+    showDonationSection: true,
+    donationOrganization: "tema",
+    donationImageUrl: "/fidan_ga_wm.jpg",
 
     // Video üstü overlay
     backgroundColor: "#000000",
@@ -212,9 +220,16 @@ export default function EditorPage() {
     sectionCardBorderColor: "rgba(255,255,255,0.18)",
   });
 
-  const [countdown, setCountdown] = useState<Countdown>(
-    computeCountdown(settings.eventDate)
-  );
+  const emptyCountdown: Countdown = {
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    finished: false,
+  };
+
+  const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
+
   const [guests, setGuests] = useState<Guest[]>([]);
   const [csvError, setCsvError] = useState<string | null>(null);
 
@@ -535,18 +550,14 @@ export default function EditorPage() {
             }
             className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
           >
-            <option value="great-vibes">Great Vibes (script)</option>
-            <option value="cormorant">Cormorant Garamond (klasik serif)</option>
-            <option value="pacifico">Pacifico (eğlenceli script)</option>
-            <option value="sofia">Sofia (yumuşak script)</option>
-            <option value="cookie">Cookie (romantik script)</option>
-            <option value="dancing-script">
-              Dancing Script (serbest script)
-            </option>
-            <option value="parisienne">Parisienne (zarif script)</option>
-            <option value="playfair">
-              Playfair Display (düğün için serif)
-            </option>
+            <option value="great-vibes">Great Vibes</option>
+            <option value="cormorant">Cormorant Garamond</option>
+            <option value="pacifico">Pacifico</option>
+            <option value="sofia">Sofia</option>
+            <option value="cookie">Cookie</option>
+            <option value="dancing-script">Dancing Script</option>
+            <option value="parisienne">Parisienne</option>
+            <option value="playfair">Playfair Display</option>
           </select>
           <SectionTitle label="Üst Başlık" />
           <div className="mb-3">
@@ -818,6 +829,110 @@ export default function EditorPage() {
             value={settings.donationText}
             onChange={(v) => handleChange("donationText", v)}
           />
+          <SectionTitle label="Bağış Bölümü" />
+
+          <div className="mb-3 text-xs text-slate-300">
+            <label className="inline-flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                checked={settings.showDonationSection}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    showDonationSection: e.target.checked,
+                  }))
+                }
+                className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
+              />
+              <span className="text-[0.8rem]">
+                Bağış / vakıf bölümünü davetiyede göster
+              </span>
+            </label>
+
+            {settings.showDonationSection && (
+              <>
+                <div className="mb-3">
+                  <label className="block mb-1 text-xs font-medium text-slate-300">
+                    Vakıf Seçimi
+                  </label>
+                  <select
+                    value={settings.donationOrganization}
+                    onChange={(e) =>
+                      handleChange(
+                        "donationOrganization",
+                        e.target
+                          .value as InvitationSettings["donationOrganization"]
+                      )
+                    }
+                    className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
+                  >
+                    <option value="tema">TEMA Vakfı</option>
+                    <option value="cydd">
+                      Çağdaş Yaşamı Destekleme Derneği
+                    </option>
+                    <option value="kiz-cocuklari">
+                      Kız Çocuklarını Okutma Burs Fonu
+                    </option>
+                    <option value="losev">LÖSEV</option>
+                    <option value="custom">Diğer / Özel</option>
+                  </select>
+                </div>
+
+                <TextAreaField
+                  label="Bağış / Not Metni"
+                  value={settings.donationText}
+                  onChange={(v) => handleChange("donationText", v)}
+                />
+
+                <div className="mt-2">
+                  <label className="block mb-1 text-xs font-medium text-slate-300">
+                    Bağış Sertifikası / Görsel
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
+                      Dosya Seç
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              const result = ev.target?.result;
+                              if (typeof result === "string") {
+                                setSettings((prev) => ({
+                                  ...prev,
+                                  donationImageUrl: result,
+                                }));
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                    {settings.donationImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            donationImageUrl: "",
+                          }))
+                        }
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
+                        title="Görseli kaldır"
+                      >
+                        🗑
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           <SectionTitle label="Renkler" />
           <div className="mb-3 text-xs text-slate-300">
@@ -1095,17 +1210,7 @@ function InvitationPreview({
   const weddingDateForHero = dateText;
   const countdownFinished = countdown.finished;
 
-  const rawMapsUrl = mapsUrl || "";
-  let embedUrl = "about:blank";
-
-  if (
-    rawMapsUrl.includes("google.com/maps") &&
-    !rawMapsUrl.includes("/embed")
-  ) {
-    embedUrl = rawMapsUrl.replace("/maps/", "/maps/embed/");
-  } else if (rawMapsUrl) {
-    embedUrl = rawMapsUrl;
-  }
+  const { embedSrc: embedUrl, buttonHref } = parseMapInput(mapsUrl);
 
   const hasFamily1 = family1Mother || family1Father;
   const hasFamily2 = family2Mother || family2Father;
@@ -1211,64 +1316,69 @@ function InvitationPreview({
       </header>
 
       <main>
-        {/* Davet kartı */}
-        <section className="section section-invite" id="invite">
-          <div
-            className="section-inner invite-card"
-            style={{
-              background: sectionCardBackground,
-              borderRadius: 18,
-              border: `1px solid ${sectionCardBorderColor}`,
-              boxShadow: "none",
-            }}
-          >
-            <p className="invite-label">Değerli</p>
-            <p className="invite-name" style={{ color: personNameColor }}>
-              {title}
-            </p>
-
-            <p className="invite-text">{inviteText}</p>
-
-            <button
-              type="button"
-              className="donation-toggle"
-              onClick={() => setOpenDonation((prev) => !prev)}
+        {/* Bağış / Vakıf Bölümü */}
+        {settings.showDonationSection && (
+          <section className="section">
+            <div
+              className="section-inner"
               style={{
-                background: "none",
-                color: primaryTextColor,
+                maxWidth: 640,
+                margin: "0 auto",
+                textAlign: "center",
+                background: sectionCardBackground,
+                borderRadius: 18,
+                border: `1px solid ${sectionCardBorderColor}`,
+                padding: "2rem 2rem",
               }}
             >
-              {donationText}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <p className="invite-label">Bağış</p>
+              <p className="invite-text" style={{ marginBottom: "0.75rem" }}>
+                {donationText}
+              </p>
+
+              <button
+                type="button"
+                className="donation-toggle"
+                onClick={() => setOpenDonation((prev) => !prev)}
                 style={{
-                  transform: openDonation ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.3s ease",
+                  background: "none",
+                  color: primaryTextColor,
                 }}
               >
-                <path d="m6 9 6 6 6-6"></path>
-              </svg>
-            </button>
+                Sertifikayı / Görseli Göster
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    transform: openDonation ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+              </button>
 
-            <div
-              className={"donation-collapse" + (openDonation ? " active" : "")}
-            >
-              <img
-                src="/fidan_ga_wm.jpg"
-                alt="TEMA Vakfı fidan bağışı sertifikası"
-                className="donation-image"
-              />
+              <div
+                className={
+                  "donation-collapse" + (openDonation ? " active" : "")
+                }
+              >
+                <img
+                  src={settings.donationImageUrl || "/fidan_ga_wm.jpg"}
+                  alt="Bağış sertifikası"
+                  className="donation-image"
+                />
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Ailelerimiz - ayrı UI bölümü */}
         {(hasFamily1 || hasFamily2) && (
@@ -1542,25 +1652,7 @@ function InvitationPreview({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="location-button"
-                style={{
-                  background: "transparent",
-                  borderColor: buttonBackground,
-                  color: buttonBackground,
-                }}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="location-button-icon"
-                >
-                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
                 Haritada Aç
               </a>
             </div>
