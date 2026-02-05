@@ -138,16 +138,7 @@ export default function InviteClient({
 
   const countdownFinished = countdown.finished;
 
-  const rawMapsUrl = settings.mapsUrl || "";
-  let embedUrl = "about:blank";
-  if (
-    rawMapsUrl.includes("google.com/maps") &&
-    !rawMapsUrl.includes("/embed")
-  ) {
-    embedUrl = rawMapsUrl.replace("/maps/", "/maps/embed/");
-  } else if (rawMapsUrl) {
-    embedUrl = rawMapsUrl;
-  }
+  const { embedSrc: embedUrl, buttonHref } = parseMapInput(settings.mapsUrl);
 
   const displayGuestName = settings.guestName || slug.replace(/-/g, " ");
 
@@ -345,7 +336,7 @@ export default function InviteClient({
 
             <div className="location-actions">
               <a
-                href={settings.mapsUrl || "#"}
+                href={buttonHref || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="location-button"

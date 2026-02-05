@@ -1,5 +1,5 @@
 // app/lib/mapUtils.ts
-export function parseMapInput(raw: string | undefined): {
+export function parseMapInput(raw?: string): {
     embedSrc: string;
     buttonHref: string;
   } {
@@ -9,15 +9,23 @@ export function parseMapInput(raw: string | undefined): {
   
     const trimmed = raw.trim();
   
-    // 1) Tam <iframe ...> embed kodu
+    // 1) Tam iframe kodu
     if (trimmed.startsWith("<iframe")) {
       const match = trimmed.match(/src="([^"]+)"/);
       const src = match?.[1] ?? "about:blank";
       return { embedSrc: src, buttonHref: src };
     }
   
-    let embedSrc = trimmed;
+    // 2) Kısa URL (maps.app.goo.gl) – genelde iframe içinde gösterilemez
+    if (trimmed.includes("maps.app.goo.gl")) {
+      return {
+        embedSrc: "about:blank", // iframe boş, sadece buton çalışır
+        buttonHref: trimmed,
+      };
+    }
   
+    // 3) Normal Google Maps linki
+    let embedSrc = trimmed;
     if (
       embedSrc.includes("google.com/maps") &&
       !embedSrc.includes("/embed")

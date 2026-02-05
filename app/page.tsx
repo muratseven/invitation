@@ -61,6 +61,10 @@ type InvitationSettings = {
   lowerCoupleNameColor: string; // Alt Çift İsmi Rengi
   sectionCardBackground: string; // section kart arka planı
   sectionCardBorderColor: string; // section kart border
+  heroSubtitleColor: string;
+  heroNamesColor: string;
+  ampersandColor: string;
+  dividerColor: string;
 };
 
 type Guest = {
@@ -186,7 +190,7 @@ export default function EditorPage() {
     locationImageUrl: "/vedat-dalokay-nikah-salonu.png",
     inviteText: "Bu özel günümüze davetlisiniz!",
     donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
-    showDonationSection: true,
+    showDonationSection: false,
     donationOrganization: "tema",
     donationImageUrl: "/fidan_ga_wm.jpg",
 
@@ -218,6 +222,10 @@ export default function EditorPage() {
     lowerCoupleNameColor: "#ffffff", // Alt çift ismi
     sectionCardBackground: "rgba(0,0,0,0.58)",
     sectionCardBorderColor: "rgba(255,255,255,0.18)",
+    heroSubtitleColor: "#ffffff",
+    heroNamesColor: "#ffffff",
+    ampersandColor: "#ffffff",
+    dividerColor: "rgba(255,255,255,0.5)",
   });
 
   const emptyCountdown: Countdown = {
@@ -933,6 +941,40 @@ export default function EditorPage() {
               </>
             )}
           </div>
+          <SectionTitle label="Genel Arka Plan" />
+
+          <div className="mb-3 text-xs text-slate-300">
+            <p className="text-[0.7rem] text-slate-400 mb-2">
+              Arka plandaki video üstüne gelen siyah katmanın rengini ve
+              opaklığını buradan ayarlayabilirsin.
+            </p>
+
+            <ColorField
+              label="Arka Plan Rengi"
+              value={settings.backgroundColor}
+              onChange={(v) =>
+                setSettings((prev) => ({ ...prev, backgroundColor: v }))
+              }
+            />
+
+            <label className="block mt-2 mb-1 text-xs font-medium text-slate-300">
+              Opaklık (%)
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={Math.round(settings.backgroundOverlayOpacity * 100)}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  backgroundOverlayOpacity: Number(e.target.value) / 100,
+                }))
+              }
+              className="w-full"
+            />
+          </div>
 
           <SectionTitle label="Renkler" />
           <div className="mb-3 text-xs text-slate-300">
@@ -946,6 +988,17 @@ export default function EditorPage() {
                 onClick={() =>
                   setSettings((prev) => ({
                     ...prev,
+                    // Genel arka plan
+                    backgroundColor: "#000000",
+                    backgroundOverlayOpacity: 0.6,
+
+                    // Hero / başlık tarafı
+                    heroSubtitleColor: "#ffffff",
+                    heroNamesColor: "#ffffff",
+                    ampersandColor: "#ffffff",
+                    dividerColor: "rgba(255,255,255,0.5)",
+
+                    // Eski renk alanları
                     backgroundBaseColor: "#111111",
                     headingColor: "#ffffff",
                     personNameColor: "#ffffff",
@@ -955,7 +1008,7 @@ export default function EditorPage() {
                     lowerMessageColor: "#ffffff",
                     lowerCoupleNameColor: "#ffffff",
                     sectionCardBackground: "rgba(0,0,0,0.58)",
-                    sectionCardBorderColor: "rgba(255,255,255,0.18)",
+                    sectionCardBorderColor: "rgba(255,255,255,0.15)",
                   }))
                 }
                 className="px-2.5 py-1 rounded-md border border-slate-600 text-[0.7rem] text-slate-100 hover:bg-slate-800"
@@ -967,22 +1020,40 @@ export default function EditorPage() {
             {/* 2 sütun 4 satır grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
               <ColorField
-                label="Arka Plan Rengi"
-                value={settings.backgroundBaseColor}
-                onChange={(v) => handleChange("backgroundBaseColor", v)}
+                label="Üst Metin"
+                value={settings.heroSubtitleColor}
+                onChange={(v) => handleChange("heroSubtitleColor", v)}
+              />
+
+              <ColorField
+                label="Gelin / Damat"
+                value={settings.heroNamesColor}
+                onChange={(v) => handleChange("heroNamesColor", v)}
+              />
+
+              <ColorField
+                label="çizgiler"
+                value={settings.dividerColor}
+                onChange={(v) => handleChange("dividerColor", v)}
               />
               <ColorField
-                label="Başlık Rengi"
+                label="& İşareti"
+                value={settings.ampersandColor}
+                onChange={(v) => handleChange("ampersandColor", v)}
+              />
+
+              <ColorField
+                label="Başlık"
                 value={settings.headingColor}
                 onChange={(v) => handleChange("headingColor", v)}
               />
-              <ColorField
-                label="Kişi İsimleri Rengi"
+              {/* <ColorField
+                label="Kişi İsimleri"
                 value={settings.personNameColor}
                 onChange={(v) => handleChange("personNameColor", v)}
-              />
+              /> */}
               <ColorField
-                label="Aile Satırı Rengi"
+                label="Aile Satırı"
                 value={settings.familyRowColor}
                 onChange={(v) => handleChange("familyRowColor", v)}
               />
@@ -991,11 +1062,7 @@ export default function EditorPage() {
                 value={settings.parentRowColor}
                 onChange={(v) => handleChange("parentRowColor", v)}
               />
-              <ColorField
-                label="Fotoğraf Kenarlık Rengi"
-                value={settings.photoBorderColor}
-                onChange={(v) => handleChange("photoBorderColor", v)}
-              />
+
               <ColorField
                 label="Alt Mesaj Rengi"
                 value={settings.lowerMessageColor}
@@ -1194,6 +1261,10 @@ function InvitationPreview({
     lowerCoupleNameColor,
     sectionCardBackground,
     sectionCardBorderColor,
+    heroSubtitleColor,
+    heroNamesColor,
+    ampersandColor,
+    dividerColor,
   } = settings;
 
   const [openDonation, setOpenDonation] = useState(false);
@@ -1238,16 +1309,22 @@ function InvitationPreview({
       {/* Hero */}
       <header className="hero" id="top">
         <div className="hero-inner" style={{ backgroundColor: "transparent" }}>
-          <p className="hero-subtitle" style={{ color: headingColor }}>
+          <p className="hero-subtitle" style={{ color: heroSubtitleColor }}>
             {heroSubtitle}
           </p>
-          <h1 className="hero-title" style={{ color: headingColor }}>
+
+          <h1 className="hero-title" style={{ color: heroNamesColor }}>
             <span className="hero-line">{brideName}</span>
-            <span className="hero-ampersand">&amp;</span>
+            <span
+              className="hero-ampersand"
+              style={{ color: ampersandColor || heroNamesColor }}
+            >
+              &amp;
+            </span>
             <span className="hero-line">{groomName}</span>
           </h1>
 
-          {(hasFamily1 || hasFamily2) && (
+          {/* {(hasFamily1 || hasFamily2) && (
             <div
               className="mt-3 text-sm"
               style={{ color: "rgba(255,255,255,0.8)" }}
@@ -1263,12 +1340,23 @@ function InvitationPreview({
                 </p>
               )}
             </div>
-          )}
+          )} */}
 
           <div className="fancy-divider">
-            <span className="fancy-divider-line" />
-            <span className="fancy-divider-icon">✦</span>
-            <span className="fancy-divider-line" />
+            <span
+              className="fancy-divider-line"
+              style={{ backgroundColor: dividerColor }}
+            />
+            <span
+              className="fancy-divider-icon"
+              style={{ color: dividerColor }}
+            >
+              ✦
+            </span>
+            <span
+              className="fancy-divider-line"
+              style={{ backgroundColor: dividerColor }}
+            />
           </div>
 
           <p className="hero-date">{weddingDateForHero}</p>
@@ -1461,15 +1549,7 @@ function InvitationPreview({
         {/* Geri Sayım */}
         {/* Geri Sayım */}
         <section className="section" id="countdown">
-          <div
-            className="section-inner"
-            style={{
-              background: sectionCardBackground,
-              borderRadius: 18,
-              border: `1px solid ${sectionCardBorderColor}`,
-              padding: "2rem 1.75rem",
-            }}
-          >
+          <div className="section-inner">
             <h2>Geri Sayım</h2>
             <p className="section-subtitle">Hayatımızın en özel günü için</p>
 
@@ -1648,10 +1728,14 @@ function InvitationPreview({
 
             <div className="location-actions">
               <a
-                href={mapsUrl || "#"}
+                href={buttonHref || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="location-button"
+                style={{
+                  fontFamily:
+                    'var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                }}
               >
                 Haritada Aç
               </a>
