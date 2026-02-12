@@ -312,6 +312,12 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-family: var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif !important;
+}
+.donation-text {
+  font-family: var(--font-roboto), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif !important;
 }
 
 .donation-collapse {
@@ -474,7 +480,7 @@ body {
 
 .footer {
   text-align: center;
-  padding: 2.5rem 1.5rem 3rem;
+  padding: 2.5rem 0 3rem;
 }
 
 .footer-heart {

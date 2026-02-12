@@ -32,7 +32,7 @@ type InvitationSettings = {
   showDonationSection: boolean;
   donationOrganization: "tema" | "cydd" | "kiz-cocuklari" | "losev" | "custom";
   donationImageUrl: string;
-
+  showFamilySection: boolean;
   // Arkaplan overlay rengi (video üstü)
   backgroundColor: string;
   backgroundOverlayOpacity: number;
@@ -49,6 +49,9 @@ type InvitationSettings = {
   family2Mother: string;
   family2Father: string;
   family2Surname: string;
+  donationBackground: string;
+  locationBackground: string;
+  footerBackground: string;
 
   // Yeni renk alanları (ekran görüntüsüne göre)
   backgroundBaseColor: string; // Arka Plan Rengi (#111111)
@@ -193,7 +196,7 @@ export default function EditorPage() {
     showDonationSection: false,
     donationOrganization: "tema",
     donationImageUrl: "/fidan_ga_wm.jpg",
-
+    showFamilySection: false,
     // Video üstü overlay
     backgroundColor: "#000000",
     backgroundOverlayOpacity: 0.6,
@@ -226,6 +229,9 @@ export default function EditorPage() {
     heroNamesColor: "#ffffff",
     ampersandColor: "#ffffff",
     dividerColor: "rgba(255,255,255,0.5)",
+    donationBackground: "rgba(0,0,0,0.58)",
+    locationBackground: "rgba(0,0,0,0.58)",
+    footerBackground: "rgba(0,0,0,0.58)",
   });
 
   const emptyCountdown: Countdown = {
@@ -567,11 +573,8 @@ export default function EditorPage() {
             <option value="parisienne">Parisienne</option>
             <option value="playfair">Playfair Display</option>
           </select>
-          <SectionTitle label="Üst Başlık" />
+          <SectionTitle label="Davetiye Başlığı" />
           <div className="mb-3">
-            <label className="block mb-1 text-xs font-medium text-slate-300">
-              Üst metin
-            </label>
             <div className="flex items-center gap-2">
               <input
                 value={settings.heroSubtitle}
@@ -613,123 +616,6 @@ export default function EditorPage() {
           />
 
           <SpeedInsights />
-
-          <SectionTitle label="Aile Bilgileri" />
-          <p className="text-[0.7rem] text-slate-400 mb-2">
-            Birinci ve ikinci aileyi ayrı tablarda doldurun.
-          </p>
-
-          {/* Tab başlıkları */}
-          <div className="inline-flex mb-3 rounded-full bg-slate-800/70 p-0.5 text-[0.7rem]">
-            <button
-              type="button"
-              onClick={() => setFamilyTab("family1")}
-              className={`px-3 py-1.5 rounded-full transition ${
-                familyTab === "family1"
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Birinci Aile
-            </button>
-            <button
-              type="button"
-              onClick={() => setFamilyTab("family2")}
-              className={`px-3 py-1.5 rounded-full transition ${
-                familyTab === "family2"
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-300 hover:text-white"
-              }`}
-            >
-              İkinci Aile
-            </button>
-          </div>
-
-          {familyTab === "family1" && (
-            <div className="mb-3">
-              <TextField
-                label="Birinci Aile - Anne Adı"
-                value={settings.family1Mother}
-                onChange={(v) => handleChange("family1Mother", v)}
-              />
-              <TextField
-                label="Birinci Aile - Baba Adı"
-                value={settings.family1Father}
-                onChange={(v) => handleChange("family1Father", v)}
-              />
-              <TextField
-                label="Birinci Aile - Soyadı"
-                value={settings.family1Surname}
-                onChange={(v) => handleChange("family1Surname", v)}
-              />
-            </div>
-          )}
-
-          {familyTab === "family2" && (
-            <div className="mb-3">
-              <TextField
-                label="İkinci Aile - Anne Adı"
-                value={settings.family2Mother}
-                onChange={(v) => handleChange("family2Mother", v)}
-              />
-              <TextField
-                label="İkinci Aile - Baba Adı"
-                value={settings.family2Father}
-                onChange={(v) => handleChange("family2Father", v)}
-              />
-              <TextField
-                label="İkinci Aile - Soyadı"
-                value={settings.family2Surname}
-                onChange={(v) => handleChange("family2Surname", v)}
-              />
-            </div>
-          )}
-
-          <SectionTitle label="Etkinlik Mekanı Görseli" />
-          <div className="mb-3 text-xs">
-            <p className="mb-1 text-slate-300">
-              Sabit bir boyutta, davetiyede kırpılarak gösterilir (16:9–4:3
-              oranı en iyi sonucu verir).
-            </p>
-            <div className="flex items-center gap-2">
-              <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
-                Dosya Seç
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      handleLocationImageUpload(file);
-                    }
-                  }}
-                  className="hidden"
-                />
-              </label>
-              {settings.locationImageUrl && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      locationImageUrl: "",
-                    }))
-                  }
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
-                  title="Görseli kaldır"
-                >
-                  🗑
-                </button>
-              )}
-            </div>
-          </div>
-
-          <SectionTitle label="Başlık" />
-          <TextField
-            label="Davetiye Başlığı"
-            value={settings.title}
-            onChange={(v) => handleChange("title", v)}
-          />
 
           <SectionTitle label="Tarih & Konum" />
           <div className="mb-3">
@@ -814,6 +700,131 @@ export default function EditorPage() {
             onChange={(v) => handleChange("time", v)}
           />
 
+          <SectionTitle label="Aile Bilgileri" />
+
+          <div className="mb-3 text-xs text-slate-300">
+            <label className="inline-flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                checked={settings.showFamilySection}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    showFamilySection: e.target.checked,
+                  }))
+                }
+                className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
+              />
+              <span className="text-[0.8rem]">
+                Aile bilgilerinin davetiyede görünmesini istiyorum
+              </span>
+            </label>
+          </div>
+          {/* Tab başlıkları */}
+          {settings.showFamilySection && (
+            <div className="inline-flex mb-3 rounded-full bg-slate-800/70 p-0.5 text-[0.7rem]">
+              <button
+                type="button"
+                onClick={() => setFamilyTab("family1")}
+                className={`px-3 py-1.5 rounded-full transition ${
+                  familyTab === "family1"
+                    ? "bg-slate-100 text-slate-900"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                Birinci Aile
+              </button>
+              <button
+                type="button"
+                onClick={() => setFamilyTab("family2")}
+                className={`px-3 py-1.5 rounded-full transition ${
+                  familyTab === "family2"
+                    ? "bg-slate-100 text-slate-900"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                İkinci Aile
+              </button>
+            </div>
+          )}
+          {familyTab === "family1" && settings.showFamilySection && (
+            <div className="mb-3">
+              <TextField
+                label="Birinci Aile - Anne Adı"
+                value={settings.family1Mother}
+                onChange={(v) => handleChange("family1Mother", v)}
+              />
+              <TextField
+                label="Birinci Aile - Baba Adı"
+                value={settings.family1Father}
+                onChange={(v) => handleChange("family1Father", v)}
+              />
+              <TextField
+                label="Birinci Aile - Soyadı"
+                value={settings.family1Surname}
+                onChange={(v) => handleChange("family1Surname", v)}
+              />
+            </div>
+          )}
+
+          {familyTab === "family2" && settings.showFamilySection && (
+            <div className="mb-3">
+              <TextField
+                label="İkinci Aile - Anne Adı"
+                value={settings.family2Mother}
+                onChange={(v) => handleChange("family2Mother", v)}
+              />
+              <TextField
+                label="İkinci Aile - Baba Adı"
+                value={settings.family2Father}
+                onChange={(v) => handleChange("family2Father", v)}
+              />
+              <TextField
+                label="İkinci Aile - Soyadı"
+                value={settings.family2Surname}
+                onChange={(v) => handleChange("family2Surname", v)}
+              />
+            </div>
+          )}
+          <SectionTitle label="Etkinlik Mekanı Görseli" />
+          <div className="mb-3 text-xs">
+            <p className="mb-1 text-slate-300">
+              Sabit bir boyutta, davetiyede kırpılarak gösterilir (16:9–4:3
+              oranı en iyi sonucu verir).
+            </p>
+            <div className="flex items-center gap-2">
+              <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
+                Dosya Seç
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleLocationImageUpload(file);
+                    }
+                  }}
+                  className="hidden"
+                />
+              </label>
+              {settings.locationImageUrl && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      locationImageUrl: "",
+                    }))
+                  }
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
+                  title="Görseli kaldır"
+                >
+                  🗑
+                </button>
+              )}
+            </div>
+          </div>
+
           <TextAreaField
             label="Konum Metni"
             value={settings.locationText}
@@ -826,17 +837,6 @@ export default function EditorPage() {
             onChange={(v) => handleChange("mapsUrl", v)}
           />
 
-          <SectionTitle label="Metinler" />
-          <TextAreaField
-            label="Davet Metni"
-            value={settings.inviteText}
-            onChange={(v) => handleChange("inviteText", v)}
-          />
-          <TextAreaField
-            label="Bağış / Not Metni"
-            value={settings.donationText}
-            onChange={(v) => handleChange("donationText", v)}
-          />
           <SectionTitle label="Bağış Bölümü" />
 
           <div className="mb-3 text-xs text-slate-300">
@@ -945,8 +945,7 @@ export default function EditorPage() {
 
           <div className="mb-3 text-xs text-slate-300">
             <p className="text-[0.7rem] text-slate-400 mb-2">
-              Arka plandaki video üstüne gelen siyah katmanın rengini ve
-              opaklığını buradan ayarlayabilirsin.
+              Arka plan rengini ve opaklığını buradan ayarlayabilirsiniz.
             </p>
 
             <ColorField
@@ -980,8 +979,7 @@ export default function EditorPage() {
           <div className="mb-3 text-xs text-slate-300">
             <div className="flex items-center justify-between mb-2">
               <p className="text-[0.7rem] text-slate-400 max-w-xs">
-                Başlık, isimler, aile / ebeveyn satırları, fotoğraf kenarlığı ve
-                alt bölüm renklerini buradan ayarlayabilirsiniz.
+                Bütün renkleri buradan değiştirebilirsiniz.
               </p>
               <button
                 type="button"
@@ -1009,6 +1007,9 @@ export default function EditorPage() {
                     lowerCoupleNameColor: "#ffffff",
                     sectionCardBackground: "rgba(0,0,0,0.58)",
                     sectionCardBorderColor: "rgba(255,255,255,0.15)",
+                    donationBackground: "rgba(0,0,0,0.58)",
+                    locationBackground: "rgba(0,0,0,0.58)",
+                    footerBackground: "rgba(0,0,0,0.58)",
                   }))
                 }
                 className="px-2.5 py-1 rounded-md border border-slate-600 text-[0.7rem] text-slate-100 hover:bg-slate-800"
@@ -1020,7 +1021,7 @@ export default function EditorPage() {
             {/* 2 sütun 4 satır grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
               <ColorField
-                label="Üst Metin"
+                label="Davetiye Metni"
                 value={settings.heroSubtitleColor}
                 onChange={(v) => handleChange("heroSubtitleColor", v)}
               />
@@ -1032,7 +1033,7 @@ export default function EditorPage() {
               />
 
               <ColorField
-                label="çizgiler"
+                label="Çizgiler"
                 value={settings.dividerColor}
                 onChange={(v) => handleChange("dividerColor", v)}
               />
@@ -1040,12 +1041,6 @@ export default function EditorPage() {
                 label="& İşareti"
                 value={settings.ampersandColor}
                 onChange={(v) => handleChange("ampersandColor", v)}
-              />
-
-              <ColorField
-                label="Başlık"
-                value={settings.headingColor}
-                onChange={(v) => handleChange("headingColor", v)}
               />
               {/* <ColorField
                 label="Kişi İsimleri"
@@ -1074,19 +1069,24 @@ export default function EditorPage() {
                 onChange={(v) => handleChange("lowerCoupleNameColor", v)}
               />
               <ColorField
-                label="Section Kart Arka Planı"
-                value={settings.sectionCardBackground}
-                onChange={(v) => handleChange("sectionCardBackground", v)}
+                label="Bağış Bölümü Arka Planı"
+                value={settings.donationBackground}
+                onChange={(v) => handleChange("donationBackground", v)}
               />
               <ColorField
-                label="Section Kart Kenarlık"
-                value={settings.sectionCardBorderColor}
-                onChange={(v) => handleChange("sectionCardBorderColor", v)}
+                label="Konum Bölümü Arka Planı"
+                value={settings.locationBackground}
+                onChange={(v) => handleChange("locationBackground", v)}
+              />
+              <ColorField
+                label="Footer Arka Planı"
+                value={settings.footerBackground}
+                onChange={(v) => handleChange("footerBackground", v)}
               />
             </div>
           </div>
 
-          <SectionTitle label="CSV ile Davetli Yükle" />
+          <SectionTitle label="Davetli Listesi Yükle" />
           <div className="mb-3 text-xs">
             <div className="flex items-center gap-2 mb-2">
               <button
@@ -1094,13 +1094,13 @@ export default function EditorPage() {
                 onClick={handleDownloadCsvExample}
                 className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
               >
-                Örnek CSV’yi indir
+                Dosyayı indir
               </button>
             </div>
 
             <div>
               <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-700 text-white text-[0.7rem] font-medium hover:bg-slate-600 cursor-pointer">
-                Dosya Seç
+                Dosya Yükle
                 <input
                   type="file"
                   accept=".csv,.txt"
@@ -1259,12 +1259,15 @@ function InvitationPreview({
     photoBorderColor,
     lowerMessageColor,
     lowerCoupleNameColor,
-    sectionCardBackground,
-    sectionCardBorderColor,
     heroSubtitleColor,
     heroNamesColor,
     ampersandColor,
     dividerColor,
+    sectionCardBackground,
+    sectionCardBorderColor,
+    donationBackground,
+    locationBackground,
+    footerBackground,
   } = settings;
 
   const [openDonation, setOpenDonation] = useState(false);
@@ -1413,14 +1416,17 @@ function InvitationPreview({
                 maxWidth: 640,
                 margin: "0 auto",
                 textAlign: "center",
-                background: sectionCardBackground,
+                background: donationBackground,
                 borderRadius: 18,
                 border: `1px solid ${sectionCardBorderColor}`,
                 padding: "2rem 2rem",
               }}
             >
               <p className="invite-label">Bağış</p>
-              <p className="invite-text" style={{ marginBottom: "0.75rem" }}>
+              <p
+                className="invite-text donation-text"
+                style={{ marginBottom: "0.75rem" }}
+              >
                 {donationText}
               </p>
 
@@ -1433,7 +1439,7 @@ function InvitationPreview({
                   color: primaryTextColor,
                 }}
               >
-                Sertifikayı / Görseli Göster
+                Sertifikayı Göster
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -1469,7 +1475,7 @@ function InvitationPreview({
         )}
 
         {/* Ailelerimiz - ayrı UI bölümü */}
-        {(hasFamily1 || hasFamily2) && (
+        {(hasFamily1 || hasFamily2) && settings.showFamilySection && (
           <section className="section">
             <div className="section-inner" style={{ textAlign: "center" }}>
               <h2>Ailelerimiz</h2>
@@ -1653,28 +1659,14 @@ function InvitationPreview({
           <div
             className="section-inner location-card"
             style={{
-              background: sectionCardBackground,
+              background: locationBackground,
               borderRadius: 18,
               border: `1px solid ${sectionCardBorderColor}`,
             }}
           >
-            <div className="location-icon-wrapper">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="location-main-icon"
-              >
-                <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
+            <div className="location-header">
+              <h3 className="location-title">Konum</h3>
             </div>
-
-            <h3 className="location-title">Konum</h3>
 
             <div className="location-info">
               <div className="location-name-row">
@@ -1712,18 +1704,20 @@ function InvitationPreview({
                 <div className="location-image-overlay"></div>
               </div>
 
-              <div className="location-map-wrapper">
-                <iframe
-                  src={embedUrl}
-                  width="100%"
-                  height="220"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Mekan Haritası"
-                  className="location-map"
-                ></iframe>
-              </div>
+              {embedUrl !== "about:blank" && (
+                <div className="location-map-wrapper">
+                  <iframe
+                    src={embedUrl}
+                    width="100%"
+                    height="220"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Mekan Haritası"
+                    className="location-map"
+                  ></iframe>
+                </div>
+              )}
             </div>
 
             <div className="location-actions">
@@ -1747,8 +1741,10 @@ function InvitationPreview({
         <footer
           className="footer"
           style={{
-            background: sectionCardBackground,
+            background: footerBackground,
             borderTop: `1px solid ${sectionCardBorderColor}`,
+            width: "100vw",
+            marginLeft: "calc(50% - 50vw)",
           }}
         >
           <svg
@@ -1824,6 +1820,10 @@ function GuestLinks({
             location: settings.locationText,
             mapsUrl: settings.mapsUrl,
             guestName: guest.name,
+            sectionCardBackground:
+            settings.locationBackground || settings.sectionCardBackground,
+            sectionCardBorderColor: settings.sectionCardBorderColor,
+            footerBackground: settings.footerBackground,
           };
 
           // JSON -> base64 (UTF‑8 safe) -> URL encode

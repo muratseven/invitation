@@ -13,6 +13,9 @@ type InvitationPayload = {
   location: string;
   mapsUrl: string;
   guestName?: string;
+  sectionCardBackground?: string;
+  sectionCardBorderColor?: string;
+  footerBackground?: string;
 };
 
 type InvitationSettings = {
@@ -24,6 +27,9 @@ type InvitationSettings = {
   locationText: string;
   mapsUrl: string;
   guestName?: string;
+  sectionCardBackground?: string;
+  sectionCardBorderColor?: string;
+  footerBackground?: string;
 };
 
 type Countdown = {
@@ -78,6 +84,9 @@ function decodePayload(encoded?: string): InvitationPayload | null {
       location: obj.location ?? "Adres daha sonra paylaşılacaktır.",
       mapsUrl: obj.mapsUrl ?? "",
       guestName: obj.guestName ?? undefined,
+      sectionCardBackground: obj.sectionCardBackground,
+      sectionCardBorderColor: obj.sectionCardBorderColor,
+      footerBackground: obj.footerBackground,
     };
   } catch {
     return null;
@@ -106,6 +115,11 @@ export default function InviteClient({
       locationText: payload?.location ?? "Adres daha sonra paylaşılacaktır.",
       mapsUrl: payload?.mapsUrl ?? "",
       guestName: payload?.guestName ?? slug.replace(/-/g, " "),
+      sectionCardBackground:
+        payload?.sectionCardBackground ?? "rgba(0,0,0,0.75)",
+      sectionCardBorderColor:
+        payload?.sectionCardBorderColor ?? "rgba(255,255,255,0.12)",
+      footerBackground: payload?.footerBackground ?? "rgba(0,0,0,0.75)",
     };
   });
 
@@ -149,7 +163,15 @@ export default function InviteClient({
         <source src="/bg.webm" type="video/webm" />
         Tarayıcınız video desteklemiyor.
       </video>
-
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.15))",
+          zIndex: -1,
+        }}
+      />
       {/* Hero */}
       <header className="hero" id="top">
         <div className="hero-inner">
@@ -277,7 +299,14 @@ export default function InviteClient({
 
         {/* Konum */}
         <section className="section section-location" id="location">
-          <div className="section-inner location-card">
+          <div
+            className="section-inner location-card"
+            style={{
+              background: settings.sectionCardBackground,
+              borderRadius: 18,
+              border: `1px solid ${settings.sectionCardBorderColor}`,
+            }}
+          >
             <div className="location-icon-wrapper">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -361,7 +390,14 @@ export default function InviteClient({
         </section>
 
         {/* Footer */}
-        <footer className="footer">
+        <footer
+          className="footer"
+          style={{
+            background: settings.footerBackground,
+            width: "100vw",
+            marginLeft: "calc(50% - 50vw)",
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
