@@ -8,14 +8,18 @@ import { parseMapInput } from "../../lib/mapUtils"; // relative path’i dosya y
 type InvitationPayload = {
   bride: string;
   groom: string;
-  date: string; // YYYY-MM-DD
+  date: string;
   time: string;
   location: string;
   mapsUrl: string;
   guestName?: string;
+
   sectionCardBackground?: string;
   sectionCardBorderColor?: string;
   footerBackground?: string;
+
+  backgroundColor?: string;
+  backgroundOverlayOpacity?: number;
 };
 
 type InvitationSettings = {
@@ -27,9 +31,13 @@ type InvitationSettings = {
   locationText: string;
   mapsUrl: string;
   guestName?: string;
-  sectionCardBackground?: string;
-  sectionCardBorderColor?: string;
-  footerBackground?: string;
+
+  sectionCardBackground: string;
+  sectionCardBorderColor: string;
+  footerBackground: string;
+
+  backgroundColor: string;
+  backgroundOverlayOpacity: number;
 };
 
 type Countdown = {
@@ -48,6 +56,23 @@ function base64DecodeUnicode(str: string): string {
       .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
       .join("")
   );
+}
+function hexToRgba(hex: string, alpha: number): string {
+  let clean = hex.replace("#", "").trim();
+
+  if (clean.length === 3) {
+    clean = clean
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  }
+
+  const bigint = parseInt(clean || "000000", 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function computeCountdown(eventDate: Date | null): Countdown {
@@ -87,6 +112,8 @@ function decodePayload(encoded?: string): InvitationPayload | null {
       sectionCardBackground: obj.sectionCardBackground,
       sectionCardBorderColor: obj.sectionCardBorderColor,
       footerBackground: obj.footerBackground,
+      backgroundColor: obj.backgroundColor,
+      backgroundOverlayOpacity: obj.backgroundOverlayOpacity,
     };
   } catch {
     return null;
@@ -115,11 +142,15 @@ export default function InviteClient({
       locationText: payload?.location ?? "Adres daha sonra paylaşılacaktır.",
       mapsUrl: payload?.mapsUrl ?? "",
       guestName: payload?.guestName ?? slug.replace(/-/g, " "),
+
       sectionCardBackground:
         payload?.sectionCardBackground ?? "rgba(0,0,0,0.75)",
       sectionCardBorderColor:
         payload?.sectionCardBorderColor ?? "rgba(255,255,255,0.12)",
       footerBackground: payload?.footerBackground ?? "rgba(0,0,0,0.75)",
+
+      backgroundColor: payload?.backgroundColor ?? "#000000",
+      backgroundOverlayOpacity: payload?.backgroundOverlayOpacity ?? 0.6,
     };
   });
 
@@ -132,6 +163,11 @@ export default function InviteClient({
   };
 
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
+
+  const overlayColor = hexToRgba(
+    settings.backgroundColor,
+    settings.backgroundOverlayOpacity
+  );
 
   useEffect(() => {
     setCountdown(computeCountdown(settings.eventDate));
@@ -157,8 +193,10 @@ export default function InviteClient({
   const displayGuestName = settings.guestName || slug.replace(/-/g, " ");
 
   return (
-    <div className="page-overlay invitation-root font-cormorant">
-      {/* Arka plan video */}
+    <div
+      className="page-overlay invitation-root font-cormorant"
+      style={{ background: overlayColor }}
+    >
       <video className="bg-video" autoPlay muted loop playsInline>
         <source src="/bg.webm" type="video/webm" />
         Tarayıcınız video desteklemiyor.

@@ -1820,10 +1820,14 @@ function GuestLinks({
             location: settings.locationText,
             mapsUrl: settings.mapsUrl,
             guestName: guest.name,
+
             sectionCardBackground:
-            settings.locationBackground || settings.sectionCardBackground,
+              settings.locationBackground || settings.sectionCardBackground,
             sectionCardBorderColor: settings.sectionCardBorderColor,
             footerBackground: settings.footerBackground,
+
+            backgroundColor: settings.backgroundColor,
+            backgroundOverlayOpacity: settings.backgroundOverlayOpacity,
           };
 
           // JSON -> base64 (UTF‑8 safe) -> URL encode
