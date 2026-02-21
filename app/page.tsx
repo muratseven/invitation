@@ -71,11 +71,13 @@ type InvitationSettings = {
 };
 
 type Guest = {
-  name: string;
+  id: string;
+  name: string; // Davetli bilgisi (ad-soyad + isteğe bağlı not)
   slug: string;
   email?: string;
   phone?: string;
-  maxGuests?: number;
+  source: "csv" | "manual";
+  lastCopiedAt?: number;
 };
 
 type Countdown = {
@@ -178,6 +180,7 @@ function slugifyName(name: string): string {
 }
 
 export default function EditorPage() {
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [settings, setSettings] = useState<InvitationSettings>({
     brideName: "Sine",
     groomName: "Murat",
@@ -241,8 +244,39 @@ export default function EditorPage() {
     seconds: 0,
     finished: false,
   };
+  const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
+    "idle"
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!settingsLoaded) return; // LOCALSTORAGE YÜKLENMEDEN KAYDETME
+
+    setSaveStatus("saving");
+    const toStore: any = { ...settings };
+    delete toStore.eventDate;
+
+    window.localStorage.setItem("invitationSettings", JSON.stringify(toStore));
+
+    const timeout = setTimeout(() => setSaveStatus("saved"), 300);
+    const reset = setTimeout(() => setSaveStatus("idle"), 2000);
+
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(reset);
+    };
+  }, [settings, settingsLoaded]);
+
+  const steps = [
+    { id: 1, label: "Çift Bilgileri" },
+    { id: 2, label: "Tarih & Konum" },
+    { id: 3, label: "Tema & Renk" },
+    { id: 4, label: "Aile & Bağış" },
+    { id: 5, label: "Davetliler & Linkler" },
+  ];
 
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
+  const tableRef = React.useRef<HTMLDivElement | null>(null);
 
   const [guests, setGuests] = useState<Guest[]>([]);
   const [csvError, setCsvError] = useState<string | null>(null);
@@ -254,6 +288,60 @@ export default function EditorPage() {
   const [dateMonth, setDateMonth] = useState<string>("");
   const [dateYear, setDateYear] = useState<string>("");
 
+  const handleCopyGuestLink = async (guest: Guest) => {
+    if (!origin) return;
+
+    const payload = buildGuestPayload(guest, settings);
+
+    const encoded = encodeURIComponent(
+      base64EncodeUnicode(JSON.stringify(payload))
+    );
+
+    const slug =
+      guest.slug && guest.slug.length > 0
+        ? guest.slug
+        : slugifyName(guest.name || "davetli");
+
+    const href =
+      origin.length > 0
+        ? `${origin}/invite/${slug}?d=${encoded}`
+        : `/invite/${slug}?d=${encoded}`;
+
+    try {
+      await navigator.clipboard.writeText(href);
+      const now = Date.now();
+
+      setGuests((prev) =>
+        prev.map((g) =>
+          g.id === guest.id ? { ...g, slug, lastCopiedAt: now } : g
+        )
+      );
+    } catch (e) {
+      console.error("clipboard error", e);
+    }
+  };
+
+  const handleAddManualGuest = () => {
+    const newGuest: Guest = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      name: "",
+      slug: "",
+      source: "manual",
+    };
+    setGuests((prev) => [...prev, newGuest]);
+
+    // Bir sonraki frame'de en alta scroll et
+    requestAnimationFrame(() => {
+      const el = tableRef.current;
+      if (el) {
+        el.scrollTo({
+          top: el.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    });
+  };
+
   function base64EncodeUnicode(str: string): string {
     return btoa(
       encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
@@ -261,6 +349,73 @@ export default function EditorPage() {
       )
     );
   }
+
+  function buildGuestPayload(guest: Guest, settings: InvitationSettings) {
+    return {
+      bride: settings.brideName,
+      groom: settings.groomName,
+      date: settings.dateRaw || "",
+      time: settings.time,
+      location: settings.locationText,
+      mapsUrl: settings.mapsUrl,
+      guestName: guest.name,
+
+      // Tasarım & tema
+      sectionCardBackground:
+        settings.locationBackground || settings.sectionCardBackground,
+      sectionCardBorderColor: settings.sectionCardBorderColor,
+      footerBackground: settings.footerBackground,
+      backgroundColor: settings.backgroundColor,
+      backgroundOverlayOpacity: settings.backgroundOverlayOpacity,
+
+      fontFamily: settings.fontFamily,
+      heroSubtitle: settings.heroSubtitle,
+      heroSubtitleColor: settings.heroSubtitleColor,
+      heroNamesColor: settings.heroNamesColor,
+      ampersandColor: settings.ampersandColor,
+      dividerColor: settings.dividerColor,
+
+      // Bağış bölümü
+      donationBackground: settings.donationBackground,
+      showDonationSection: settings.showDonationSection,
+      donationText: settings.donationText,
+      donationImageUrl: settings.donationImageUrl,
+
+      // Konum kartı & görsel
+      locationBackground: settings.locationBackground,
+      locationImageUrl: settings.locationImageUrl,
+
+      // Aile bilgileri
+      showFamilySection: settings.showFamilySection,
+      family1Mother: settings.family1Mother,
+      family1Father: settings.family1Father,
+      family1Surname: settings.family1Surname,
+      family2Mother: settings.family2Mother,
+      family2Father: settings.family2Father,
+      family2Surname: settings.family2Surname,
+    };
+  }
+
+  const handleGuestFieldChange = (
+    id: string,
+    field: keyof Guest,
+    value: string
+  ) => {
+    setGuests((prev) =>
+      prev.map((g) => {
+        if (g.id !== id) return g;
+        // name değişince slug’ı da güncelle
+        if (field === "name") {
+          const slug = slugifyName(value || g.name || "");
+          return { ...g, name: value, slug };
+        }
+        return { ...g, [field]: value };
+      })
+    );
+  };
+  const handleRemoveGuest = (id: string) => {
+    setGuests((prev) => prev.filter((g) => g.id !== id));
+  };
 
   function base64DecodeUnicode(str: string): string {
     return decodeURIComponent(
@@ -273,9 +428,9 @@ export default function EditorPage() {
 
   const handleDownloadCsvExample = () => {
     const sample = [
-      "name;email;phone;max_guests",
-      "Murat Yıldırım;murat@yildirim.com;5551112233;2",
-      "Ayşe Demir;ayse@example.com;;1",
+      "name",
+      "Murat Yıldırım",
+      "Ayşe Demir",
     ].join("\n");
 
     const blob = new Blob([sample], { type: "text/csv;charset=utf-8;" });
@@ -317,7 +472,6 @@ export default function EditorPage() {
         setSettings((prev) => ({
           ...prev,
           ...parsed,
-          // yeni alanların default'u kaybolmasın
           backgroundOverlayOpacity:
             parsed.backgroundOverlayOpacity ?? prev.backgroundOverlayOpacity,
           dateRaw,
@@ -337,6 +491,8 @@ export default function EditorPage() {
         // ignore
       }
     }
+
+    setSettingsLoaded(true);
   }, []);
 
   useEffect(() => {
@@ -351,16 +507,6 @@ export default function EditorPage() {
     setDateMonth(m);
     setDateDay(d);
   }, [settings.dateRaw]);
-
-  // ayarları yaz (eventDate hariç)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const toStore: any = { ...settings };
-    delete toStore.eventDate;
-
-    window.localStorage.setItem("invitationSettings", JSON.stringify(toStore));
-  }, [settings]);
 
   // davetlileri yaz
   useEffect(() => {
@@ -393,6 +539,46 @@ export default function EditorPage() {
 
     return () => clearInterval(interval);
   }, [settings.eventDate]);
+
+  // maps.app.goo.gl kısa linkini otomatik embed URL'sine çevir
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = settings.mapsUrl?.trim();
+    if (!url) return;
+
+    // Sadece kısa link ise dene
+    if (!url.startsWith("https://maps.app.goo.gl/")) return;
+
+    // Aynı URL'yi tekrar tekrar çözmeye çalışma
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const encoded = encodeURIComponent(url);
+        const res = await fetch(`/api/resolve-map?url=${encoded}`);
+        if (!res.ok) {
+          console.warn("resolve-map error", await res.json());
+          return;
+        }
+        const data = await res.json();
+        const finalUrl = data.finalUrl as string;
+
+        if (!finalUrl || cancelled) return;
+
+        // Artık gerçek Google Maps URL'siyle güncelle
+        setSettings((prev) => ({
+          ...prev,
+          mapsUrl: finalUrl,
+        }));
+      } catch (e) {
+        console.error("resolve-map fetch failed", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [settings.mapsUrl]);
 
   const handleCsvUpload = (file: File) => {
     setCsvError(null);
@@ -464,7 +650,14 @@ export default function EditorPage() {
         const slug = slugifyName(name);
         if (!slug) continue;
 
-        parsedGuests.push({ name, slug, email, phone, maxGuests });
+        parsedGuests.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          name,
+          slug,
+          email,
+          phone,
+          source: "csv",
+        });
       }
 
       if (parsedGuests.length === 0) {
@@ -545,585 +738,806 @@ export default function EditorPage() {
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
           <h1 className="text-sm font-semibold">Davetiye Editörü</h1>
-          <button
-            onClick={() => setIsEditorOpen(false)}
-            className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
-            aria-label="Editörü kapat"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-2">
+            {saveStatus === "saving" && (
+              <span className="text-[0.65rem] text-slate-400">
+                Kaydediliyor…
+              </span>
+            )}
+            {saveStatus === "saved" && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-[0.65rem] text-emerald-300 border border-emerald-500/40">
+                ● Kaydedildi
+              </span>
+            )}
+            <button
+              onClick={() => setIsEditorOpen(false)}
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-800 text-[0.7rem]">
+          {steps.map((step) => (
+            <button
+              key={step.id}
+              type="button"
+              onClick={() => setActiveStep(step.id as any)}
+              className={[
+                "px-2.5 py-1 rounded-full border transition",
+                activeStep === step.id
+                  ? "bg-slate-100 text-slate-900 border-slate-100"
+                  : "bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800",
+              ].join(" ")}
+            >
+              {step.id}. {step.label}
+            </button>
+          ))}
+        </div>
+        <div className="h-[calc(100%-80px)] overflow-y-auto px-4 pb-6 pt-3">
+          {activeStep === 1 && (
+            <>
+              <SectionTitle label="Davetiye Başlığı" />
+              <div className="mb-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    value={settings.heroSubtitle}
+                    onChange={(e) =>
+                      handleChange("heroSubtitle", e.target.value)
+                    }
+                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const options = HERO_SUBTITLE_OPTIONS.filter(
+                        (o) => o !== settings.heroSubtitle
+                      );
+                      const pool =
+                        options.length > 0 ? options : HERO_SUBTITLE_OPTIONS;
+                      const next =
+                        pool[Math.floor(Math.random() * pool.length)];
+                      setSettings((prev) => ({
+                        ...prev,
+                        heroSubtitle: next,
+                      }));
+                    }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
+                    title="Rastgele başlık"
+                  >
+                    🎲
+                  </button>
+                </div>
+              </div>
+
+              <SectionTitle label="Çift Bilgileri" />
+              <TextField
+                label="Gelin Adı"
+                value={settings.brideName}
+                onChange={(v) => handleChange("brideName", v)}
+              />
+              <TextField
+                label="Damat Adı"
+                value={settings.groomName}
+                onChange={(v) => handleChange("groomName", v)}
+              />
+            </>
+          )}
+
+          {activeStep === 2 && (
+            <>
+              <SectionTitle label="Tarih & Konum" />
+              <div className="mb-3">
+                <label className="block mb-1 text-xs font-medium text-slate-300">
+                  Tarih
+                </label>
+
+                <div className="flex gap-2">
+                  {/* Gün */}
+                  <select
+                    value={dateDay}
+                    onChange={(e) =>
+                      handleDatePartChange("day", e.target.value)
+                    }
+                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                  >
+                    <option value="">Gün</option>
+                    {Array.from({ length: 31 }, (_, i) => {
+                      const d = String(i + 1).padStart(2, "0");
+                      return (
+                        <option key={d} value={d}>
+                          {i + 1}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  {/* Ay */}
+                  <select
+                    value={dateMonth}
+                    onChange={(e) =>
+                      handleDatePartChange("month", e.target.value)
+                    }
+                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                  >
+                    <option value="">Ay</option>
+                    {[
+                      "01|Ocak",
+                      "02|Şubat",
+                      "03|Mart",
+                      "04|Nisan",
+                      "05|Mayıs",
+                      "06|Haziran",
+                      "07|Temmuz",
+                      "08|Ağustos",
+                      "09|Eylül",
+                      "10|Ekim",
+                      "11|Kasım",
+                      "12|Aralık",
+                    ].map((m) => {
+                      const [val, label] = m.split("|");
+                      return (
+                        <option key={val} value={val}>
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  {/* Yıl */}
+                  <select
+                    value={dateYear}
+                    onChange={(e) =>
+                      handleDatePartChange("year", e.target.value)
+                    }
+                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                  >
+                    <option value="">Yıl</option>
+                    {Array.from({ length: 6 }, (_, i) => {
+                      const y = 2024 + i;
+                      return (
+                        <option key={y} value={String(y)}>
+                          {y}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <p className="mt-1 text-[0.7rem] text-slate-400">
+                  {datePreviewText ?? "Gün / ay / yıl seçin"}
+                </p>
+              </div>
+
+              <TextField
+                label="Saat"
+                value={settings.time}
+                onChange={(v) => handleChange("time", v)}
+              />
+              <SectionTitle label="Etkinlik Mekanı Görseli" />
+              <div className="mb-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
+                    Dosya Seç
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleLocationImageUpload(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {settings.locationImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          locationImageUrl: "",
+                        }))
+                      }
+                      className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
+                      title="Görseli kaldır"
+                    >
+                      🗑
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <TextAreaField
+                label="Adres"
+                value={settings.locationText}
+                onChange={(v) => handleChange("locationText", v)}
+              />
+
+              <TextField
+                label="Harita Linki (Google Maps’ten
+                  “Haritayı yerleştir” kodunu kullanın)"
+                value={settings.mapsUrl}
+                placeholder='<iframe src="https://www.google.com/maps/embed'
+                onChange={(v) => handleChange("mapsUrl", v)}
+              />
+            </>
+          )}
+
+          {activeStep === 3 && (
+            <>
+              <SectionTitle label="Yazı Tipi" />
+              <div className="mb-3 text-xs text-slate-300">
+                <select
+                  value={settings.fontFamily}
+                  onChange={(e) =>
+                    handleChange("fontFamily", e.target.value as FontFamily)
+                  }
+                  className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
+                >
+                  <option value="great-vibes">Great Vibes</option>
+                  <option value="cormorant">Cormorant Garamond</option>
+                  <option value="pacifico">Pacifico</option>
+                  <option value="sofia">Sofia</option>
+                  <option value="cookie">Cookie</option>
+                  <option value="dancing-script">Dancing Script</option>
+                  <option value="parisienne">Parisienne</option>
+                  <option value="playfair">Playfair Display</option>
+                </select>
+                <p className="mt-1 text-[0.65rem] text-slate-400">
+                  Başlık ve davet metninde kullanılacak yazı tipi.
+                </p>
+              </div>
+
+              <SectionTitle label="Genel Arka Plan" />
+
+              <div className="mb-3 text-xs text-slate-300">
+                <p className="text-[0.7rem] text-slate-400 mb-2">
+                  Arka plan rengini ve opaklığını buradan ayarlayabilirsiniz.
+                </p>
+
+                <ColorField
+                  label="Arka Plan Rengi"
+                  value={settings.backgroundColor}
+                  onChange={(v) =>
+                    setSettings((prev) => ({ ...prev, backgroundColor: v }))
+                  }
+                />
+
+                <label className="block mt-2 mb-1 text-xs font-medium text-slate-300">
+                  Opaklık (%)
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={Math.round(settings.backgroundOverlayOpacity * 100)}
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      backgroundOverlayOpacity: Number(e.target.value) / 100,
+                    }))
+                  }
+                  className="w-full"
+                />
+              </div>
+
+              <SectionTitle label="Renkler" />
+              <div className="mb-3 text-xs text-slate-300">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[0.7rem] text-slate-400 max-w-xs">
+                    Bütün renkleri buradan değiştirebilirsiniz. Tasarım
+                    bozulursa her zaman sıfırlayabilirsiniz.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        backgroundColor: "#000000",
+                        backgroundOverlayOpacity: 0.6,
+                        heroSubtitleColor: "#ffffff",
+                        heroNamesColor: "#ffffff",
+                        ampersandColor: "#ffffff",
+                        dividerColor: "rgba(255,255,255,0.5)",
+                        backgroundBaseColor: "#111111",
+                        headingColor: "#ffffff",
+                        personNameColor: "#ffffff",
+                        familyRowColor: "#ffffff",
+                        parentRowColor: "#ffffff",
+                        photoBorderColor: "#ffffff",
+                        lowerMessageColor: "#ffffff",
+                        lowerCoupleNameColor: "#ffffff",
+                        sectionCardBackground: "rgba(0,0,0,0.58)",
+                        sectionCardBorderColor: "rgba(255,255,255,0.15)",
+                        donationBackground: "rgba(0,0,0,0.58)",
+                        locationBackground: "rgba(0,0,0,0.58)",
+                        footerBackground: "rgba(0,0,0,0.58)",
+                      }))
+                    }
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-300 bg-slate-100 text-[0.75rem] font-medium text-slate-900 hover:bg-white hover:border-slate-400 transition"
+                  >
+                    ↺ Sıfırla
+                  </button>
+                </div>
+
+                {/* 2 sütun 4 satır grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
+                  <ColorField
+                    label="Davetiye Metni"
+                    value={settings.heroSubtitleColor}
+                    onChange={(v) => handleChange("heroSubtitleColor", v)}
+                  />
+
+                  <ColorField
+                    label="Gelin / Damat"
+                    value={settings.heroNamesColor}
+                    onChange={(v) => handleChange("heroNamesColor", v)}
+                  />
+
+                  <ColorField
+                    label="Çizgiler"
+                    value={settings.dividerColor}
+                    onChange={(v) => handleChange("dividerColor", v)}
+                  />
+                  <ColorField
+                    label="& İşareti"
+                    value={settings.ampersandColor}
+                    onChange={(v) => handleChange("ampersandColor", v)}
+                  />
+                  <ColorField
+                    label="Aile Satırı"
+                    value={settings.familyRowColor}
+                    onChange={(v) => handleChange("familyRowColor", v)}
+                  />
+                  <ColorField
+                    label="Ebeveyn Satırı Rengi"
+                    value={settings.parentRowColor}
+                    onChange={(v) => handleChange("parentRowColor", v)}
+                  />
+
+                  <ColorField
+                    label="Alt Mesaj Rengi"
+                    value={settings.lowerMessageColor}
+                    onChange={(v) => handleChange("lowerMessageColor", v)}
+                  />
+                  <ColorField
+                    label="Alt Çift İsmi Rengi"
+                    value={settings.lowerCoupleNameColor}
+                    onChange={(v) => handleChange("lowerCoupleNameColor", v)}
+                  />
+                  <ColorField
+                    label="Bağış Bölümü Arka Planı"
+                    value={settings.donationBackground}
+                    onChange={(v) => handleChange("donationBackground", v)}
+                  />
+                  <ColorField
+                    label="Konum Bölümü Arka Planı"
+                    value={settings.locationBackground}
+                    onChange={(v) => handleChange("locationBackground", v)}
+                  />
+                  <ColorField
+                    label="Footer Arka Planı"
+                    value={settings.footerBackground}
+                    onChange={(v) => handleChange("footerBackground", v)}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeStep === 4 && (
+            <>
+              <SectionTitle label="Aile Bilgileri" />
+
+              <div className="mb-3 text-xs text-slate-300">
+                <label className="inline-flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    checked={settings.showFamilySection}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        showFamilySection: e.target.checked,
+                      }))
+                    }
+                    className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
+                  />
+                  <span className="text-[0.8rem]">
+                    Aile bilgileri bölümünü davetiyede göster
+                  </span>
+                </label>
+              </div>
+              {/* Tab başlıkları */}
+              {settings.showFamilySection && (
+                <div className="inline-flex mb-3 rounded-full bg-slate-800/70 p-0.5 text-[0.7rem]">
+                  <button
+                    type="button"
+                    onClick={() => setFamilyTab("family1")}
+                    className={`px-3 py-1.5 rounded-full transition ${
+                      familyTab === "family1"
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    Birinci Aile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFamilyTab("family2")}
+                    className={`px-3 py-1.5 rounded-full transition ${
+                      familyTab === "family2"
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    İkinci Aile
+                  </button>
+                </div>
+              )}
+
+              {familyTab === "family1" && settings.showFamilySection && (
+                <div className="mb-3">
+                  <TextField
+                    label="Birinci Aile - Anne Adı"
+                    value={settings.family1Mother}
+                    onChange={(v) => handleChange("family1Mother", v)}
+                  />
+                  <TextField
+                    label="Birinci Aile - Baba Adı"
+                    value={settings.family1Father}
+                    onChange={(v) => handleChange("family1Father", v)}
+                  />
+                  <TextField
+                    label="Birinci Aile - Soyadı"
+                    value={settings.family1Surname}
+                    onChange={(v) => handleChange("family1Surname", v)}
+                  />
+                </div>
+              )}
+              {familyTab === "family2" && settings.showFamilySection && (
+                <div className="mb-3">
+                  <TextField
+                    label="İkinci Aile - Anne Adı"
+                    value={settings.family2Mother}
+                    onChange={(v) => handleChange("family2Mother", v)}
+                  />
+                  <TextField
+                    label="İkinci Aile - Baba Adı"
+                    value={settings.family2Father}
+                    onChange={(v) => handleChange("family2Father", v)}
+                  />
+                  <TextField
+                    label="İkinci Aile - Soyadı"
+                    value={settings.family2Surname}
+                    onChange={(v) => handleChange("family2Surname", v)}
+                  />
+                </div>
+              )}
+              <SectionTitle label="Bağış Bölümü" />
+
+              <div className="mb-3 text-xs text-slate-300">
+                <label className="inline-flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    checked={settings.showDonationSection}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        showDonationSection: e.target.checked,
+                      }))
+                    }
+                    className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
+                  />
+                  <span className="text-[0.8rem]">
+                    Bağış / vakıf bölümünü davetiyede göster
+                  </span>
+                </label>
+
+                {settings.showDonationSection && (
+                  <>
+                    <div className="mb-3">
+                      <label className="block mb-1 text-xs font-medium text-slate-300">
+                        Vakıf Seçimi
+                      </label>
+                      <select
+                        value={settings.donationOrganization}
+                        onChange={(e) =>
+                          handleChange(
+                            "donationOrganization",
+                            e.target
+                              .value as InvitationSettings["donationOrganization"]
+                          )
+                        }
+                        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
+                      >
+                        <option value="tema">TEMA Vakfı</option>
+                        <option value="cydd">
+                          Çağdaş Yaşamı Destekleme Derneği
+                        </option>
+                        <option value="kiz-cocuklari">
+                          Kız Çocuklarını Okutma Burs Fonu
+                        </option>
+                        <option value="losev">LÖSEV</option>
+                        <option value="custom">Diğer / Özel</option>
+                      </select>
+                    </div>
+
+                    <TextAreaField
+                      label="Bağış / Not Metni"
+                      value={settings.donationText}
+                      onChange={(v) => handleChange("donationText", v)}
+                      placeholder="Örn: Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk."
+                      helperText="Bu metin davetiyede bağış bölümünde görünecek."
+                    />
+
+                    <div className="mt-2">
+                      <label className="block mb-1 text-xs font-medium text-slate-300">
+                        Bağış Sertifikası / Görsel
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
+                          Dosya Seç
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                  const result = ev.target?.result;
+                                  if (typeof result === "string") {
+                                    setSettings((prev) => ({
+                                      ...prev,
+                                      donationImageUrl: result,
+                                    }));
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        {settings.donationImageUrl && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSettings((prev) => ({
+                                ...prev,
+                                donationImageUrl: "",
+                              }))
+                            }
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
+                            title="Görseli kaldır"
+                          >
+                            🗑
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+
+          {activeStep === 5 && (
+            <>
+              <SectionTitle label="Davetli Listesi & Linkler" />
+              <div className="mb-3 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      {/* Örnek CSV indir + Dosya Yükle butonları */}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleAddManualGuest}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-600 text-white text-[0.7rem] font-medium hover:bg-emerald-500"
+                      >
+                        +1 Davetli Ekle
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          for (let i = 0; i < 10; i++) {
+                            handleAddManualGuest();
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
+                      >
+                        +10 Davetli Ekle
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          for (let i = 0; i < 50; i++) {
+                            handleAddManualGuest();
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
+                      >
+                        +50 Davetli Ekle
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {csvError && (
+                  <p className="mt-1 text-[0.7rem] text-red-400">{csvError}</p>
+                )}
+
+                {guests.length > 0 ? (
+                  <div className="mt-2 border border-slate-700/80 rounded-xl overflow-hidden">
+                    <div ref={tableRef} className="max-h-64 overflow-y-auto">
+                      <table className="w-full text-[0.75rem] text-slate-100">
+                        <thead className="bg-slate-900/80 sticky top-0">
+                          <tr>
+                            <th className="px-3 py-2 text-left font-medium">
+                              Davetli bilgisi
+                            </th>
+                            <th className="px-3 py-2 text-left font-medium">
+                              Link
+                            </th>
+                            <th className="px-3 py-2 text-center font-medium">
+                              Kopyala
+                            </th>
+                            <th className="px-3 py-2 text-center font-medium">
+                              Sil
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {guests.map((guest) => {
+                            const tempSlug =
+                              guest.slug && guest.slug.length > 0
+                                ? guest.slug
+                                : slugifyName(guest.name || "davetli");
+
+                            const tempPayload = buildGuestPayload(
+                              guest,
+                              settings
+                            );
+                            const tempEncoded = encodeURIComponent(
+                              base64EncodeUnicode(JSON.stringify(tempPayload))
+                            );
+                            const tempHref =
+                              origin.length > 0
+                                ? `${origin}/invite/${tempSlug}?d=${tempEncoded}`
+                                : `/invite/${tempSlug}?d=${tempEncoded}`;
+
+                            const isCopied = !!guest.lastCopiedAt;
+
+                            return (
+                              <tr
+                                key={guest.id}
+                                className={
+                                  "border-t border-slate-800/80 " +
+                                  (isCopied
+                                    ? "bg-emerald-500/10"
+                                    : "bg-slate-900/40")
+                                }
+                              >
+                                <td className="px-3 py-1.5 align-middle">
+                                  <input
+                                    value={guest.name}
+                                    onChange={(e) =>
+                                      handleGuestFieldChange(
+                                        guest.id,
+                                        "name",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Ayşe Ve Alp KAYA Ailesi"
+                                    className="w-full px-2 py-1 rounded-md bg-slate-950/60 border border-slate-700 text-[0.7rem] focus:outline-none focus:ring-1 focus:ring-sky-500/60"
+                                  />
+                                </td>
+                                <td className="px-3 py-1.5 align-middle max-w-[120px]">
+                                  <a
+                                    href={tempHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-amber-200 hover:text-amber-100 hover:underline break-all"
+                                  >
+                                    {origin.length > 0
+                                      ? `${origin}/invite/${tempSlug}`
+                                      : `/invite/${tempSlug}`}
+                                  </a>
+                                </td>
+
+                                <td className="px-3 py-1.5 text-center align-middle">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCopyGuestLink(guest)}
+                                    className={
+                                      "inline-flex items-center justify-center w-7 h-7 rounded-full border text-[0.7rem] " +
+                                      (isCopied
+                                        ? "bg-emerald-500/80 border-emerald-300 text-slate-900 hover:bg-emerald-400"
+                                        : "bg-slate-800 border-slate-600 text-slate-100 hover:bg-slate-700")
+                                    }
+                                    title={
+                                      isCopied
+                                        ? "Kopyalandı"
+                                        : "Linki panoya kopyala"
+                                    }
+                                  >
+                                    {isCopied ? "✓" : "⧉"}
+                                  </button>
+                                </td>
+                                <td className="px-3 py-1.5 text-center align-middle">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveGuest(guest.id)}
+                                    className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-600/80 text-white text-[0.7rem] hover:bg-red-500"
+                                    title="Satırı sil"
+                                  >
+                                    🗑
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="px-3 py-2 border-t border-slate-800/80 text-[0.7rem] text-slate-300 flex items-center justify-between">
+                      <span>
+                        Toplam{" "}
+                        <span className="text-slate-50 font-medium">
+                          {guests.length}
+                        </span>{" "}
+                        davetli.
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-[0.75rem] text-slate-400">
+                    Henüz davetli eklenmedi. CSV yükleyebilir veya yukarıdan “+
+                    Davetli Ekle” butonuyla yeni satırlar oluşturabilirsiniz.
+                  </p>
+                )}
+                <SectionTitle label="Excel ile Davetli Listesi Hazırla" />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleDownloadCsvExample}
+                    className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
+                  >
+                    Örnek Excel Dosyası İndir
+                  </button>
+
+                  <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-700 text-white text-[0.7rem] font-medium hover:bg-slate-600 cursor-pointer">
+                    Hazırlanan Dosyayı Yükle
+                    <input
+                      type="file"
+                      accept=".csv,.txt"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleCsvUpload(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="h-[calc(100%-44px)] overflow-y-auto px-4 pb-6 pt-3">
           {/* Üst başlık + random zar */}
-          <SectionTitle label="Yazı Tipi" />
-          <select
-            value={settings.fontFamily}
-            onChange={(e) =>
-              handleChange("fontFamily", e.target.value as FontFamily)
-            }
-            className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
-          >
-            <option value="great-vibes">Great Vibes</option>
-            <option value="cormorant">Cormorant Garamond</option>
-            <option value="pacifico">Pacifico</option>
-            <option value="sofia">Sofia</option>
-            <option value="cookie">Cookie</option>
-            <option value="dancing-script">Dancing Script</option>
-            <option value="parisienne">Parisienne</option>
-            <option value="playfair">Playfair Display</option>
-          </select>
-          <SectionTitle label="Davetiye Başlığı" />
-          <div className="mb-3">
-            <div className="flex items-center gap-2">
-              <input
-                value={settings.heroSubtitle}
-                onChange={(e) => handleChange("heroSubtitle", e.target.value)}
-                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const options = HERO_SUBTITLE_OPTIONS.filter(
-                    (o) => o !== settings.heroSubtitle
-                  );
-                  const pool =
-                    options.length > 0 ? options : HERO_SUBTITLE_OPTIONS;
-                  const next = pool[Math.floor(Math.random() * pool.length)];
-                  setSettings((prev) => ({
-                    ...prev,
-                    heroSubtitle: next,
-                  }));
-                }}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
-                title="Rastgele başlık"
-              >
-                🎲
-              </button>
-            </div>
-          </div>
-
-          <SectionTitle label="Çift Bilgileri" />
-          <TextField
-            label="Gelin Adı"
-            value={settings.brideName}
-            onChange={(v) => handleChange("brideName", v)}
-          />
-          <TextField
-            label="Damat Adı"
-            value={settings.groomName}
-            onChange={(v) => handleChange("groomName", v)}
-          />
 
           <SpeedInsights />
-
-          <SectionTitle label="Tarih & Konum" />
-          <div className="mb-3">
-            <label className="block mb-1 text-xs font-medium text-slate-300">
-              Tarih
-            </label>
-
-            <div className="flex gap-2">
-              {/* Gün */}
-              <select
-                value={dateDay}
-                onChange={(e) => handleDatePartChange("day", e.target.value)}
-                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-              >
-                <option value="">Gün</option>
-                {Array.from({ length: 31 }, (_, i) => {
-                  const d = String(i + 1).padStart(2, "0");
-                  return (
-                    <option key={d} value={d}>
-                      {i + 1}
-                    </option>
-                  );
-                })}
-              </select>
-
-              {/* Ay */}
-              <select
-                value={dateMonth}
-                onChange={(e) => handleDatePartChange("month", e.target.value)}
-                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-              >
-                <option value="">Ay</option>
-                {[
-                  "01|Ocak",
-                  "02|Şubat",
-                  "03|Mart",
-                  "04|Nisan",
-                  "05|Mayıs",
-                  "06|Haziran",
-                  "07|Temmuz",
-                  "08|Ağustos",
-                  "09|Eylül",
-                  "10|Ekim",
-                  "11|Kasım",
-                  "12|Aralık",
-                ].map((m) => {
-                  const [val, label] = m.split("|");
-                  return (
-                    <option key={val} value={val}>
-                      {label}
-                    </option>
-                  );
-                })}
-              </select>
-
-              {/* Yıl */}
-              <select
-                value={dateYear}
-                onChange={(e) => handleDatePartChange("year", e.target.value)}
-                className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
-              >
-                <option value="">Yıl</option>
-                {Array.from({ length: 6 }, (_, i) => {
-                  const y = 2024 + i;
-                  return (
-                    <option key={y} value={String(y)}>
-                      {y}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-
-            <p className="mt-1 text-[0.7rem] text-slate-400">
-              {datePreviewText ?? "Gün / ay / yıl seçin"}
-            </p>
-          </div>
-
-          <TextField
-            label="Saat (metin olarak)"
-            value={settings.time}
-            onChange={(v) => handleChange("time", v)}
-          />
-
-          <SectionTitle label="Aile Bilgileri" />
-
-          <div className="mb-3 text-xs text-slate-300">
-            <label className="inline-flex items-center gap-2 mb-2">
-              <input
-                type="checkbox"
-                checked={settings.showFamilySection}
-                onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    showFamilySection: e.target.checked,
-                  }))
-                }
-                className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
-              />
-              <span className="text-[0.8rem]">
-                Aile bilgilerinin davetiyede görünmesini istiyorum
-              </span>
-            </label>
-          </div>
-          {/* Tab başlıkları */}
-          {settings.showFamilySection && (
-            <div className="inline-flex mb-3 rounded-full bg-slate-800/70 p-0.5 text-[0.7rem]">
-              <button
-                type="button"
-                onClick={() => setFamilyTab("family1")}
-                className={`px-3 py-1.5 rounded-full transition ${
-                  familyTab === "family1"
-                    ? "bg-slate-100 text-slate-900"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Birinci Aile
-              </button>
-              <button
-                type="button"
-                onClick={() => setFamilyTab("family2")}
-                className={`px-3 py-1.5 rounded-full transition ${
-                  familyTab === "family2"
-                    ? "bg-slate-100 text-slate-900"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                İkinci Aile
-              </button>
-            </div>
-          )}
-          {familyTab === "family1" && settings.showFamilySection && (
-            <div className="mb-3">
-              <TextField
-                label="Birinci Aile - Anne Adı"
-                value={settings.family1Mother}
-                onChange={(v) => handleChange("family1Mother", v)}
-              />
-              <TextField
-                label="Birinci Aile - Baba Adı"
-                value={settings.family1Father}
-                onChange={(v) => handleChange("family1Father", v)}
-              />
-              <TextField
-                label="Birinci Aile - Soyadı"
-                value={settings.family1Surname}
-                onChange={(v) => handleChange("family1Surname", v)}
-              />
-            </div>
-          )}
-
-          {familyTab === "family2" && settings.showFamilySection && (
-            <div className="mb-3">
-              <TextField
-                label="İkinci Aile - Anne Adı"
-                value={settings.family2Mother}
-                onChange={(v) => handleChange("family2Mother", v)}
-              />
-              <TextField
-                label="İkinci Aile - Baba Adı"
-                value={settings.family2Father}
-                onChange={(v) => handleChange("family2Father", v)}
-              />
-              <TextField
-                label="İkinci Aile - Soyadı"
-                value={settings.family2Surname}
-                onChange={(v) => handleChange("family2Surname", v)}
-              />
-            </div>
-          )}
-          <SectionTitle label="Etkinlik Mekanı Görseli" />
-          <div className="mb-3 text-xs">
-            <p className="mb-1 text-slate-300">
-              Sabit bir boyutta, davetiyede kırpılarak gösterilir (16:9–4:3
-              oranı en iyi sonucu verir).
-            </p>
-            <div className="flex items-center gap-2">
-              <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
-                Dosya Seç
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      handleLocationImageUpload(file);
-                    }
-                  }}
-                  className="hidden"
-                />
-              </label>
-              {settings.locationImageUrl && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      locationImageUrl: "",
-                    }))
-                  }
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
-                  title="Görseli kaldır"
-                >
-                  🗑
-                </button>
-              )}
-            </div>
-          </div>
-
-          <TextAreaField
-            label="Konum Metni"
-            value={settings.locationText}
-            onChange={(v) => handleChange("locationText", v)}
-          />
-
-          <TextField
-            label="Harita Linki (Google Maps URL)"
-            value={settings.mapsUrl}
-            onChange={(v) => handleChange("mapsUrl", v)}
-          />
-
-          <SectionTitle label="Bağış Bölümü" />
-
-          <div className="mb-3 text-xs text-slate-300">
-            <label className="inline-flex items-center gap-2 mb-2">
-              <input
-                type="checkbox"
-                checked={settings.showDonationSection}
-                onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    showDonationSection: e.target.checked,
-                  }))
-                }
-                className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
-              />
-              <span className="text-[0.8rem]">
-                Bağış / vakıf bölümünü davetiyede göster
-              </span>
-            </label>
-
-            {settings.showDonationSection && (
-              <>
-                <div className="mb-3">
-                  <label className="block mb-1 text-xs font-medium text-slate-300">
-                    Vakıf Seçimi
-                  </label>
-                  <select
-                    value={settings.donationOrganization}
-                    onChange={(e) =>
-                      handleChange(
-                        "donationOrganization",
-                        e.target
-                          .value as InvitationSettings["donationOrganization"]
-                      )
-                    }
-                    className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
-                  >
-                    <option value="tema">TEMA Vakfı</option>
-                    <option value="cydd">
-                      Çağdaş Yaşamı Destekleme Derneği
-                    </option>
-                    <option value="kiz-cocuklari">
-                      Kız Çocuklarını Okutma Burs Fonu
-                    </option>
-                    <option value="losev">LÖSEV</option>
-                    <option value="custom">Diğer / Özel</option>
-                  </select>
-                </div>
-
-                <TextAreaField
-                  label="Bağış / Not Metni"
-                  value={settings.donationText}
-                  onChange={(v) => handleChange("donationText", v)}
-                />
-
-                <div className="mt-2">
-                  <label className="block mb-1 text-xs font-medium text-slate-300">
-                    Bağış Sertifikası / Görsel
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
-                      Dosya Seç
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (ev) => {
-                              const result = ev.target?.result;
-                              if (typeof result === "string") {
-                                setSettings((prev) => ({
-                                  ...prev,
-                                  donationImageUrl: result,
-                                }));
-                              }
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                        className="hidden"
-                      />
-                    </label>
-                    {settings.donationImageUrl && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSettings((prev) => ({
-                            ...prev,
-                            donationImageUrl: "",
-                          }))
-                        }
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
-                        title="Görseli kaldır"
-                      >
-                        🗑
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          <SectionTitle label="Genel Arka Plan" />
-
-          <div className="mb-3 text-xs text-slate-300">
-            <p className="text-[0.7rem] text-slate-400 mb-2">
-              Arka plan rengini ve opaklığını buradan ayarlayabilirsiniz.
-            </p>
-
-            <ColorField
-              label="Arka Plan Rengi"
-              value={settings.backgroundColor}
-              onChange={(v) =>
-                setSettings((prev) => ({ ...prev, backgroundColor: v }))
-              }
-            />
-
-            <label className="block mt-2 mb-1 text-xs font-medium text-slate-300">
-              Opaklık (%)
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={5}
-              value={Math.round(settings.backgroundOverlayOpacity * 100)}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  backgroundOverlayOpacity: Number(e.target.value) / 100,
-                }))
-              }
-              className="w-full"
-            />
-          </div>
-
-          <SectionTitle label="Renkler" />
-          <div className="mb-3 text-xs text-slate-300">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[0.7rem] text-slate-400 max-w-xs">
-                Bütün renkleri buradan değiştirebilirsiniz.
-              </p>
-              <button
-                type="button"
-                onClick={() =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    // Genel arka plan
-                    backgroundColor: "#000000",
-                    backgroundOverlayOpacity: 0.6,
-
-                    // Hero / başlık tarafı
-                    heroSubtitleColor: "#ffffff",
-                    heroNamesColor: "#ffffff",
-                    ampersandColor: "#ffffff",
-                    dividerColor: "rgba(255,255,255,0.5)",
-
-                    // Eski renk alanları
-                    backgroundBaseColor: "#111111",
-                    headingColor: "#ffffff",
-                    personNameColor: "#ffffff",
-                    familyRowColor: "#ffffff",
-                    parentRowColor: "#ffffff",
-                    photoBorderColor: "#ffffff",
-                    lowerMessageColor: "#ffffff",
-                    lowerCoupleNameColor: "#ffffff",
-                    sectionCardBackground: "rgba(0,0,0,0.58)",
-                    sectionCardBorderColor: "rgba(255,255,255,0.15)",
-                    donationBackground: "rgba(0,0,0,0.58)",
-                    locationBackground: "rgba(0,0,0,0.58)",
-                    footerBackground: "rgba(0,0,0,0.58)",
-                  }))
-                }
-                className="px-2.5 py-1 rounded-md border border-slate-600 text-[0.7rem] text-slate-100 hover:bg-slate-800"
-              >
-                Sıfırla
-              </button>
-            </div>
-
-            {/* 2 sütun 4 satır grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
-              <ColorField
-                label="Davetiye Metni"
-                value={settings.heroSubtitleColor}
-                onChange={(v) => handleChange("heroSubtitleColor", v)}
-              />
-
-              <ColorField
-                label="Gelin / Damat"
-                value={settings.heroNamesColor}
-                onChange={(v) => handleChange("heroNamesColor", v)}
-              />
-
-              <ColorField
-                label="Çizgiler"
-                value={settings.dividerColor}
-                onChange={(v) => handleChange("dividerColor", v)}
-              />
-              <ColorField
-                label="& İşareti"
-                value={settings.ampersandColor}
-                onChange={(v) => handleChange("ampersandColor", v)}
-              />
-              {/* <ColorField
-                label="Kişi İsimleri"
-                value={settings.personNameColor}
-                onChange={(v) => handleChange("personNameColor", v)}
-              /> */}
-              <ColorField
-                label="Aile Satırı"
-                value={settings.familyRowColor}
-                onChange={(v) => handleChange("familyRowColor", v)}
-              />
-              <ColorField
-                label="Ebeveyn Satırı Rengi"
-                value={settings.parentRowColor}
-                onChange={(v) => handleChange("parentRowColor", v)}
-              />
-
-              <ColorField
-                label="Alt Mesaj Rengi"
-                value={settings.lowerMessageColor}
-                onChange={(v) => handleChange("lowerMessageColor", v)}
-              />
-              <ColorField
-                label="Alt Çift İsmi Rengi"
-                value={settings.lowerCoupleNameColor}
-                onChange={(v) => handleChange("lowerCoupleNameColor", v)}
-              />
-              <ColorField
-                label="Bağış Bölümü Arka Planı"
-                value={settings.donationBackground}
-                onChange={(v) => handleChange("donationBackground", v)}
-              />
-              <ColorField
-                label="Konum Bölümü Arka Planı"
-                value={settings.locationBackground}
-                onChange={(v) => handleChange("locationBackground", v)}
-              />
-              <ColorField
-                label="Footer Arka Planı"
-                value={settings.footerBackground}
-                onChange={(v) => handleChange("footerBackground", v)}
-              />
-            </div>
-          </div>
-
-          <SectionTitle label="Davetli Listesi Yükle" />
-          <div className="mb-3 text-xs">
-            <div className="flex items-center gap-2 mb-2">
-              <button
-                type="button"
-                onClick={handleDownloadCsvExample}
-                className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
-              >
-                Dosyayı indir
-              </button>
-            </div>
-
-            <div>
-              <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-700 text-white text-[0.7rem] font-medium hover:bg-slate-600 cursor-pointer">
-                Dosya Yükle
-                <input
-                  type="file"
-                  accept=".csv,.txt"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      handleCsvUpload(file);
-                    }
-                  }}
-                  className="hidden"
-                />
-              </label>
-            </div>
-
-            {csvError && (
-              <p className="mt-1 text-[0.7rem] text-red-400">{csvError}</p>
-            )}
-            {guests.length > 0 && (
-              <p className="mt-1 text-[0.7rem] text-emerald-400">
-                {guests.length} davetli yüklendi.
-              </p>
-            )}
-          </div>
         </div>
       </div>
 
@@ -1134,9 +1548,6 @@ export default function EditorPage() {
           countdown={countdown}
           overlayColor={overlayColor}
         />
-        <div className="mt-6">
-          <GuestLinks guests={guests} origin={origin} settings={settings} />
-        </div>
       </div>
     </div>
   );
@@ -1163,9 +1574,17 @@ type FieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  helperText?: string;
 };
 
-function TextField({ label, value, onChange }: FieldProps) {
+function TextField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  helperText,
+}: FieldProps) {
   return (
     <div className="mb-3">
       <label className="block mb-1 text-xs font-medium text-slate-300">
@@ -1174,13 +1593,23 @@ function TextField({ label, value, onChange }: FieldProps) {
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+        placeholder={placeholder}
+        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/60"
       />
+      {helperText && (
+        <p className="mt-1 text-[0.65rem] text-slate-400">{helperText}</p>
+      )}
     </div>
   );
 }
 
-function TextAreaField({ label, value, onChange }: FieldProps) {
+function TextAreaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  helperText,
+}: FieldProps) {
   return (
     <div className="mb-3">
       <label className="block mb-1 text-xs font-medium text-slate-300">
@@ -1190,8 +1619,12 @@ function TextAreaField({ label, value, onChange }: FieldProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={3}
-        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs resize-y focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+        placeholder={placeholder}
+        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs resize-y placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/60"
       />
+      {helperText && (
+        <p className="mt-1 text-[0.65rem] text-slate-400">{helperText}</p>
+      )}
     </div>
   );
 }
@@ -1326,25 +1759,6 @@ function InvitationPreview({
             </span>
             <span className="hero-line">{groomName}</span>
           </h1>
-
-          {/* {(hasFamily1 || hasFamily2) && (
-            <div
-              className="mt-3 text-sm"
-              style={{ color: "rgba(255,255,255,0.8)" }}
-            >
-              {hasFamily1 && (
-                <p>
-                  {family1Mother} &amp; {family1Father} {family1Surname}
-                </p>
-              )}
-              {hasFamily2 && (
-                <p>
-                  {family2Mother} &amp; {family2Father} {family2Surname}
-                </p>
-              )}
-            </div>
-          )} */}
-
           <div className="fancy-divider">
             <span
               className="fancy-divider-line"
@@ -1552,7 +1966,6 @@ function InvitationPreview({
           </section>
         )}
 
-        {/* Geri Sayım */}
         {/* Geri Sayım */}
         <section className="section" id="countdown">
           <div className="section-inner">
@@ -1820,14 +2233,24 @@ function GuestLinks({
             location: settings.locationText,
             mapsUrl: settings.mapsUrl,
             guestName: guest.name,
-
             sectionCardBackground:
               settings.locationBackground || settings.sectionCardBackground,
             sectionCardBorderColor: settings.sectionCardBorderColor,
             footerBackground: settings.footerBackground,
-
             backgroundColor: settings.backgroundColor,
             backgroundOverlayOpacity: settings.backgroundOverlayOpacity,
+            fontFamily: settings.fontFamily,
+            heroSubtitle: settings.heroSubtitle,
+            heroSubtitleColor: settings.heroSubtitleColor,
+            heroNamesColor: settings.heroNamesColor,
+            ampersandColor: settings.ampersandColor,
+            dividerColor: settings.dividerColor,
+            donationBackground: settings.donationBackground,
+            showDonationSection: settings.showDonationSection,
+            donationText: settings.donationText,
+            donationImageUrl: settings.donationImageUrl,
+            locationBackground: settings.locationBackground,
+            locationImageUrl: settings.locationImageUrl,
           };
 
           // JSON -> base64 (UTF‑8 safe) -> URL encode

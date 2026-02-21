@@ -20,7 +20,40 @@ type InvitationPayload = {
 
   backgroundColor?: string;
   backgroundOverlayOpacity?: number;
+
+  fontFamily?: FontFamily;
+  heroSubtitle?: string;
+  heroSubtitleColor?: string;
+  heroNamesColor?: string;
+  ampersandColor?: string;
+  dividerColor?: string;
+
+  donationBackground?: string;
+  showDonationSection?: boolean;
+  donationText?: string;
+  donationImageUrl?: string;
+
+  locationBackground?: string;
+  locationImageUrl?: string;
+
+  showFamilySection?: boolean;
+  family1Mother?: string;
+  family1Father?: string;
+  family1Surname?: string;
+  family2Mother?: string;
+  family2Father?: string;
+  family2Surname?: string;
 };
+
+type FontFamily =
+  | "great-vibes"
+  | "cormorant"
+  | "pacifico"
+  | "sofia"
+  | "cookie"
+  | "dancing-script"
+  | "parisienne"
+  | "playfair";
 
 type InvitationSettings = {
   brideName: string;
@@ -38,6 +71,29 @@ type InvitationSettings = {
 
   backgroundColor: string;
   backgroundOverlayOpacity: number;
+
+  fontFamily?: FontFamily;
+  heroSubtitle: string;
+  heroSubtitleColor: string;
+  heroNamesColor: string;
+  ampersandColor: string;
+  dividerColor: string;
+
+  donationBackground: string;
+  showDonationSection: boolean;
+  donationText: string;
+  donationImageUrl: string;
+
+  locationBackground: string;
+  locationImageUrl: string;
+
+  showFamilySection: boolean;
+  family1Mother: string;
+  family1Father: string;
+  family1Surname: string;
+  family2Mother: string;
+  family2Father: string;
+  family2Surname: string;
 };
 
 type Countdown = {
@@ -109,11 +165,35 @@ function decodePayload(encoded?: string): InvitationPayload | null {
       location: obj.location ?? "Adres daha sonra paylaşılacaktır.",
       mapsUrl: obj.mapsUrl ?? "",
       guestName: obj.guestName ?? undefined,
+
       sectionCardBackground: obj.sectionCardBackground,
       sectionCardBorderColor: obj.sectionCardBorderColor,
       footerBackground: obj.footerBackground,
       backgroundColor: obj.backgroundColor,
       backgroundOverlayOpacity: obj.backgroundOverlayOpacity,
+
+      fontFamily: obj.fontFamily,
+      heroSubtitle: obj.heroSubtitle,
+      heroSubtitleColor: obj.heroSubtitleColor,
+      heroNamesColor: obj.heroNamesColor,
+      ampersandColor: obj.ampersandColor,
+      dividerColor: obj.dividerColor,
+
+      donationBackground: obj.donationBackground,
+      showDonationSection: obj.showDonationSection,
+      donationText: obj.donationText,
+      donationImageUrl: obj.donationImageUrl,
+
+      locationBackground: obj.locationBackground,
+      locationImageUrl: obj.locationImageUrl,
+
+      showFamilySection: obj.showFamilySection,
+      family1Mother: obj.family1Mother,
+      family1Father: obj.family1Father,
+      family1Surname: obj.family1Surname,
+      family2Mother: obj.family2Mother,
+      family2Father: obj.family2Father,
+      family2Surname: obj.family2Surname,
     };
   } catch {
     return null;
@@ -151,6 +231,32 @@ export default function InviteClient({
 
       backgroundColor: payload?.backgroundColor ?? "#000000",
       backgroundOverlayOpacity: payload?.backgroundOverlayOpacity ?? 0.6,
+
+      fontFamily: payload?.fontFamily ?? "pacifico",
+      heroSubtitle: payload?.heroSubtitle ?? "Biz evleniyoruz",
+      heroSubtitleColor: payload?.heroSubtitleColor ?? "#ffffff",
+      heroNamesColor: payload?.heroNamesColor ?? "#ffffff",
+      ampersandColor: payload?.ampersandColor ?? "#ffffff",
+      dividerColor: payload?.dividerColor ?? "rgba(255,255,255,0.5)",
+
+      donationBackground: payload?.donationBackground ?? "rgba(0,0,0,0.58)",
+      showDonationSection: payload?.showDonationSection ?? false,
+      donationText:
+        payload?.donationText ??
+        "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
+      donationImageUrl: payload?.donationImageUrl ?? "/fidan_ga_wm.jpg",
+
+      locationBackground: payload?.locationBackground ?? "rgba(0,0,0,0.58)",
+      locationImageUrl:
+        payload?.locationImageUrl ?? "/vedat-dalokay-nikah-salonu.png",
+
+      showFamilySection: payload?.showFamilySection ?? false,
+      family1Mother: payload?.family1Mother ?? "",
+      family1Father: payload?.family1Father ?? "",
+      family1Surname: payload?.family1Surname ?? "",
+      family2Mother: payload?.family2Mother ?? "",
+      family2Father: payload?.family2Father ?? "",
+      family2Surname: payload?.family2Surname ?? "",
     };
   });
 
@@ -163,11 +269,6 @@ export default function InviteClient({
   };
 
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
-
-  const overlayColor = hexToRgba(
-    settings.backgroundColor,
-    settings.backgroundOverlayOpacity
-  );
 
   useEffect(() => {
     setCountdown(computeCountdown(settings.eventDate));
@@ -191,16 +292,33 @@ export default function InviteClient({
   const { embedSrc: embedUrl, buttonHref } = parseMapInput(settings.mapsUrl);
 
   const displayGuestName = settings.guestName || slug.replace(/-/g, " ");
+  const overlayColor = hexToRgba(
+    settings.backgroundColor,
+    settings.backgroundOverlayOpacity
+  );
 
+  const fontClassMap: Record<FontFamily, string> = {
+    "great-vibes": "font-great-vibes",
+    cormorant: "font-cormorant",
+    pacifico: "font-pacifico",
+    sofia: "font-sofia",
+    cookie: "font-cookie",
+    "dancing-script": "font-dancing-script",
+    parisienne: "font-parisienne",
+    playfair: "font-playfair",
+  };
+
+  const currentFontClass = fontClassMap[settings.fontFamily] ?? "";
   return (
     <div
-      className="page-overlay invitation-root font-cormorant"
+      className={`page-overlay invitation-root ${currentFontClass}`}
       style={{ background: overlayColor }}
     >
       <video className="bg-video" autoPlay muted loop playsInline>
         <source src="/bg.webm" type="video/webm" />
         Tarayıcınız video desteklemiyor.
       </video>
+
       <div
         style={{
           position: "fixed",
@@ -212,18 +330,42 @@ export default function InviteClient({
       />
       {/* Hero */}
       <header className="hero" id="top">
-        <div className="hero-inner">
-          <p className="hero-subtitle">Bu mutlu günümüzde yanımızda olun</p>
-          <h1 className="hero-title">
+        <div className="hero-inner" style={{ backgroundColor: "transparent" }}>
+          <p
+            className="hero-subtitle"
+            style={{ color: settings.heroSubtitleColor }}
+          >
+            {settings.heroSubtitle}
+          </p>
+
+          <h1 className="hero-title" style={{ color: settings.heroNamesColor }}>
             <span className="hero-line">{settings.brideName}</span>
-            <span className="hero-ampersand">&amp;</span>
+            <span
+              className="hero-ampersand"
+              style={{
+                color: settings.ampersandColor || settings.heroNamesColor,
+              }}
+            >
+              &amp;
+            </span>
             <span className="hero-line">{settings.groomName}</span>
           </h1>
 
           <div className="fancy-divider">
-            <span className="fancy-divider-line" />
-            <span className="fancy-divider-icon">✦</span>
-            <span className="fancy-divider-line" />
+            <span
+              className="fancy-divider-line"
+              style={{ backgroundColor: settings.dividerColor }}
+            />
+            <span
+              className="fancy-divider-icon"
+              style={{ color: settings.dividerColor }}
+            >
+              ✦
+            </span>
+            <span
+              className="fancy-divider-line"
+              style={{ backgroundColor: settings.dividerColor }}
+            />
           </div>
 
           <p className="hero-date">{dateText}</p>
@@ -284,7 +426,21 @@ export default function InviteClient({
       <main>
         {/* Davet kartı */}
         <section className="section section-invite" id="invite">
-          <div className="section-inner invite-card">
+          <div
+            className="section-inner invite-card"
+            style={{
+              maxWidth: 640,
+              margin: "0 auto",
+              textAlign: "center",
+              background: settings.sectionCardBackground || "rgba(0,0,0,0.75)",
+              borderRadius: 18,
+              border: `1px solid ${
+                settings.sectionCardBorderColor || "rgba(255,255,255,0.12)"
+              }`,
+              boxShadow: "0 14px 40px rgba(0,0,0,0.45)",
+              padding: "2.2rem 2rem",
+            }}
+          >
             <p className="invite-label">Değerli</p>
             <p className="invite-name">{displayGuestName}</p>
 
@@ -387,18 +543,32 @@ export default function InviteClient({
             </div>
 
             <div className="location-media">
-              <div className="location-map-wrapper">
-                <iframe
-                  src={embedUrl}
-                  width="100%"
-                  height="220"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Mekan Haritası"
-                  className="location-map"
-                ></iframe>
+              <div className="location-image-wrapper">
+                <img
+                  src={
+                    settings.locationImageUrl ||
+                    "/vedat-dalokay-nikah-salonu.png"
+                  }
+                  alt="Etkinlik mekanı"
+                  className="location-image"
+                />
+                <div className="location-image-overlay"></div>
               </div>
+
+              {embedUrl !== "about:blank" && (
+                <div className="location-map-wrapper">
+                  <iframe
+                    src={embedUrl}
+                    width="100%"
+                    height="220"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Mekan Haritası"
+                    className="location-map"
+                  ></iframe>
+                </div>
+              )}
             </div>
 
             <div className="location-actions">
@@ -408,19 +578,6 @@ export default function InviteClient({
                 rel="noopener noreferrer"
                 className="location-button"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="location-button-icon"
-                >
-                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
                 Haritada Aç
               </a>
             </div>
