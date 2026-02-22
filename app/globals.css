@@ -98,12 +98,22 @@ body {
 
 /* Hero */
 .hero {
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem;
+  padding: 1rem 0.5rem;
   text-align: center;
+}
+.font-lugrasimo {
+  font-family: var(--font-lugrasimo), cursive !important;
+}
+
+.font-italianno {
+  font-family: var(--font-italianno), cursive !important;
+}
+
+.font-charm {
+  font-family: var(--font-charm), cursive !important;
 }
 
 .hero-inner {
@@ -118,15 +128,16 @@ body {
 
 .hero-subtitle {
   text-transform: uppercase;
-  letter-spacing: 0.35em;
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.25em;
+  font-family: "Italianno";
+  font-size: 1.5rem;
+  margin-bottom: 1.75rem;
   line-height: 1.25rem;
   opacity: 0.85;
 }
 
 .hero-title {
-  font-size: clamp(2.8rem, 5vw, 4.6rem);
+  font-size: clamp(2.8rem, 6.5vw, 8rem);
   letter-spacing: 0.08em;
   margin-bottom: 0.75rem;
   line-height: 1.1;
@@ -145,6 +156,8 @@ body {
 
 .hero-date {
   font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
   margin-bottom: 0;
   opacity: 0.85;
 }
@@ -215,6 +228,8 @@ body {
 .section-subtitle {
   text-align: center;
   margin-bottom: 2.5rem;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
   font-size: 1.4rem;
   opacity: 0.85;
 }
@@ -285,7 +300,7 @@ body {
 .invite-label {
   text-transform: uppercase;
   letter-spacing: 0.25em;
-  font-size: 0.85rem;
+  font-size: 1.75rem;
   margin-bottom: 0.75rem;
   opacity: 0.85;
 }
@@ -375,8 +390,9 @@ body {
 }
 
 .location-title {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   margin-bottom: 1.25rem;
+  letter-spacing: 0.08em;
 }
 
 .location-info {
@@ -389,6 +405,7 @@ body {
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
+  font-family: "Charm";
 }
 
 .location-name {
@@ -408,7 +425,7 @@ body {
 }
 
 .location-time-text {
-  font-size: 0.95rem;
+  font-size: 1.5rem;
 }
 
 /* Görsel + Harita */
@@ -490,13 +507,17 @@ body {
 }
 
 .footer-names {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
 }
 
 .footer-date {
-  font-size: 0.875rem;
+  font-size: 1.2rem;
   letter-spacing: 0.08em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
 }
 
 .footer-credit {

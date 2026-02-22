@@ -8,6 +8,9 @@ import {
   Cookie,
   Dancing_Script,
   Parisienne,
+  Lugrasimo,
+  Italianno,
+  Charm,
   Playfair_Display,
 } from "next/font/google";
 
@@ -27,6 +30,22 @@ const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   variable: "--font-roboto",
+});
+
+const lugrasimo = Lugrasimo({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-lugrasimo",
+});
+const italianno = Italianno({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-italianno",
+});
+const charm = Charm({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-charm",
 });
 
 // Diğer fontları da burada tanımlıyoruz (davetiye için kullanacağız)
@@ -85,6 +104,9 @@ export default function RootLayout({
           dancingScript.variable,
           parisienne.variable,
           playfair.variable,
+          lugrasimo.variable,
+          italianno.variable,
+          charm.variable,
         ].join(" ")}
       >
         {children}

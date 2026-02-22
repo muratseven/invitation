@@ -21,7 +21,7 @@ type InvitationPayload = {
   backgroundColor?: string;
   backgroundOverlayOpacity?: number;
 
-  fontFamily?: FontFamily;
+  fontFamily: FontFamily;
   heroSubtitle?: string;
   heroSubtitleColor?: string;
   heroNamesColor?: string;
@@ -53,6 +53,9 @@ type FontFamily =
   | "cookie"
   | "dancing-script"
   | "parisienne"
+  | "lugrasimo"
+  | "italianno"
+  | "charm"
   | "playfair";
 
 type InvitationSettings = {
@@ -72,7 +75,7 @@ type InvitationSettings = {
   backgroundColor: string;
   backgroundOverlayOpacity: number;
 
-  fontFamily?: FontFamily;
+  fontFamily: FontFamily;
   heroSubtitle: string;
   heroSubtitleColor: string;
   heroNamesColor: string;
@@ -305,10 +308,17 @@ export default function InviteClient({
     cookie: "font-cookie",
     "dancing-script": "font-dancing-script",
     parisienne: "font-parisienne",
+    lugrasimo: "font-lugrasimo",
+    italianno: "font-italianno",
+    charm: "font-charm",
     playfair: "font-playfair",
   };
 
-  const currentFontClass = fontClassMap[settings.fontFamily] ?? "";
+  // TypeScript için garantili bir key kullan
+  const fontKey: FontFamily = settings.fontFamily ?? "pacifico";
+const currentFontClass = fontClassMap[fontKey] ?? "";
+
+
   return (
     <div
       className={`page-overlay invitation-root ${currentFontClass}`}
@@ -333,12 +343,23 @@ export default function InviteClient({
         <div className="hero-inner" style={{ backgroundColor: "transparent" }}>
           <p
             className="hero-subtitle"
-            style={{ color: settings.heroSubtitleColor }}
+            style={{
+              color: settings.heroSubtitleColor,
+              fontFamily: "Italianno",
+              fontWeight: "400",
+              fontStyle: "normal",
+            }}
           >
             {settings.heroSubtitle}
           </p>
 
-          <h1 className="hero-title" style={{ color: settings.heroNamesColor }}>
+          <h1
+            className="hero-title"
+            style={{
+              color: settings.heroNamesColor,
+              fontSize: "clamp(3rem, 5.4vw, 4.8rem)",
+            }}
+          >
             <span className="hero-line">{settings.brideName}</span>
             <span
               className="hero-ampersand"
@@ -368,7 +389,15 @@ export default function InviteClient({
             />
           </div>
 
-          <p className="hero-date">{dateText}</p>
+          <p
+            className="hero-date"
+            style={{
+              fontFamily:
+                'var(--font-Great Vibes), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            }}
+          >
+            {dateText}
+          </p>
 
           <div className="location-time-row" style={{ marginTop: "0.4rem" }}>
             <svg
@@ -387,16 +416,7 @@ export default function InviteClient({
             <span className="location-time-text">{settings.time}</span>
           </div>
 
-          <p
-            style={{
-              marginTop: "1rem",
-              fontSize: "0.95rem",
-              color: "rgba(255,255,255,0.8)",
-            }}
-          >
-            Sevgili <span style={{ fontWeight: 600 }}>{displayGuestName}</span>,
-            bu özel günümüzde seni de aramızda görmek isteriz.
-          </p>
+         
 
           <div className="hero-scroll">
             <a
@@ -453,7 +473,15 @@ export default function InviteClient({
         {/* Geri Sayım */}
         <section className="section" id="countdown">
           <div className="section-inner">
-            <h2>Geri Sayım</h2>
+            <h2
+              style={{
+                fontFamily:
+                  'var(--font-Lugrasimo), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              }}
+            >
+              Geri Sayım
+            </h2>
+
             <p className="section-subtitle">Hayatımızın en özel günü için</p>
 
             <div className="countdown-grid">
@@ -517,11 +545,15 @@ export default function InviteClient({
               </svg>
             </div>
 
-            <h3 className="location-title">Konum</h3>
+            <h3 className="location-title" style={{ fontSize: "2.4rem" }}>
+              Konum
+            </h3>
 
             <div className="location-info">
               <div className="location-name-row">
-                <span className="location-name">{settings.locationText}</span>
+                <span className="location-name" style={{ fontSize: "1.9rem" }}>
+                  {settings.locationText}
+                </span>
               </div>
 
               <div className="location-time-row">
@@ -591,6 +623,7 @@ export default function InviteClient({
             background: settings.footerBackground,
             width: "100vw",
             marginLeft: "calc(50% - 50vw)",
+            padding: "2.5rem 0 2.5rem",
           }}
         >
           <svg

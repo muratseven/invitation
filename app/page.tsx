@@ -5,7 +5,13 @@
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import React, { useEffect, useState } from "react";
 import { parseMapInput } from "./lib/mapUtils"; // relative path’i dosya yapına göre düzelt
-
+import Link from "next/link";
+type LicenseInfo = {
+  maxGuests: number;
+};
+const DEFAULT_LICENSE: LicenseInfo = {
+  maxGuests: 50,
+};
 type FontFamily =
   | "great-vibes"
   | "cormorant"
@@ -14,9 +20,12 @@ type FontFamily =
   | "cookie"
   | "dancing-script"
   | "parisienne"
+  | "lugrasimo"
+  | "italianno"
+  | "charm"
   | "playfair";
 
-type InvitationSettings = {
+export type InvitationSettings = {
   brideName: string;
   groomName: string;
   title: string;
@@ -33,41 +42,105 @@ type InvitationSettings = {
   donationOrganization: "tema" | "cydd" | "kiz-cocuklari" | "losev" | "custom";
   donationImageUrl: string;
   showFamilySection: boolean;
-  // Arkaplan overlay rengi (video üstü)
+
   backgroundColor: string;
   backgroundOverlayOpacity: number;
 
-  // Eski alanlar (istersen sonra kaldırırsın)
   primaryTextColor: string;
   buttonBackground: string;
   buttonTextColor: string;
 
   fontFamily: FontFamily;
+
+  // ↓↓↓ YENİ EKLE
+  heroTitleSize: string;
+  heroSubtitleSize: string;
+  // ↑↑↑
+
   family1Mother: string;
   family1Father: string;
   family1Surname: string;
   family2Mother: string;
   family2Father: string;
   family2Surname: string;
+
   donationBackground: string;
   locationBackground: string;
   footerBackground: string;
 
-  // Yeni renk alanları (ekran görüntüsüne göre)
-  backgroundBaseColor: string; // Arka Plan Rengi (#111111)
-  headingColor: string; // Başlık Rengi
-  personNameColor: string; // Kişi İsimleri Rengi
-  familyRowColor: string; // Aile Satırı Rengi
-  parentRowColor: string; // Ebeveyn Satırı Rengi
-  photoBorderColor: string; // Fotoğraf Kenarlık Rengi
-  lowerMessageColor: string; // Alt Mesaj Rengi
-  lowerCoupleNameColor: string; // Alt Çift İsmi Rengi
-  sectionCardBackground: string; // section kart arka planı
-  sectionCardBorderColor: string; // section kart border
+  backgroundBaseColor: string;
+  headingColor: string;
+  personNameColor: string;
+  familyRowColor: string;
+  parentRowColor: string;
+  photoBorderColor: string;
+  lowerMessageColor: string;
+  lowerCoupleNameColor: string;
+  sectionCardBackground: string;
+  sectionCardBorderColor: string;
   heroSubtitleColor: string;
   heroNamesColor: string;
   ampersandColor: string;
   dividerColor: string;
+};
+
+export const DEFAULT_SETTINGS: InvitationSettings = {
+  brideName: "Sine",
+  groomName: "Murat",
+  title: "Nişanımıza davetlisiniz!",
+  heroSubtitle: "Biz evleniyoruz",
+  dateRaw: "",
+  eventDate: null,
+  time: "18:30 - 22:00",
+  locationText:
+    "Saraç İshak, Tavşantaşı Sk. No:5, 34130 Fatih/İstanbul, Türkiye",
+  mapsUrl:
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.672441411698!2d32.85890307731811!3d39.92634597152287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34e5118453e7b%3A0x1a24327dbe143027!2sVedat%20Dalokay%20Nikah%20Salonu!5e0!3m2!1str!2str!4v1770197797747!5m2!1str!2str",
+  locationImageUrl: "/vedat-dalokay-nikah-salonu.png",
+  inviteText: "Bu özel günümüze davetlisiniz!",
+  donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
+  showDonationSection: false,
+  donationOrganization: "tema",
+  donationImageUrl: "/fidan_ga_wm.jpg",
+  showFamilySection: false,
+
+  backgroundColor: "#000000",
+  backgroundOverlayOpacity: 0.6,
+
+  primaryTextColor: "#ffffff",
+  buttonBackground: "#d9e2c0",
+  buttonTextColor: "#1f2620",
+
+  fontFamily: "pacifico",
+
+  // yeni alanlar – istersen pacifico temasındaki değerlerle eşleştirdim
+  heroTitleSize: "clamp(1.4rem, 2.4vw, 3.2rem)",
+  heroSubtitleSize: "0.8rem",
+
+  family1Mother: "",
+  family1Father: "",
+  family1Surname: "",
+  family2Mother: "",
+  family2Father: "",
+  family2Surname: "",
+
+  backgroundBaseColor: "#111111",
+  headingColor: "#ffffff",
+  personNameColor: "#ffffff",
+  familyRowColor: "#ffffff",
+  parentRowColor: "#ffffff",
+  photoBorderColor: "#ffffff",
+  lowerMessageColor: "#ffffff",
+  lowerCoupleNameColor: "#ffffff",
+  sectionCardBackground: "rgba(0,0,0,0.58)",
+  sectionCardBorderColor: "rgba(255,255,255,0.18)",
+  heroSubtitleColor: "#ffffff",
+  heroNamesColor: "#ffffff",
+  ampersandColor: "#ffffff",
+  dividerColor: "rgba(255,255,255,0.5)",
+  donationBackground: "rgba(0,0,0,0.58)",
+  locationBackground: "rgba(0,0,0,0.58)",
+  footerBackground: "rgba(0,0,0,0.58)",
 };
 
 type Guest = {
@@ -80,7 +153,7 @@ type Guest = {
   lastCopiedAt?: number;
 };
 
-type Countdown = {
+export type Countdown = {
   days: number;
   hours: number;
   minutes: number;
@@ -122,16 +195,6 @@ function base64EncodeUnicode(str: string): string {
     encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
       String.fromCharCode(Number("0x" + p1))
     )
-  );
-}
-
-function base64DecodeUnicode(str: string): string {
-  // btoa ile encode edilmiş Latin1 string'i tekrar UTF-8'e çevirir
-  return decodeURIComponent(
-    atob(str)
-      .split("")
-      .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-      .join("")
   );
 }
 
@@ -178,64 +241,347 @@ function slugifyName(name: string): string {
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 }
+type ThemeId = FontFamily;
+
+type Theme = {
+  id: ThemeId;
+  label: string;
+  mood: string;
+  previewImage: string;
+  heroTitleSize: string;
+  heroSubtitleSize: string;
+  settings: Pick<
+    InvitationSettings,
+    | "fontFamily"
+    | "backgroundColor"
+    | "backgroundOverlayOpacity"
+    | "heroSubtitleColor"
+    | "heroNamesColor"
+    | "ampersandColor"
+    | "dividerColor"
+    | "backgroundBaseColor"
+    | "headingColor"
+    | "personNameColor"
+    | "familyRowColor"
+    | "parentRowColor"
+    | "photoBorderColor"
+    | "lowerMessageColor"
+    | "lowerCoupleNameColor"
+    | "sectionCardBackground"
+    | "sectionCardBorderColor"
+    | "donationBackground"
+    | "locationBackground"
+    | "footerBackground"
+  >;
+};
+
+export const THEMES: Theme[] = [
+  {
+    id: "pacifico",
+    label: "Soft Romance",
+    mood: "Sıcak ve modern, romantik ama sade çiftler için.",
+    previewImage: "/themes/soft-romance.jpg",
+    heroTitleSize: "clamp(1.4rem, 2.4vw, 3.2rem)",
+    heroSubtitleSize: "0.8rem",
+    settings: {
+      fontFamily: "pacifico",
+      backgroundColor: "#050608",
+      backgroundOverlayOpacity: 0.6,
+      heroSubtitleColor: "#ffffff",
+      heroNamesColor: "#ffffff",
+      ampersandColor: "#ffffff",
+      dividerColor: "rgba(255,255,255,0.55)",
+      backgroundBaseColor: "#111111",
+      headingColor: "#ffffff",
+      personNameColor: "#ffffff",
+      familyRowColor: "#ffffff",
+      parentRowColor: "#ffffff",
+      photoBorderColor: "#ffffff",
+      lowerMessageColor: "#ffffff",
+      lowerCoupleNameColor: "#ffffff",
+      sectionCardBackground: "rgba(0,0,0,0.62)",
+      sectionCardBorderColor: "rgba(255,255,255,0.20)",
+      donationBackground: "rgba(0,0,0,0.62)",
+      locationBackground: "rgba(0,0,0,0.62)",
+      footerBackground: "rgba(0,0,0,0.62)",
+    },
+  },
+  {
+    id: "italianno",
+    label: "Classic Elegance",
+    mood: "Zarif ve klasik düğünler için ince çizgiler ve akıcı fontlar.",
+    previewImage: "/themes/classic-elegance.jpg",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
+    settings: {
+      fontFamily: "italianno",
+      backgroundColor: "#030203",
+      backgroundOverlayOpacity: 0.55,
+      heroSubtitleColor: "#f5f5f5",
+      heroNamesColor: "#ffffff",
+      ampersandColor: "#f5d9b0",
+      dividerColor: "rgba(245,217,176,0.85)",
+      backgroundBaseColor: "#101010",
+      headingColor: "#f5f5f5",
+      personNameColor: "#f5f5f5",
+      familyRowColor: "#f5f5f5",
+      parentRowColor: "#f5f5f5",
+      photoBorderColor: "#f5d9b0",
+      lowerMessageColor: "#f5f5f5",
+      lowerCoupleNameColor: "#f5f5f5",
+      sectionCardBackground: "rgba(0,0,0,0.70)",
+      sectionCardBorderColor: "rgba(245,217,176,0.35)",
+      donationBackground: "rgba(0,0,0,0.70)",
+      locationBackground: "rgba(0,0,0,0.70)",
+      footerBackground: "rgba(0,0,0,0.70)",
+    },
+  },
+  {
+    id: "great-vibes",
+    label: "Romantic Script",
+    mood: "El yazısı hissiyle romantik ve gösterişli davetler.",
+    previewImage: "/themes/romantic-script.jpg",
+    heroTitleSize: "clamp(3.2rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.1rem",
+    settings: {
+      fontFamily: "great-vibes",
+      backgroundColor: "#05030a",
+      backgroundOverlayOpacity: 0.58,
+      heroSubtitleColor: "#fdf6e9",
+      heroNamesColor: "#fdf6e9",
+      ampersandColor: "#f5d0a0",
+      dividerColor: "rgba(253,246,233,0.7)",
+      backgroundBaseColor: "#151015",
+      headingColor: "#fdf6e9",
+      personNameColor: "#fdf6e9",
+      familyRowColor: "#fdf6e9",
+      parentRowColor: "#fdf6e9",
+      photoBorderColor: "#f5d0a0",
+      lowerMessageColor: "#fdf6e9",
+      lowerCoupleNameColor: "#fdf6e9",
+      sectionCardBackground: "rgba(5,3,10,0.76)",
+      sectionCardBorderColor: "rgba(245,208,160,0.42)",
+      donationBackground: "rgba(5,3,10,0.76)",
+      locationBackground: "rgba(5,3,10,0.76)",
+      footerBackground: "rgba(5,3,10,0.76)",
+    },
+  },
+  {
+    id: "cormorant",
+    label: "Editorial Chic",
+    mood: "Dergi kapağı estetiğinde, sofistike ve modern.",
+    previewImage: "/themes/editorial-chic.jpg",
+    heroTitleSize: "clamp(3rem, 5vw, 4.6rem)",
+    heroSubtitleSize: "0.95rem",
+    settings: {
+      fontFamily: "cormorant",
+      backgroundColor: "#050608",
+      backgroundOverlayOpacity: 0.62,
+      heroSubtitleColor: "#e5e5e5",
+      heroNamesColor: "#ffffff",
+      ampersandColor: "#ffffff",
+      dividerColor: "rgba(229,229,229,0.7)",
+      backgroundBaseColor: "#090909",
+      headingColor: "#ffffff",
+      personNameColor: "#ffffff",
+      familyRowColor: "#e5e5e5",
+      parentRowColor: "#e5e5e5",
+      photoBorderColor: "#e5e5e5",
+      lowerMessageColor: "#e5e5e5",
+      lowerCoupleNameColor: "#ffffff",
+      sectionCardBackground: "rgba(0,0,0,0.78)",
+      sectionCardBorderColor: "rgba(229,229,229,0.32)",
+      donationBackground: "rgba(0,0,0,0.78)",
+      locationBackground: "rgba(0,0,0,0.78)",
+      footerBackground: "rgba(0,0,0,0.78)",
+    },
+  },
+  {
+    id: "lugrasimo",
+    label: "Vintage Noir",
+    mood: "Siyah-beyaz fotoğraf hissiyle nostaljik ve şık.",
+    previewImage: "/themes/vintage-noir.jpg",
+    heroTitleSize: "clamp(3.1rem, 5.5vw, 4.7rem)",
+    heroSubtitleSize: "1.0rem",
+    settings: {
+      fontFamily: "lugrasimo",
+      backgroundColor: "#020304",
+      backgroundOverlayOpacity: 0.65,
+      heroSubtitleColor: "#f0f0f0",
+      heroNamesColor: "#f0f0f0",
+      ampersandColor: "#f0f0f0",
+      dividerColor: "rgba(240,240,240,0.7)",
+      backgroundBaseColor: "#111111",
+      headingColor: "#f0f0f0",
+      personNameColor: "#f0f0f0",
+      familyRowColor: "#f0f0f0",
+      parentRowColor: "#f0f0f0",
+      photoBorderColor: "#f0f0f0",
+      lowerMessageColor: "#f0f0f0",
+      lowerCoupleNameColor: "#f0f0f0",
+      sectionCardBackground: "rgba(0,0,0,0.80)",
+      sectionCardBorderColor: "rgba(240,240,240,0.28)",
+      donationBackground: "rgba(0,0,0,0.80)",
+      locationBackground: "rgba(0,0,0,0.80)",
+      footerBackground: "rgba(0,0,0,0.80)",
+    },
+  },
+  {
+    id: "charm",
+    label: "Pastel Dream",
+    mood: "Pastel tonlarda yumuşak ve samimi bir atmosfer.",
+    previewImage: "/themes/pastel-dream.jpg",
+    heroTitleSize: "clamp(3rem, 5.4vw, 4.5rem)",
+    heroSubtitleSize: "1.0rem",
+    settings: {
+      fontFamily: "charm",
+      backgroundColor: "#1b1b26",
+      backgroundOverlayOpacity: 0.62,
+      heroSubtitleColor: "#ffe6f2",
+      heroNamesColor: "#ffffff",
+      ampersandColor: "#ffd1dc",
+      dividerColor: "rgba(255,209,220,0.7)",
+      backgroundBaseColor: "#151524",
+      headingColor: "#ffe6f2",
+      personNameColor: "#ffe6f2",
+      familyRowColor: "#ffe6f2",
+      parentRowColor: "#ffe6f2",
+      photoBorderColor: "#ffd1dc",
+      lowerMessageColor: "#ffe6f2",
+      lowerCoupleNameColor: "#ffe6f2",
+      sectionCardBackground: "rgba(10,10,25,0.80)",
+      sectionCardBorderColor: "rgba(255,209,220,0.35)",
+      donationBackground: "rgba(10,10,25,0.80)",
+      locationBackground: "rgba(10,10,25,0.80)",
+      footerBackground: "rgba(10,10,25,0.80)",
+    },
+  },
+  {
+    id: "sofia",
+    label: "Modern Minimal",
+    mood: "Az renk, yüksek kontrast; modern ve net.",
+    previewImage: "/themes/modern-minimal.jpg",
+    heroTitleSize: "clamp(3.1rem, 5vw, 4.3rem)",
+    heroSubtitleSize: "0.95rem",
+    settings: {
+      fontFamily: "sofia",
+      backgroundColor: "#050506",
+      backgroundOverlayOpacity: 0.58,
+      heroSubtitleColor: "#f5f5f5",
+      heroNamesColor: "#ffffff",
+      ampersandColor: "#ffffff",
+      dividerColor: "rgba(245,245,245,0.6)",
+      backgroundBaseColor: "#111111",
+      headingColor: "#ffffff",
+      personNameColor: "#ffffff",
+      familyRowColor: "#f5f5f5",
+      parentRowColor: "#f5f5f5",
+      photoBorderColor: "#f5f5f5",
+      lowerMessageColor: "#f5f5f5",
+      lowerCoupleNameColor: "#ffffff",
+      sectionCardBackground: "rgba(0,0,0,0.76)",
+      sectionCardBorderColor: "rgba(245,245,245,0.24)",
+      donationBackground: "rgba(0,0,0,0.76)",
+      locationBackground: "rgba(0,0,0,0.76)",
+      footerBackground: "rgba(0,0,0,0.76)",
+    },
+  },
+  {
+    id: "cookie",
+    label: "Warm Autumn",
+    mood: "Sonbahar tonlarında sıcak, ev hissi veren davetler.",
+    previewImage: "/themes/warm-autumn.jpg",
+    heroTitleSize: "clamp(3.2rem, 5.5vw, 4.6rem)",
+    heroSubtitleSize: "1.0rem",
+    settings: {
+      fontFamily: "cookie",
+      backgroundColor: "#201411",
+      backgroundOverlayOpacity: 0.64,
+      heroSubtitleColor: "#ffe5cf",
+      heroNamesColor: "#fff1e2",
+      ampersandColor: "#ffbe88",
+      dividerColor: "rgba(255,190,136,0.75)",
+      backgroundBaseColor: "#140d0b",
+      headingColor: "#fff1e2",
+      personNameColor: "#fff1e2",
+      familyRowColor: "#ffe5cf",
+      parentRowColor: "#ffe5cf",
+      photoBorderColor: "#ffbe88",
+      lowerMessageColor: "#ffe5cf",
+      lowerCoupleNameColor: "#fff1e2",
+      sectionCardBackground: "rgba(18,8,4,0.82)",
+      sectionCardBorderColor: "rgba(255,190,136,0.38)",
+      donationBackground: "rgba(18,8,4,0.82)",
+      locationBackground: "rgba(18,8,4,0.82)",
+      footerBackground: "rgba(18,8,4,0.82)",
+    },
+  },
+  {
+    id: "dancing-script",
+    label: "Golden Hour",
+    mood: "Gün batımı tonlarında ışık ve gölge uyumu.",
+    previewImage: "/themes/golden-hour.jpg",
+    heroTitleSize: "clamp(3.3rem, 6vw, 4.9rem)",
+    heroSubtitleSize: "1.1rem",
+    settings: {
+      fontFamily: "dancing-script",
+      backgroundColor: "#1b130e",
+      backgroundOverlayOpacity: 0.66,
+      heroSubtitleColor: "#ffeacd",
+      heroNamesColor: "#fff5e6",
+      ampersandColor: "#ffd08a",
+      dividerColor: "rgba(255,234,205,0.78)",
+      backgroundBaseColor: "#120c08",
+      headingColor: "#fff5e6",
+      personNameColor: "#fff5e6",
+      familyRowColor: "#ffeacd",
+      parentRowColor: "#ffeacd",
+      photoBorderColor: "#ffd08a",
+      lowerMessageColor: "#ffeacd",
+      lowerCoupleNameColor: "#fff5e6",
+      sectionCardBackground: "rgba(19,9,4,0.84)",
+      sectionCardBorderColor: "rgba(255,234,205,0.36)",
+      donationBackground: "rgba(19,9,4,0.84)",
+      locationBackground: "rgba(19,9,4,0.84)",
+      footerBackground: "rgba(19,9,4,0.84)",
+    },
+  },
+  {
+    id: "playfair",
+    label: "Timeless Classic",
+    mood: "Zamana meydan okuyan, derli toplu klasik tarz.",
+    previewImage: "/themes/timeless-classic.jpg",
+    heroTitleSize: "clamp(3rem, 5vw, 4.4rem)",
+    heroSubtitleSize: "0.95rem",
+    settings: {
+      fontFamily: "playfair",
+      backgroundColor: "#050609",
+      backgroundOverlayOpacity: 0.6,
+      heroSubtitleColor: "#eaeaea",
+      heroNamesColor: "#ffffff",
+      ampersandColor: "#ffffff",
+      dividerColor: "rgba(234,234,234,0.7)",
+      backgroundBaseColor: "#101010",
+      headingColor: "#ffffff",
+      personNameColor: "#ffffff",
+      familyRowColor: "#eaeaea",
+      parentRowColor: "#eaeaea",
+      photoBorderColor: "#eaeaea",
+      lowerMessageColor: "#eaeaea",
+      lowerCoupleNameColor: "#ffffff",
+      sectionCardBackground: "rgba(0,0,0,0.78)",
+      sectionCardBorderColor: "rgba(234,234,234,0.26)",
+      donationBackground: "rgba(0,0,0,0.78)",
+      locationBackground: "rgba(0,0,0,0.78)",
+      footerBackground: "rgba(0,0,0,0.78)",
+    },
+  },
+];
 
 export default function EditorPage() {
   const [settingsLoaded, setSettingsLoaded] = useState(false);
-  const [settings, setSettings] = useState<InvitationSettings>({
-    brideName: "Sine",
-    groomName: "Murat",
-    title: "Nişanımıza davetlisiniz!",
-    heroSubtitle: "Biz evleniyoruz",
-    dateRaw: "",
-    eventDate: null,
-    time: "18:30 - 22:00",
-    locationText:
-      "Saraç İshak, Tavşantaşı Sk. No:5, 34130 Fatih/İstanbul, Türkiye",
-    mapsUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.672441411698!2d32.85890307731811!3d39.92634597152287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34e5118453e7b%3A0x1a24327dbe143027!2sVedat%20Dalokay%20Nikah%20Salonu!5e0!3m2!1str!2str!4v1770197797747!5m2!1str!2str",
-    locationImageUrl: "/vedat-dalokay-nikah-salonu.png",
-    inviteText: "Bu özel günümüze davetlisiniz!",
-    donationText: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk",
-    showDonationSection: false,
-    donationOrganization: "tema",
-    donationImageUrl: "/fidan_ga_wm.jpg",
-    showFamilySection: false,
-    // Video üstü overlay
-    backgroundColor: "#000000",
-    backgroundOverlayOpacity: 0.6,
-
-    // Eski alanlar (şimdilik aynı kalsın)
-    primaryTextColor: "#ffffff",
-    buttonBackground: "#d9e2c0",
-    buttonTextColor: "#1f2620",
-
-    fontFamily: "pacifico",
-    family1Mother: "",
-    family1Father: "",
-    family1Surname: "",
-    family2Mother: "",
-    family2Father: "",
-    family2Surname: "",
-
-    // Yeni renk alanları - ekran görüntüsüne göre default
-    backgroundBaseColor: "#111111", // Arka Plan Rengi
-    headingColor: "#ffffff", // Başlık Rengi
-    personNameColor: "#ffffff", // Kişi isimleri
-    familyRowColor: "#ffffff", // Aile satırı
-    parentRowColor: "#ffffff", // Ebeveyn satırı
-    photoBorderColor: "#ffffff", // Fotoğraf kenarlık
-    lowerMessageColor: "#ffffff", // Alt mesaj
-    lowerCoupleNameColor: "#ffffff", // Alt çift ismi
-    sectionCardBackground: "rgba(0,0,0,0.58)",
-    sectionCardBorderColor: "rgba(255,255,255,0.18)",
-    heroSubtitleColor: "#ffffff",
-    heroNamesColor: "#ffffff",
-    ampersandColor: "#ffffff",
-    dividerColor: "rgba(255,255,255,0.5)",
-    donationBackground: "rgba(0,0,0,0.58)",
-    locationBackground: "rgba(0,0,0,0.58)",
-    footerBackground: "rgba(0,0,0,0.58)",
-  });
+  const [settings, setSettings] =
+    useState<InvitationSettings>(DEFAULT_SETTINGS);
 
   const emptyCountdown: Countdown = {
     days: 0,
@@ -244,6 +590,7 @@ export default function EditorPage() {
     seconds: 0,
     finished: false,
   };
+
   const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
     "idle"
@@ -275,6 +622,25 @@ export default function EditorPage() {
     { id: 5, label: "Davetliler & Linkler" },
   ];
 
+  const [license, setLicense] = useState<LicenseInfo>(DEFAULT_LICENSE);
+  const [licenseError, setLicenseError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const savedLicense = window.localStorage.getItem("invitationLicense");
+    if (savedLicense) {
+      try {
+        const parsed = JSON.parse(savedLicense) as Partial<LicenseInfo>;
+        if (parsed.maxGuests && parsed.maxGuests > 0) {
+          setLicense({ maxGuests: parsed.maxGuests });
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
   const tableRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -283,10 +649,26 @@ export default function EditorPage() {
 
   const [origin, setOrigin] = useState<string>("");
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(true);
+  type EditorMode = "user" | "admin";
+
+  const [mode, setMode] = useState<EditorMode>("user");
   const [familyTab, setFamilyTab] = useState<"family1" | "family2">("family1");
   const [dateDay, setDateDay] = useState<string>("");
   const [dateMonth, setDateMonth] = useState<string>("");
   const [dateYear, setDateYear] = useState<string>("");
+  const [hasPaid, setHasPaid] = useState<boolean>(false); // gerçekte bu backend'den gelir
+
+  const applyTheme = (themeId: ThemeId) => {
+    const theme = THEMES.find((t) => t.id === themeId);
+    if (!theme) return;
+
+    setSettings((prev) => ({
+      ...prev,
+      ...theme.settings,
+      heroTitleSize: theme.heroTitleSize,
+      heroSubtitleSize: theme.heroSubtitleSize,
+    }));
+  };
 
   const handleCopyGuestLink = async (guest: Guest) => {
     if (!origin) return;
@@ -322,6 +704,13 @@ export default function EditorPage() {
   };
 
   const handleAddManualGuest = () => {
+    if (guests.length >= license.maxGuests) {
+      setLicenseError(
+        `Lisansınız en fazla ${license.maxGuests} davetliye izin veriyor. Daha fazla davetli eklemek için üst pakete geçmeniz gerekiyor.`
+      );
+      return;
+    }
+
     const newGuest: Guest = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       name: "",
@@ -330,7 +719,6 @@ export default function EditorPage() {
     };
     setGuests((prev) => [...prev, newGuest]);
 
-    // Bir sonraki frame'de en alta scroll et
     requestAnimationFrame(() => {
       const el = tableRef.current;
       if (el) {
@@ -341,14 +729,6 @@ export default function EditorPage() {
       }
     });
   };
-
-  function base64EncodeUnicode(str: string): string {
-    return btoa(
-      encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
-        String.fromCharCode(Number("0x" + p1))
-      )
-    );
-  }
 
   function buildGuestPayload(guest: Guest, settings: InvitationSettings) {
     return {
@@ -417,21 +797,8 @@ export default function EditorPage() {
     setGuests((prev) => prev.filter((g) => g.id !== id));
   };
 
-  function base64DecodeUnicode(str: string): string {
-    return decodeURIComponent(
-      atob(str)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-  }
-
   const handleDownloadCsvExample = () => {
-    const sample = [
-      "name",
-      "Murat Yıldırım",
-      "Ayşe Demir",
-    ].join("\n");
+    const sample = ["name", "Murat Yıldırım", "Ayşe Demir"].join("\n");
 
     const blob = new Blob([sample], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -582,6 +949,7 @@ export default function EditorPage() {
 
   const handleCsvUpload = (file: File) => {
     setCsvError(null);
+    setLicenseError(null);
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -599,6 +967,22 @@ export default function EditorPage() {
       }
 
       const parsedGuests: Guest[] = [];
+      const allowedCount = license.maxGuests - guests.length;
+      if (allowedCount <= 0) {
+        setCsvError(
+          `Lisansınız en fazla ${license.maxGuests} davetliye izin veriyor. Yeni CSV'den davetli eklenemedi.`
+        );
+        return;
+      }
+
+      const limitedGuests = parsedGuests.slice(0, allowedCount);
+      if (limitedGuests.length < parsedGuests.length) {
+        setCsvError(
+          `Lisansınız gereği ilk ${limitedGuests.length} davetli eklendi, kalanlar lisans limitini aşıyor.`
+        );
+      }
+
+      setGuests((prev) => [...prev, ...limitedGuests]);
 
       const headerLine = lines[0];
       const headerColumns = headerLine
@@ -715,29 +1099,80 @@ export default function EditorPage() {
 
   return (
     <div
-      className="relative min-h-screen text-slate-900"
+      className="relative min-h-screen text-slate-900 bg-gradient-to-b from-slate-900 via-slate-950 to-[#1a1012]"
       style={{ background: overlayColor }}
     >
-      {!isEditorOpen && (
-        <button
-          onClick={() => setIsEditorOpen(true)}
-          className="fixed bottom-5 right-5 z-30 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/30 text-[0.7rem] font-medium text-white shadow-lg hover:bg-white/20 hover:border-white/60 transition"
-        >
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-[0.6rem]">
-            ☰
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 bg-slate-950/90 backdrop-blur border-b border-slate-800 text-[0.75rem]">
+        {/* Sol taraf: logo + menü */}
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-200 font-semibold tracking-[0.18em] uppercase">
+            Dijital Davetiye
           </span>
-          Düzenle
-        </button>
+          <nav className="flex items-center gap-2">
+            <Link
+              href="/landing"
+              className="inline-flex items-center px-3 py-1.5 rounded-full bg-sky-500/90 text-slate-900 font-medium hover:bg-sky-400 transition-colors shadow-sm"
+            >
+              Anasayfa
+            </Link>
+
+            <Link
+              href="/preview"
+              className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-400/90 text-slate-900 font-medium hover:bg-amber-300 transition-colors shadow-sm"
+            >
+              Önizlemeyi Aç
+            </Link>
+          </nav>
+        </div>
+
+        {/* Sağ tarafı şimdilik boş bırakıyoruz, ileride ek bilgiler için kullanılabilir */}
+        <div className="hidden md:flex items-center gap-3 text-slate-300" />
+      </div>
+
+      {/* Sağ alt köşedeki butonlar */}
+      {!isEditorOpen && (
+        <div className="fixed bottom-5 right-5 z-30 flex flex-col gap-2">
+          <button
+            onClick={() => {
+              setMode("user");
+              setIsEditorOpen(true);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/30 text-[0.7rem] font-medium text-white shadow-lg hover:bg-white/20 hover:border-white/60 transition"
+          >
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-[0.6rem]">
+              ✏️
+            </span>
+            Düzenle
+          </button>
+
+          <button
+            onClick={() => {
+              setMode("admin");
+              setIsEditorOpen(true);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/80 backdrop-blur border border-red-300/80 text-[0.7rem] font-medium text-white shadow-lg hover:bg-red-500"
+          >
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-400/60 text-[0.6rem]">
+              ⚙
+            </span>
+            Admin düzenle
+          </button>
+        </div>
       )}
 
       {/* Editör paneli */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-slate-900 text-slate-50 border-l border-slate-800 z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-[32px] right-0 h-[calc(100%-32px)] w-full max-w-md bg-gradient-to-b from-slate-900 via-slate-950 to-[#111827] text-slate-50 border-l border-slate-800 z-40 transform transition-transform duration-300 ease-in-out ${
           isEditorOpen ? "translate-x-0" : "translate-x-full"
         } editor-font`}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-          <h1 className="text-sm font-semibold">Davetiye Editörü</h1>
+          <div>
+            <h1 className="text-sm font-semibold">Davetiye Editörü</h1>
+            <p className="text-[0.65rem] text-slate-400">
+              {mode === "user" ? "" : "Gelişmiş admin modu"}
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             {saveStatus === "saving" && (
               <span className="text-[0.65rem] text-slate-400">
@@ -965,8 +1400,53 @@ export default function EditorPage() {
               />
             </>
           )}
+          {activeStep === 3 && mode === "user" && (
+            <>
+              <SectionTitle label="Tema Seçimi" />
+              <p className="mb-2 text-[0.7rem] text-slate-400">
+                Hazır temalardan birini seçin. Font ve renkler tema ile birlikte
+                otomatik ayarlanır.
+              </p>
 
-          {activeStep === 3 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                {THEMES.map((theme) => {
+                  const isActive = settings.fontFamily === theme.id;
+
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => applyTheme(theme.id)}
+                      className={[
+                        "flex flex-col items-stretch rounded-xl border overflow-hidden text-left text-[0.7rem] transition",
+                        isActive
+                          ? "border-emerald-400/80 bg-emerald-500/10"
+                          : "border-slate-700 bg-slate-900/60 hover:bg-slate-800",
+                      ].join(" ")}
+                    >
+                      <div className="h-28 w-full overflow-hidden bg-slate-800">
+                        <img
+                          src={theme.previewImage}
+                          alt={theme.label}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="px-3 py-2">
+                        <p className="font-medium text-slate-50">
+                          {theme.label}
+                        </p>
+                        <p className="text-[0.65rem] text-slate-400">
+                          {theme.mood}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {activeStep === 3 && mode === "admin" && (
             <>
               <SectionTitle label="Yazı Tipi" />
               <div className="mb-3 text-xs text-slate-300">
@@ -985,6 +1465,9 @@ export default function EditorPage() {
                   <option value="dancing-script">Dancing Script</option>
                   <option value="parisienne">Parisienne</option>
                   <option value="playfair">Playfair Display</option>
+                  <option value="charm">Charm</option>
+                  <option value="lugrasimo">Lugrasimo</option>
+                  <option value="italianno">Italianno</option>
                 </select>
                 <p className="mt-1 text-[0.65rem] text-slate-400">
                   Başlık ve davet metninde kullanılacak yazı tipi.
@@ -1335,19 +1818,36 @@ export default function EditorPage() {
                     <div className="flex items-center gap-2">
                       {/* Örnek CSV indir + Dosya Yükle butonları */}
                     </div>
+                    <p className="mt-1 text-[0.7rem] text-slate-400">
+                      Lisansınız: en fazla {license.maxGuests} davetli linki
+                      oluşturabilirsiniz.
+                    </p>
+                    {licenseError && (
+                      <p className="mt-1 text-[0.7rem] text-red-400">
+                        {licenseError}
+                      </p>
+                    )}
 
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={handleAddManualGuest}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-600 text-white text-[0.7rem] font-medium hover:bg-emerald-500"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-500/90 text-slate-900 text-[0.7rem] font-medium hover:bg-emerald-400"
                       >
                         +1 Davetli Ekle
                       </button>
                       <button
                         type="button"
                         onClick={() => {
-                          for (let i = 0; i < 10; i++) {
+                          const remaining = license.maxGuests - guests.length;
+                          if (remaining <= 0) {
+                            setLicenseError(
+                              `Lisans sınırına ulaştınız (${license.maxGuests} davetli).`
+                            );
+                            return;
+                          }
+                          const toAdd = Math.min(10, remaining);
+                          for (let i = 0; i < toAdd; i++) {
                             handleAddManualGuest();
                           }
                         }}
@@ -1654,7 +2154,7 @@ function ColorField({ label, value, onChange }: FieldProps) {
 
 /* ---- Davetiye önizleme ---- */
 
-function InvitationPreview({
+export function InvitationPreview({
   settings,
   countdown,
   overlayColor,
@@ -1701,6 +2201,8 @@ function InvitationPreview({
     donationBackground,
     locationBackground,
     footerBackground,
+    heroTitleSize,
+    heroSubtitleSize,
   } = settings;
 
   const [openDonation, setOpenDonation] = useState(false);
@@ -1729,14 +2231,17 @@ function InvitationPreview({
     cookie: "font-cookie",
     "dancing-script": "font-dancing-script",
     parisienne: "font-parisienne",
+    lugrasimo: "font-lugrasimo",
+    italianno: "font-italianno",
+    charm: "font-charm",
     playfair: "font-playfair",
   };
 
-  const currentFontClass = fontClassMap[settings.fontFamily] ?? "";
+  const fontKey: FontFamily = settings.fontFamily ?? "pacifico";
+  const currentFontClass = fontClassMap[fontKey] ?? "";
 
   return (
     <div className={`page-overlay invitation-root ${currentFontClass}`}>
-      {/* Arka plan video */}
       <video className="bg-video" autoPlay muted loop playsInline>
         <source src="/bg.webm" type="video/webm" />
         Tarayıcınız video desteklemiyor.
@@ -1745,11 +2250,20 @@ function InvitationPreview({
       {/* Hero */}
       <header className="hero" id="top">
         <div className="hero-inner" style={{ backgroundColor: "transparent" }}>
-          <p className="hero-subtitle" style={{ color: heroSubtitleColor }}>
+          <p
+            className="hero-subtitle"
+            style={{ color: heroSubtitleColor, fontSize: heroSubtitleSize }}
+          >
             {heroSubtitle}
           </p>
 
-          <h1 className="hero-title" style={{ color: heroNamesColor }}>
+          <h1
+            className="hero-title"
+            style={{
+              color: heroNamesColor,
+              fontSize: heroTitleSize,
+            }}
+          >
             <span className="hero-line">{brideName}</span>
             <span
               className="hero-ampersand"
@@ -1797,7 +2311,7 @@ function InvitationPreview({
 
           <div className="hero-scroll">
             <a
-              href="#invite"
+              href="#countdown"
               className="hero-scroll-link"
               aria-label="Aşağı kaydır"
             >
@@ -2154,10 +2668,10 @@ function InvitationPreview({
         <footer
           className="footer"
           style={{
-            background: footerBackground,
-            borderTop: `1px solid ${sectionCardBorderColor}`,
+            background: settings.footerBackground,
             width: "100vw",
             marginLeft: "calc(50% - 50vw)",
+            padding: "2.5rem 0 2.5rem",
           }}
         >
           <svg
