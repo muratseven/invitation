@@ -1102,31 +1102,40 @@ export default function EditorPage() {
       className="relative min-h-screen text-slate-900 bg-gradient-to-b from-slate-900 via-slate-950 to-[#1a1012]"
       style={{ background: overlayColor }}
     >
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 bg-slate-950/90 backdrop-blur border-b border-slate-800 text-[0.75rem]">
-        {/* Sol taraf: logo + menü */}
-        <div className="flex items-center gap-3">
-          <span className="inline-flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-200 font-semibold tracking-[0.18em] uppercase">
-            Dijital Davetiye
-          </span>
-          <nav className="flex items-center gap-2">
-            <Link
-              href="/landing"
-              className="inline-flex items-center px-3 py-1.5 rounded-full bg-sky-500/90 text-slate-900 font-medium hover:bg-sky-400 transition-colors shadow-sm"
-            >
-              Anasayfa
-            </Link>
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between text-[0.75rem]">
+          {/* Sol: logo + menü */}
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-300/60">
+                💌
+              </span>
+              <div className="flex flex-col">
+                <span className="text-[0.7rem] tracking-[0.18em] uppercase text-slate-700">
+                  Dijital Davetiye Stüdyosu
+                </span>
+                <span className="text-xs text-slate-500">
+                  Davetiyeni düzenle ve canlı önizle
+                </span>
+              </div>
+            </div>
 
-            <Link
-              href="/preview"
-              className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-400/90 text-slate-900 font-medium hover:bg-amber-300 transition-colors shadow-sm"
-            >
-              Önizlemeyi Aç
-            </Link>
-          </nav>
+            <nav className="hidden md:flex items-center gap-2">
+              <Link
+                href="/landing#how-it-works"
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-900 shadow-sm shadow-emerald-300/70 hover:bg-emerald-400 border border-emerald-300 transition-colors"
+              >
+                Anasayfa
+              </Link>
+              <Link
+                href="/landing#pricing"
+                className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white border border-slate-200 hover:bg-amber-400 hover:text-slate-900 hover:border-amber-300 transition-colors"
+              >
+                Fiyatlandırma
+              </Link>
+            </nav>
+          </div>
         </div>
-
-        {/* Sağ tarafı şimdilik boş bırakıyoruz, ileride ek bilgiler için kullanılabilir */}
-        <div className="hidden md:flex items-center gap-3 text-slate-300" />
       </div>
 
       {/* Sağ alt köşedeki butonlar */}
@@ -1162,55 +1171,48 @@ export default function EditorPage() {
 
       {/* Editör paneli */}
       <div
-        className={`fixed top-[32px] right-0 h-[calc(100%-32px)] w-full max-w-md bg-gradient-to-b from-slate-900 via-slate-950 to-[#111827] text-slate-50 border-l border-slate-800 z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-[60px] h-[calc(100%-60px)] right-0 h-[calc(100%-40px)] w-full max-w-md bg-white/95 text-slate-900 border-l border-slate-200 z-40 rounded-l-3xl shadow-xl shadow-slate-300/60 transform transition-transform duration-300 ease-in-out ${
           isEditorOpen ? "translate-x-0" : "translate-x-full"
         } editor-font`}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
           <div>
-            <h1 className="text-sm font-semibold">Davetiye Editörü</h1>
-            <p className="text-[0.65rem] text-slate-400">
-              {mode === "user" ? "" : "Gelişmiş admin modu"}
+            <h1 className="text-sm font-semibold text-slate-900">
+              Davetiye Editörü
+            </h1>
+            <p className="text-[0.65rem] text-slate-500">
+              {mode === "user"
+                ? "Bilgileri doldurun, davetiye anında güncellensin"
+                : "Gelişmiş tema ve renk ayarları"}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            {saveStatus === "saving" && (
-              <span className="text-[0.65rem] text-slate-400">
-                Kaydediliyor…
-              </span>
-            )}
-            {saveStatus === "saved" && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-[0.65rem] text-emerald-300 border border-emerald-500/40">
-                ● Kaydedildi
-              </span>
-            )}
-            <button
-              onClick={() => setIsEditorOpen(false)}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
-            >
-              ✕
-            </button>
-          </div>
+          <button
+            onClick={() => setIsEditorOpen(false)}
+            className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200"
+          >
+            ✕
+          </button>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-800 text-[0.7rem]">
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-200 text-[0.7rem] bg-slate-50">
           {steps.map((step) => (
             <button
               key={step.id}
               type="button"
               onClick={() => setActiveStep(step.id as any)}
               className={[
-                "px-2.5 py-1 rounded-full border transition",
+                "px-2.5 py-1 rounded-full border text-xs font-medium transition-colors",
                 activeStep === step.id
-                  ? "bg-slate-100 text-slate-900 border-slate-100"
-                  : "bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800",
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100",
               ].join(" ")}
             >
               {step.id}. {step.label}
             </button>
           ))}
         </div>
-        <div className="h-[calc(100%-80px)] overflow-y-auto px-4 pb-6 pt-3">
+
+        <div className="h-[calc(100%-80px)] overflow-y-auto px-4 pb-6 pt-3 bg-white">
           {activeStep === 1 && (
             <>
               <SectionTitle label="Davetiye Başlığı" />
@@ -1221,7 +1223,7 @@ export default function EditorPage() {
                     onChange={(e) =>
                       handleChange("heroSubtitle", e.target.value)
                     }
-                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
                   />
                   <button
                     type="button"
@@ -1275,7 +1277,7 @@ export default function EditorPage() {
                     onChange={(e) =>
                       handleDatePartChange("day", e.target.value)
                     }
-                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
                   >
                     <option value="">Gün</option>
                     {Array.from({ length: 31 }, (_, i) => {
@@ -1294,7 +1296,7 @@ export default function EditorPage() {
                     onChange={(e) =>
                       handleDatePartChange("month", e.target.value)
                     }
-                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
                   >
                     <option value="">Ay</option>
                     {[
@@ -1326,7 +1328,7 @@ export default function EditorPage() {
                     onChange={(e) =>
                       handleDatePartChange("year", e.target.value)
                     }
-                    className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
                   >
                     <option value="">Yıl</option>
                     {Array.from({ length: 6 }, (_, i) => {
@@ -1418,10 +1420,10 @@ export default function EditorPage() {
                       type="button"
                       onClick={() => applyTheme(theme.id)}
                       className={[
-                        "flex flex-col items-stretch rounded-xl border overflow-hidden text-left text-[0.7rem] transition",
+                        "flex flex-col items-stretch rounded-xl border overflow-hidden text-left text-[0.7rem] transition shadow-sm",
                         isActive
-                          ? "border-emerald-400/80 bg-emerald-500/10"
-                          : "border-slate-700 bg-slate-900/60 hover:bg-slate-800",
+                          ? "border-emerald-400 bg-emerald-50"
+                          : "border-slate-200 bg-white hover:bg-slate-50",
                       ].join(" ")}
                     >
                       <div className="h-28 w-full overflow-hidden bg-slate-800">
@@ -1432,10 +1434,10 @@ export default function EditorPage() {
                         />
                       </div>
                       <div className="px-3 py-2">
-                        <p className="font-medium text-slate-50">
+                        <p className="font-medium text-slate-900">
                           {theme.label}
                         </p>
-                        <p className="text-[0.65rem] text-slate-400">
+                        <p className="text-[0.65rem] text-slate-500">
                           {theme.mood}
                         </p>
                       </div>
@@ -2059,12 +2061,12 @@ function SectionTitle({ label }: { label: string }) {
   return (
     <div className="mt-6 mb-3">
       <div className="flex items-center gap-2">
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-600/80">
-          <span className="text-[0.65rem] font-semibold tracking-[0.14em] text-slate-200 uppercase">
+        <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200">
+          <span className="text-[0.65rem] font-semibold tracking-[0.14em] text-slate-600 uppercase">
             {label}
           </span>
         </div>
-        <div className="h-px flex-1 bg-slate-700/80" />
+        <div className="h-px flex-1 bg-slate-200" />
       </div>
     </div>
   );
@@ -2087,17 +2089,17 @@ function TextField({
 }: FieldProps) {
   return (
     <div className="mb-3">
-      <label className="block mb-1 text-xs font-medium text-slate-300">
+      <label className="block mb-1 text-xs font-medium text-slate-700">
         {label}
       </label>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
       />
       {helperText && (
-        <p className="mt-1 text-[0.65rem] text-slate-400">{helperText}</p>
+        <p className="mt-1 text-[0.65rem] text-slate-500">{helperText}</p>
       )}
     </div>
   );
@@ -2112,7 +2114,7 @@ function TextAreaField({
 }: FieldProps) {
   return (
     <div className="mb-3">
-      <label className="block mb-1 text-xs font-medium text-slate-300">
+      <label className="block mb-1 text-xs font-medium text-slate-700">
         {label}
       </label>
       <textarea
@@ -2120,10 +2122,10 @@ function TextAreaField({
         onChange={(e) => onChange(e.target.value)}
         rows={3}
         placeholder={placeholder}
-        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs resize-y placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs resize-y placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
       />
       {helperText && (
-        <p className="mt-1 text-[0.65rem] text-slate-400">{helperText}</p>
+        <p className="mt-1 text-[0.65rem] text-slate-500">{helperText}</p>
       )}
     </div>
   );
@@ -2132,7 +2134,7 @@ function TextAreaField({
 function ColorField({ label, value, onChange }: FieldProps) {
   return (
     <div className="mb-3">
-      <label className="block mb-1 text-xs font-medium text-slate-300">
+      <label className="block mb-1 text-xs font-medium text-slate-700">
         {label}
       </label>
       <div className="flex items-center gap-2">
@@ -2140,12 +2142,12 @@ function ColorField({ label, value, onChange }: FieldProps) {
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-10 h-8 p-0 border-none bg-transparent"
+          className="w-10 h-8 p-0 border border-slate-200 rounded-md bg-white"
         />
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-slate-50 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/60"
+          className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
         />
       </div>
     </div>

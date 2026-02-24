@@ -337,6 +337,7 @@ export default function LandingPage() {
                 <li>• 10 hazır tema ve canlı önizleme editörü</li>
                 <li>• Google Maps ve bağış bölümü</li>
                 <li>• 1 yıl boyunca aktif davetiye sayfası</li>
+                <li>• 50 kişiye kadar ayrı URL</li>
               </ul>
               <Link
                 href="/editor?plan=basic"
@@ -361,7 +362,10 @@ export default function LandingPage() {
                 Orta ölçekli davetler ve şirket etkinlikleri için.
               </p>
               <ul className="mt-3 space-y-1 text-[0.75rem] text-slate-600">
-                <li>• Tüm Basic özellikleri</li>
+                <li>• Kişiye özel davet URL’leri</li>
+                <li>• 10 hazır tema ve canlı önizleme editörü</li>
+                <li>• Google Maps ve bağış bölümü</li>
+                <li>• 1 yıl boyunca aktif davetiye sayfası</li>
                 <li>• 100 kişiye kadar ayrı URL</li>
               </ul>
               <Link
@@ -387,7 +391,10 @@ export default function LandingPage() {
                 Büyük salon düğünleri ve geniş katılımlı organizasyonlar için.
               </p>
               <ul className="mt-3 space-y-1 text-[0.75rem] text-slate-600">
-                <li>• Tüm Standard özellikleri</li>
+                <li>• Kişiye özel davet URL’leri</li>
+                <li>• 10 hazır tema ve canlı önizleme editörü</li>
+                <li>• Google Maps ve bağış bölümü</li>
+                <li>• 1 yıl boyunca aktif davetiye sayfası</li>
                 <li>• 500 kişiye kadar ayrı URL</li>
               </ul>
               <Link
@@ -414,7 +421,10 @@ export default function LandingPage() {
                 için.
               </p>
               <ul className="mt-3 space-y-1 text-[0.75rem] text-slate-600">
-                <li>• Tüm Large özellikleri</li>
+                <li>• Kişiye özel davet URL’leri</li>
+                <li>• 10 hazır tema ve canlı önizleme editörü</li>
+                <li>• Google Maps ve bağış bölümü</li>
+                <li>• 1 yıl boyunca aktif davetiye sayfası</li>
                 <li>• 1000 kişiye kadar ayrı URL</li>
               </ul>
               <Link
@@ -480,9 +490,20 @@ export default function LandingPage() {
                 </thead>
                 <tbody>
                   <tr className="border-t border-slate-100">
-                    <td className="px-3 py-1.5">Murat Yıldırım</td>
+                    <td className="px-3 py-1.5">Hülya ve Mehmet Yılmaz Ailesi</td>
                     <td className="px-3 py-1.5 text-rose-500 break-all font-mono">
-                      /davetli/murat-yildirim
+                      /davetli/hülya-mehmet-yilmaz-ailesi
+                    </td>
+                    <td className="px-3 py-1.5 text-center">
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/90 text-slate-900 text-xs">
+                        ⧉
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-t border-slate-100">
+                    <td className="px-3 py-1.5">Hacer ve Murat Yıldırım Ailesi</td>
+                    <td className="px-3 py-1.5 text-rose-500 break-all font-mono">
+                      /davetli/hacer-murat-yildirim-ailesi
                     </td>
                     <td className="px-3 py-1.5 text-center">
                       <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/90 text-slate-900 text-xs">
