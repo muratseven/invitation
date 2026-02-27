@@ -6,6 +6,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import React, { useEffect, useState } from "react";
 import { parseMapInput } from "./lib/mapUtils"; // relative path’i dosya yapına göre düzelt
 import Link from "next/link";
+import { MapPicker } from "./components/MapPicker";
+
 type LicenseInfo = {
   maxGuests: number;
 };
@@ -82,6 +84,8 @@ export type InvitationSettings = {
   heroNamesColor: string;
   ampersandColor: string;
   dividerColor: string;
+  mapLat?: number | null;
+  mapLng?: number | null;
 };
 
 export const DEFAULT_SETTINGS: InvitationSettings = {
@@ -141,6 +145,8 @@ export const DEFAULT_SETTINGS: InvitationSettings = {
   donationBackground: "rgba(0,0,0,0.58)",
   locationBackground: "rgba(0,0,0,0.58)",
   footerBackground: "rgba(0,0,0,0.58)",
+  mapLat: null,
+  mapLng: null,
 };
 
 type Guest = {
@@ -773,6 +779,8 @@ export default function EditorPage() {
       family2Mother: settings.family2Mother,
       family2Father: settings.family2Father,
       family2Surname: settings.family2Surname,
+      mapLat: settings.mapLat,
+      mapLng: settings.mapLng,
     };
   }
 
@@ -1120,7 +1128,7 @@ export default function EditorPage() {
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center gap-2">
+            <nav className="flex items-center gap-2">
               <Link
                 href="/landing#how-it-works"
                 className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-900 shadow-sm shadow-emerald-300/70 hover:bg-emerald-400 border border-emerald-300 transition-colors"
@@ -1393,12 +1401,16 @@ export default function EditorPage() {
                 onChange={(v) => handleChange("locationText", v)}
               />
 
-              <TextField
-                label="Harita Linki (Google Maps’ten
-                  “Haritayı yerleştir” kodunu kullanın)"
-                value={settings.mapsUrl}
-                placeholder='<iframe src="https://www.google.com/maps/embed'
-                onChange={(v) => handleChange("mapsUrl", v)}
+              <MapPicker
+                mapLat={settings.mapLat ?? null}
+                mapLng={settings.mapLng ?? null}
+                onChange={(lat, lng) => {
+                  setSettings((prev) => ({
+                    ...prev,
+                    mapLat: lat,
+                    mapLng: lng,
+                  }));
+                }}
               />
             </>
           )}
@@ -1877,159 +1889,161 @@ export default function EditorPage() {
                 )}
 
                 {guests.length > 0 ? (
-                  <div className="mt-2 border border-slate-700/80 rounded-xl overflow-hidden">
-                    <div ref={tableRef} className="max-h-64 overflow-y-auto">
-                      <table className="w-full text-[0.75rem] text-slate-100">
-                        <thead className="bg-slate-900/80 sticky top-0">
-                          <tr>
-                            <th className="px-3 py-2 text-left font-medium">
-                              Davetli bilgisi
-                            </th>
-                            <th className="px-3 py-2 text-left font-medium">
-                              Link
-                            </th>
-                            <th className="px-3 py-2 text-center font-medium">
-                              Kopyala
-                            </th>
-                            <th className="px-3 py-2 text-center font-medium">
-                              Sil
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {guests.map((guest) => {
-                            const tempSlug =
-                              guest.slug && guest.slug.length > 0
-                                ? guest.slug
-                                : slugifyName(guest.name || "davetli");
+                  <div className="mt-2 space-y-2">
+                    {guests.map((guest) => {
+                      const tempSlug =
+                        guest.slug && guest.slug.length > 0
+                          ? guest.slug
+                          : slugifyName(guest.name || "davetli");
 
-                            const tempPayload = buildGuestPayload(
-                              guest,
-                              settings
-                            );
-                            const tempEncoded = encodeURIComponent(
-                              base64EncodeUnicode(JSON.stringify(tempPayload))
-                            );
-                            const tempHref =
-                              origin.length > 0
-                                ? `${origin}/invite/${tempSlug}?d=${tempEncoded}`
-                                : `/invite/${tempSlug}?d=${tempEncoded}`;
+                      const tempPayload = buildGuestPayload(guest, settings);
+                      const tempEncoded = encodeURIComponent(
+                        base64EncodeUnicode(JSON.stringify(tempPayload))
+                      );
+                      const tempHref =
+                        origin.length > 0
+                          ? `${origin}/invite/${tempSlug}?d=${tempEncoded}`
+                          : `/invite/${tempSlug}?d=${tempEncoded}`;
 
-                            const isCopied = !!guest.lastCopiedAt;
+                      const isCopied = !!guest.lastCopiedAt;
 
-                            return (
-                              <tr
-                                key={guest.id}
+                      return (
+                        <div
+                          key={guest.id}
+                          className="rounded-2xl bg-white border border-slate-200 shadow-xs px-3 py-2.5 flex flex-col gap-1.5"
+                        >
+                          {/* Üst satır: İsim input + sağda aksiyonlar */}
+                          <div className="flex items-start gap-2">
+                            <div className="flex-1">
+                              <input
+                                value={guest.name}
+                                onChange={(e) =>
+                                  handleGuestFieldChange(
+                                    guest.id,
+                                    "name",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Ayşe ve Alp Kaya Ailesi"
+                                className="w-full px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                              />
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleCopyGuestLink(guest)}
                                 className={
-                                  "border-t border-slate-800/80 " +
+                                  "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[0.7rem] font-medium border " +
                                   (isCopied
-                                    ? "bg-emerald-500/10"
-                                    : "bg-slate-900/40")
+                                    ? "bg-emerald-500 text-slate-900 border-emerald-400"
+                                    : "bg-slate-900 text-white border-slate-900 hover:bg-slate-800")
+                                }
+                                title={
+                                  isCopied
+                                    ? "Kopyalandı"
+                                    : "Linki panoya kopyala"
                                 }
                               >
-                                <td className="px-3 py-1.5 align-middle">
-                                  <input
-                                    value={guest.name}
-                                    onChange={(e) =>
-                                      handleGuestFieldChange(
-                                        guest.id,
-                                        "name",
-                                        e.target.value
-                                      )
-                                    }
-                                    placeholder="Ayşe Ve Alp KAYA Ailesi"
-                                    className="w-full px-2 py-1 rounded-md bg-slate-950/60 border border-slate-700 text-[0.7rem] focus:outline-none focus:ring-1 focus:ring-sky-500/60"
-                                  />
-                                </td>
-                                <td className="px-3 py-1.5 align-middle max-w-[120px]">
-                                  <a
-                                    href={tempHref}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-amber-200 hover:text-amber-100 hover:underline break-all"
-                                  >
-                                    {origin.length > 0
-                                      ? `${origin}/invite/${tempSlug}`
-                                      : `/invite/${tempSlug}`}
-                                  </a>
-                                </td>
+                                {isCopied ? "Kopyalandı" : "Kopyala"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveGuest(guest.id)}
+                                className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500 text-white text-[0.7rem] hover:bg-red-400"
+                                title="Satırı sil"
+                              >
+                                🗑
+                              </button>
+                            </div>
+                          </div>
 
-                                <td className="px-3 py-1.5 text-center align-middle">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleCopyGuestLink(guest)}
-                                    className={
-                                      "inline-flex items-center justify-center w-7 h-7 rounded-full border text-[0.7rem] " +
-                                      (isCopied
-                                        ? "bg-emerald-500/80 border-emerald-300 text-slate-900 hover:bg-emerald-400"
-                                        : "bg-slate-800 border-slate-600 text-slate-100 hover:bg-slate-700")
-                                    }
-                                    title={
-                                      isCopied
-                                        ? "Kopyalandı"
-                                        : "Linki panoya kopyala"
-                                    }
-                                  >
-                                    {isCopied ? "✓" : "⧉"}
-                                  </button>
-                                </td>
-                                <td className="px-3 py-1.5 text-center align-middle">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveGuest(guest.id)}
-                                    className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-600/80 text-white text-[0.7rem] hover:bg-red-500"
-                                    title="Satırı sil"
-                                  >
-                                    🗑
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                          {/* Alt satır: Link */}
+                          <div className="flex items-center justify-between gap-2 pl-1">
+                            <span className="text-[0.7rem] text-slate-500">
+                              Link
+                            </span>
+                            <a
+                              href={tempHref}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex-1 text-right text-[0.7rem] font-mono text-slate-800 hover:text-slate-900 hover:underline break-all"
+                            >
+                              {origin.length > 0
+                                ? `${origin}/invite/${tempSlug}`
+                                : `/invite/${tempSlug}`}
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    })}
 
-                    <div className="px-3 py-2 border-t border-slate-800/80 text-[0.7rem] text-slate-300 flex items-center justify-between">
+                    <div className="flex items-center justify-between px-1 pt-1 text-[0.7rem] text-slate-600">
                       <span>
                         Toplam{" "}
-                        <span className="text-slate-50 font-medium">
+                        <span className="font-semibold text-slate-900">
                           {guests.length}
                         </span>{" "}
                         davetli.
                       </span>
+                      <span className="text-slate-400">
+                        Lisans sınırı: {license.maxGuests}
+                      </span>
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-2 text-[0.75rem] text-slate-400">
-                    Henüz davetli eklenmedi. CSV yükleyebilir veya yukarıdan “+
-                    Davetli Ekle” butonuyla yeni satırlar oluşturabilirsiniz.
+                  <p className="mt-2 text-[0.75rem] text-slate-500">
+                    Henüz davetli eklenmedi. Excel’den liste yükleyebilir veya
+                    yukarıdan “+ Davetli Ekle” butonlarıyla yeni satırlar
+                    oluşturabilirsin.
                   </p>
                 )}
-                <SectionTitle label="Excel ile Davetli Listesi Hazırla" />
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleDownloadCsvExample}
-                    className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
-                  >
-                    Örnek Excel Dosyası İndir
-                  </button>
 
-                  <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-700 text-white text-[0.7rem] font-medium hover:bg-slate-600 cursor-pointer">
-                    Hazırlanan Dosyayı Yükle
-                    <input
-                      type="file"
-                      accept=".csv,.txt"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleCsvUpload(file);
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
+                <SectionTitle label="Excel ile Davetli Listesi Hazırla" />
+                <div className="mb-4 text-xs">
+                  <div className="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70 p-3">
+                    <p className="text-[0.7rem] font-medium text-slate-700 mb-1">
+                      Excel ile davetli listeni hazırla
+                    </p>
+                    <p className="text-[0.7rem] text-slate-500 mb-3">
+                      Örnek Excel’i indir, kendi listenle doldur ve geri yükle.
+                      Tüm davetliler için isimle eşleşen URL’ler otomatik
+                      oluşur.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleDownloadCsvExample}
+                        className="inline-flex items-center px-3 py-1.5 rounded-full bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
+                      >
+                        Örnek Excel İndir
+                      </button>
+
+                      <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800 cursor-pointer">
+                        Dosya Yükle
+                        <input
+                          type="file"
+                          accept=".csv,.txt"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleCsvUpload(file);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+
+                      <span className="text-[0.65rem] text-slate-500">
+                        .csv veya .txt dosyası yükleyebilirsin.
+                      </span>
+                    </div>
+                    {csvError && (
+                      <p className="mt-2 text-[0.7rem] text-red-500">
+                        {csvError}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </>

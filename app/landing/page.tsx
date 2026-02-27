@@ -63,7 +63,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center gap-2">
+            <nav className="flex items-center gap-2">
               <a
                 href="#how-it-works"
                 className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white border border-slate-200 hover:bg-rose-500 hover:text-white hover:border-rose-400 transition-colors"
@@ -78,12 +78,20 @@ export default function LandingPage() {
               </a>
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-900 shadow-sm shadow-emerald-300/70 hover:bg-emerald-400 border border-emerald-300 transition-colors"
+                className="hidden sm:inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-900 shadow-sm shadow-emerald-300/70 hover:bg-emerald-400 border border-emerald-300 transition-colors"
               >
                 Davetiyemi Oluştur
                 <span className="text-xs">→</span>
               </Link>
             </nav>
+            <div className="flex sm:hidden items-center gap-2 text-[0.7rem] text-slate-500">
+              <Link
+                href="/"
+                className="px-3 py-1 rounded-full bg-emerald-500 text-slate-900 font-medium border border-emerald-300"
+              >
+                Davetiyemi oluştur
+              </Link>
+            </div>
           </div>
 
           <div className="flex md:hidden items-center gap-2 text-[0.7rem] text-slate-500">
@@ -490,7 +498,9 @@ export default function LandingPage() {
                 </thead>
                 <tbody>
                   <tr className="border-t border-slate-100">
-                    <td className="px-3 py-1.5">Hülya ve Mehmet Yılmaz Ailesi</td>
+                    <td className="px-3 py-1.5">
+                      Hülya ve Mehmet Yılmaz Ailesi
+                    </td>
                     <td className="px-3 py-1.5 text-rose-500 break-all font-mono">
                       /davetli/hülya-mehmet-yilmaz-ailesi
                     </td>
@@ -501,7 +511,9 @@ export default function LandingPage() {
                     </td>
                   </tr>
                   <tr className="border-t border-slate-100">
-                    <td className="px-3 py-1.5">Hacer ve Murat Yıldırım Ailesi</td>
+                    <td className="px-3 py-1.5">
+                      Hacer ve Murat Yıldırım Ailesi
+                    </td>
                     <td className="px-3 py-1.5 text-rose-500 break-all font-mono">
                       /davetli/hacer-murat-yildirim-ailesi
                     </td>

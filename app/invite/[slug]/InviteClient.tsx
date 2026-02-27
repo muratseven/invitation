@@ -3,15 +3,28 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { parseMapInput } from "../../lib/mapUtils"; // relative path’i dosya yapına göre düzelt
+import { parseMapInput } from "../../lib/mapUtils";
+
+type FontFamily =
+  | "great-vibes"
+  | "cormorant"
+  | "pacifico"
+  | "sofia"
+  | "cookie"
+  | "dancing-script"
+  | "parisienne"
+  | "lugrasimo"
+  | "italianno"
+  | "charm"
+  | "playfair";
 
 type InvitationPayload = {
-  bride: string;
-  groom: string;
-  date: string;
-  time: string;
-  location: string;
-  mapsUrl: string;
+  bride?: string;
+  groom?: string;
+  date?: string;
+  time?: string;
+  location?: string;
+  mapsUrl?: string;
   guestName?: string;
 
   sectionCardBackground?: string;
@@ -21,7 +34,7 @@ type InvitationPayload = {
   backgroundColor?: string;
   backgroundOverlayOpacity?: number;
 
-  fontFamily: FontFamily;
+  fontFamily?: FontFamily;
   heroSubtitle?: string;
   heroSubtitleColor?: string;
   heroNamesColor?: string;
@@ -43,20 +56,10 @@ type InvitationPayload = {
   family2Mother?: string;
   family2Father?: string;
   family2Surname?: string;
-};
 
-type FontFamily =
-  | "great-vibes"
-  | "cormorant"
-  | "pacifico"
-  | "sofia"
-  | "cookie"
-  | "dancing-script"
-  | "parisienne"
-  | "lugrasimo"
-  | "italianno"
-  | "charm"
-  | "playfair";
+  mapLat?: number | null;
+  mapLng?: number | null;
+};
 
 type InvitationSettings = {
   brideName: string;
@@ -97,6 +100,9 @@ type InvitationSettings = {
   family2Mother: string;
   family2Father: string;
   family2Surname: string;
+
+  mapLat: number | null;
+  mapLng: number | null;
 };
 
 type Countdown = {
@@ -107,7 +113,7 @@ type Countdown = {
   finished: boolean;
 };
 
-// UTF-8 safe base64 decode (page.tsx ile aynı mantık)
+// UTF-8 safe base64 decode
 function base64DecodeUnicode(str: string): string {
   return decodeURIComponent(
     atob(str)
@@ -116,6 +122,7 @@ function base64DecodeUnicode(str: string): string {
       .join("")
   );
 }
+
 function hexToRgba(hex: string, alpha: number): string {
   let clean = hex.replace("#", "").trim();
 
@@ -161,13 +168,13 @@ function decodePayload(encoded?: string): InvitationPayload | null {
     const obj = JSON.parse(json);
     if (!obj || typeof obj !== "object") return null;
     return {
-      bride: obj.bride ?? "Gelin",
-      groom: obj.groom ?? "Damat",
-      date: obj.date ?? "",
-      time: obj.time ?? "",
-      location: obj.location ?? "Adres daha sonra paylaşılacaktır.",
-      mapsUrl: obj.mapsUrl ?? "",
-      guestName: obj.guestName ?? undefined,
+      bride: obj.bride,
+      groom: obj.groom,
+      date: obj.date,
+      time: obj.time,
+      location: obj.location,
+      mapsUrl: obj.mapsUrl,
+      guestName: obj.guestName,
 
       sectionCardBackground: obj.sectionCardBackground,
       sectionCardBorderColor: obj.sectionCardBorderColor,
@@ -197,6 +204,8 @@ function decodePayload(encoded?: string): InvitationPayload | null {
       family2Mother: obj.family2Mother,
       family2Father: obj.family2Father,
       family2Surname: obj.family2Surname,
+      mapLat: obj.mapLat ?? null,
+      mapLng: obj.mapLng ?? null,
     };
   } catch {
     return null;
@@ -260,6 +269,9 @@ export default function InviteClient({
       family2Mother: payload?.family2Mother ?? "",
       family2Father: payload?.family2Father ?? "",
       family2Surname: payload?.family2Surname ?? "",
+
+      mapLat: payload?.mapLat ?? null,
+      mapLng: payload?.mapLng ?? null,
     };
   });
 
@@ -292,7 +304,23 @@ export default function InviteClient({
 
   const countdownFinished = countdown.finished;
 
-  const { embedSrc: embedUrl, buttonHref } = parseMapInput(settings.mapsUrl);
+  let embedUrl = "about:blank";
+  let buttonHref = "";
+
+  if (settings.mapLat != null && settings.mapLng != null) {
+    const { mapLat, mapLng } = settings;
+    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
+      mapLng - 0.01
+    }%2C${mapLat - 0.01}%2C${mapLng + 0.01}%2C${
+      mapLat + 0.01
+    }&layer=mapnik&marker=${mapLat}%2C${mapLng}`;
+    buttonHref = `https://www.google.com/maps/search/?api=1&query=${mapLat},${mapLng}`;
+  } else {
+    // HATA BURADAYDI: mapsUrl yerine settings.mapsUrl kullanmalıyız
+    const parsed = parseMapInput(settings.mapsUrl);
+    embedUrl = parsed.embedSrc;
+    buttonHref = parsed.buttonHref;
+  }
 
   const displayGuestName = settings.guestName || slug.replace(/-/g, " ");
   const overlayColor = hexToRgba(
@@ -314,10 +342,8 @@ export default function InviteClient({
     playfair: "font-playfair",
   };
 
-  // TypeScript için garantili bir key kullan
   const fontKey: FontFamily = settings.fontFamily ?? "pacifico";
-const currentFontClass = fontClassMap[fontKey] ?? "";
-
+  const currentFontClass = fontClassMap[fontKey] ?? "";
 
   return (
     <div
@@ -389,15 +415,7 @@ const currentFontClass = fontClassMap[fontKey] ?? "";
             />
           </div>
 
-          <p
-            className="hero-date"
-            style={{
-              fontFamily:
-                'var(--font-Great Vibes), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-            }}
-          >
-            {dateText}
-          </p>
+          <p className="hero-date">{dateText}</p>
 
           <div className="location-time-row" style={{ marginTop: "0.4rem" }}>
             <svg
@@ -415,8 +433,6 @@ const currentFontClass = fontClassMap[fontKey] ?? "";
             </svg>
             <span className="location-time-text">{settings.time}</span>
           </div>
-
-         
 
           <div className="hero-scroll">
             <a
@@ -473,14 +489,7 @@ const currentFontClass = fontClassMap[fontKey] ?? "";
         {/* Geri Sayım */}
         <section className="section" id="countdown">
           <div className="section-inner">
-            <h2
-              style={{
-                fontFamily:
-                  'var(--font-Lugrasimo), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-              }}
-            >
-              Geri Sayım
-            </h2>
+            <h2>Geri Sayım</h2>
 
             <p className="section-subtitle">Hayatımızın en özel günü için</p>
 
