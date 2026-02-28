@@ -6,7 +6,15 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import React, { useEffect, useState } from "react";
 import { parseMapInput } from "./lib/mapUtils"; // relative path’i dosya yapına göre düzelt
 import Link from "next/link";
-import { MapPicker } from "./components/MapPicker";
+import dynamic from "next/dynamic";
+
+const MapPicker = dynamic(
+  () => import("./components/MapPicker").then((m) => m.MapPicker),
+  { ssr: false }
+);
+
+
+
 
 type LicenseInfo = {
   maxGuests: number;
