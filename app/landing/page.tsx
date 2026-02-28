@@ -32,7 +32,7 @@ const HERO_WORDS = ["Düğün", "Nikah", "Etkinlik", "Doğum Günü", "Parti"];
 
 export default function LandingPage() {
   const [heroWordIndex, setHeroWordIndex] = useState(0);
-
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   useEffect(() => {
     const interval = setInterval(() => {
       setHeroWordIndex((prev) => (prev + 1) % HERO_WORDS.length);
@@ -45,60 +45,94 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdf7f7] via-[#f8f3ff] to-[#f1f5ff] text-slate-900">
       {/* Hero / Navbar */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          {/* Sol taraf: logo + ana menü */}
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-300/60">
-                💌
+      <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-slate-200/70">
+        <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-between">
+          {/* Sol: logo */}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-300/60">
+              💌
+            </span>
+            <div className="flex flex-col">
+              <span className="text-[0.7rem] tracking-[0.18em] uppercase text-slate-700">
+                Dijital Davetiye Stüdyosu
               </span>
-              <div className="flex flex-col">
-                <span className="text-[0.7rem] tracking-[0.18em] uppercase text-slate-700">
-                  Dijital Davetiye Stüdyosu
-                </span>
-                <span className="text-xs text-slate-500">
-                  Kişiye özel linklerle modern dijital davetiyeler
-                </span>
-              </div>
+              <span className="text-[0.7rem] text-slate-500">
+                Kişiye özel linklerle modern dijital davetiyeler
+              </span>
             </div>
+          </div>
 
-            <nav className="flex items-center gap-2">
+          {/* Sağ: desktop navbar */}
+          <nav className="hidden sm:flex items-center gap-2">
+            <a
+              href="#how-it-works"
+              className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white/80 border border-slate-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors"
+            >
+              Nasıl çalışır?
+            </a>
+            <a
+              href="#pricing"
+              className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white/80 border border-slate-200 hover:bg-amber-400 hover:text-slate-900 hover:border-amber-300 transition-colors"
+            >
+              Fiyatlandırma
+            </a>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-slate-400/60 hover:bg-black transition-colors"
+            >
+              Davetiyemi Oluştur
+              <span className="text-xs">→</span>
+            </Link>
+          </nav>
+
+          {/* Mobil: hamburger */}
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen((v) => !v)}
+            className="sm:hidden inline-flex items-center justify-center h-8 w-8 rounded-full bg-white/90 border border-slate-200 text-slate-800 shadow-sm"
+            aria-label="Menüyü aç/kapat"
+          >
+            {mobileNavOpen ? "✕" : "☰"}
+          </button>
+        </div>
+
+        {/* Mobil açılır menü */}
+        {mobileNavOpen && (
+          <div className="sm:hidden border-t border-slate-200 bg-white/95">
+            <div className="mx-auto max-w-6xl px-4 py-3 flex flex-col gap-2">
               <a
                 href="#how-it-works"
-                className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white border border-slate-200 hover:bg-rose-500 hover:text-white hover:border-rose-400 transition-colors"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full inline-flex items-center justify-between rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-medium"
               >
                 Nasıl çalışır?
+                <span>↓</span>
               </a>
               <a
                 href="#pricing"
-                className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white border border-slate-200 hover:bg-amber-400 hover:text-slate-900 hover:border-amber-300 transition-colors"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full inline-flex items-center justify-between rounded-xl bg-slate-100 text-slate-900 px-3 py-2 text-xs font-medium border border-slate-200"
               >
                 Fiyatlandırma
+                <span>↓</span>
               </a>
               <Link
                 href="/"
-                className="hidden sm:inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-900 shadow-sm shadow-emerald-300/70 hover:bg-emerald-400 border border-emerald-300 transition-colors"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full inline-flex items-center justify-center rounded-xl bg-emerald-500 text-slate-900 px-3 py-2 text-xs font-semibold shadow-sm"
               >
                 Davetiyemi Oluştur
-                <span className="text-xs">→</span>
               </Link>
-            </nav>
+            </div>
           </div>
-
-          {/* <div className="flex md:hidden items-center gap-2 text-[0.7rem] text-slate-500">
-            <a
-              href="#pricing"
-              className="px-3 py-1 rounded-full bg-white/80 border border-slate-200"
-            >
-              Fiyatlar
-            </a>
-          </div> */}
-        </div>
+        )}
       </header>
 
       {/* Nasıl çalışır */}
-      <section id="how-it-works" className="bg-transparent py-10 md:py-14">
+      <section
+        id="how-it-works"
+        className="bg-transparent py-10 md:py-14 scroll-mt-24 md:scroll-mt-32"
+      >
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-8">
             <p className="text-[0.75rem] tracking-[0.18em] uppercase text-emerald-500">
@@ -301,7 +335,10 @@ export default function LandingPage() {
       </section>
 
       {/* Fiyatlandırma */}
-      <section id="pricing" className="bg-transparent py-16">
+      <section
+        id="pricing"
+        className="bg-transparent py-16 scroll-mt-24 md:scroll-mt-32"
+      >
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-8 text-center">
             <p className="text-[0.75rem] tracking-[0.18em] uppercase text-amber-500">

@@ -1152,7 +1152,7 @@ export default function EditorPage() {
 
       {/* Sağ alt köşedeki butonlar */}
       {!isEditorOpen && (
-        <div className="hidden md:flex fixed bottom-5 right-5 z-30 flex-col gap-2">
+        <div className="fixed bottom-5 right-5 z-30 flex flex-col gap-2">
           <button
             onClick={() => {
               setMode("user");
@@ -1182,893 +1182,891 @@ export default function EditorPage() {
       )}
 
       {/* Editör paneli */}
-      <div
-        className={[
-          // Mobile: header’ın altında başlasın
-          "mt-[88px] w-full bg-white/95 text-slate-900 border-t border-slate-200 z-40 editor-font",
-          // Desktop ve üstü: sağda fixed sidebar
-          "md:mt-0 md:fixed md:top-[60px] md:right-0 md:h-[calc(100%-60px)] md:max-w-md md:border-l md:border-t-0 md:rounded-l-3xl md:shadow-xl md:shadow-slate-300/60",
-          // Slide-in/slide-out sadece md+ için
-          isEditorOpen ? "md:translate-x-0" : "md:translate-x-full",
-          "md:transform md:transition-transform md:duration-300 md:ease-in-out",
-        ].join(" ")}
-      >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-          <div>
-            <h1 className="text-sm font-semibold text-slate-900">
-              Davetiye Editörü
-            </h1>
-            <p className="text-[0.65rem] text-slate-500">
-              {mode === "user"
-                ? "Bilgileri doldurun, davetiye anında güncellensin"
-                : "Gelişmiş tema ve renk ayarları"}
-            </p>
-          </div>
-          <button
-            onClick={() => setIsEditorOpen(false)}
-            className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-200 text-[0.7rem] bg-slate-50">
-          {steps.map((step) => (
+      {isEditorOpen && (
+        <div
+          className={[
+            "mt-[88px] w-full bg-white/95 text-slate-900 border-t border-slate-200 z-40 editor-font",
+            "md:mt-0 md:fixed md:top-[60px] md:right-0 md:h-[calc(100%-60px)] md:max-w-md md:border-l md:border-t-0 md:rounded-l-3xl md:shadow-xl md:shadow-slate-300/60",
+          ].join(" ")}
+        >
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+            <div>
+              <h1 className="text-sm font-semibold text-slate-900">
+                Davetiye Editörü
+              </h1>
+              <p className="text-[0.65rem] text-slate-500">
+                {mode === "user"
+                  ? "Bilgileri doldurun, davetiye anında güncellensin"
+                  : "Gelişmiş tema ve renk ayarları"}
+              </p>
+            </div>
             <button
-              key={step.id}
-              type="button"
-              onClick={() => setActiveStep(step.id as any)}
-              className={[
-                "px-2.5 py-1 rounded-full border text-xs font-medium transition-colors",
-                activeStep === step.id
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100",
-              ].join(" ")}
+              onClick={() => setIsEditorOpen(false)}
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200"
             >
-              {step.id}. {step.label}
+              ✕
             </button>
-          ))}
-        </div>
+          </div>
 
-        <div className="px-4 pb-6 pt-3 bg-white md:h-[calc(100%-80px)] md:overflow-y-auto">
-          {activeStep === 1 && (
-            <>
-              <SectionTitle label="Davetiye Başlığı" />
-              <div className="mb-3">
-                <div className="flex items-center gap-2">
-                  <input
-                    value={settings.heroSubtitle}
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-200 text-[0.7rem] bg-slate-50">
+            {steps.map((step) => (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => setActiveStep(step.id as any)}
+                className={[
+                  "px-2.5 py-1 rounded-full border text-xs font-medium transition-colors",
+                  activeStep === step.id
+                    ? "bg-slate-900 text-white border-slate-900"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100",
+                ].join(" ")}
+              >
+                {step.id}. {step.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="px-4 pb-6 pt-3 bg-white md:h-[calc(100%-80px)] md:overflow-y-auto">
+            {activeStep === 1 && (
+              <>
+                <SectionTitle label="Davetiye Başlığı" />
+                <div className="mb-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={settings.heroSubtitle}
+                      onChange={(e) =>
+                        handleChange("heroSubtitle", e.target.value)
+                      }
+                      className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const options = HERO_SUBTITLE_OPTIONS.filter(
+                          (o) => o !== settings.heroSubtitle
+                        );
+                        const pool =
+                          options.length > 0 ? options : HERO_SUBTITLE_OPTIONS;
+                        const next =
+                          pool[Math.floor(Math.random() * pool.length)];
+                        setSettings((prev) => ({
+                          ...prev,
+                          heroSubtitle: next,
+                        }));
+                      }}
+                      className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
+                      title="Rastgele başlık"
+                    >
+                      🎲
+                    </button>
+                  </div>
+                </div>
+
+                <SectionTitle label="Çift Bilgileri" />
+                <TextField
+                  label="Gelin Adı"
+                  value={settings.brideName}
+                  onChange={(v) => handleChange("brideName", v)}
+                />
+                <TextField
+                  label="Damat Adı"
+                  value={settings.groomName}
+                  onChange={(v) => handleChange("groomName", v)}
+                />
+              </>
+            )}
+
+            {activeStep === 2 && (
+              <>
+                <SectionTitle label="Tarih & Konum" />
+                <div className="mb-3">
+                  <label className="block mb-1 text-xs font-medium text-slate-300">
+                    Tarih
+                  </label>
+
+                  <div className="flex gap-2">
+                    {/* Gün */}
+                    <select
+                      value={dateDay}
+                      onChange={(e) =>
+                        handleDatePartChange("day", e.target.value)
+                      }
+                      className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+                    >
+                      <option value="">Gün</option>
+                      {Array.from({ length: 31 }, (_, i) => {
+                        const d = String(i + 1).padStart(2, "0");
+                        return (
+                          <option key={d} value={d}>
+                            {i + 1}
+                          </option>
+                        );
+                      })}
+                    </select>
+
+                    {/* Ay */}
+                    <select
+                      value={dateMonth}
+                      onChange={(e) =>
+                        handleDatePartChange("month", e.target.value)
+                      }
+                      className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+                    >
+                      <option value="">Ay</option>
+                      {[
+                        "01|Ocak",
+                        "02|Şubat",
+                        "03|Mart",
+                        "04|Nisan",
+                        "05|Mayıs",
+                        "06|Haziran",
+                        "07|Temmuz",
+                        "08|Ağustos",
+                        "09|Eylül",
+                        "10|Ekim",
+                        "11|Kasım",
+                        "12|Aralık",
+                      ].map((m) => {
+                        const [val, label] = m.split("|");
+                        return (
+                          <option key={val} value={val}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+
+                    {/* Yıl */}
+                    <select
+                      value={dateYear}
+                      onChange={(e) =>
+                        handleDatePartChange("year", e.target.value)
+                      }
+                      className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+                    >
+                      <option value="">Yıl</option>
+                      {Array.from({ length: 6 }, (_, i) => {
+                        const y = 2024 + i;
+                        return (
+                          <option key={y} value={String(y)}>
+                            {y}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+
+                  <p className="mt-1 text-[0.7rem] text-slate-400">
+                    {datePreviewText ?? "Gün / ay / yıl seçin"}
+                  </p>
+                </div>
+
+                <TextField
+                  label="Saat"
+                  value={settings.time}
+                  onChange={(v) => handleChange("time", v)}
+                />
+                <SectionTitle label="Etkinlik Mekanı Görseli" />
+                <div className="mb-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
+                      Dosya Seç
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleLocationImageUpload(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                    {settings.locationImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            locationImageUrl: "",
+                          }))
+                        }
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
+                        title="Görseli kaldır"
+                      >
+                        🗑
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <TextAreaField
+                  label="Adres"
+                  value={settings.locationText}
+                  onChange={(v) => handleChange("locationText", v)}
+                />
+
+                <MapPicker
+                  mapLat={settings.mapLat ?? null}
+                  mapLng={settings.mapLng ?? null}
+                  onChange={(lat, lng) => {
+                    setSettings((prev) => ({
+                      ...prev,
+                      mapLat: lat,
+                      mapLng: lng,
+                    }));
+                  }}
+                />
+              </>
+            )}
+            {activeStep === 3 && mode === "user" && (
+              <>
+                <SectionTitle label="Tema Seçimi" />
+                <p className="mb-2 text-[0.7rem] text-slate-400">
+                  Hazır temalardan birini seçin. Font ve renkler tema ile
+                  birlikte otomatik ayarlanır.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  {THEMES.map((theme) => {
+                    const isActive = settings.fontFamily === theme.id;
+
+                    return (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        onClick={() => applyTheme(theme.id)}
+                        className={[
+                          "flex flex-col items-stretch rounded-xl border overflow-hidden text-left text-[0.7rem] transition shadow-sm",
+                          isActive
+                            ? "border-emerald-400 bg-emerald-50"
+                            : "border-slate-200 bg-white hover:bg-slate-50",
+                        ].join(" ")}
+                      >
+                        <div className="h-28 w-full overflow-hidden bg-slate-800">
+                          <img
+                            src={theme.previewImage}
+                            alt={theme.label}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="px-3 py-2">
+                          <p className="font-medium text-slate-900">
+                            {theme.label}
+                          </p>
+                          <p className="text-[0.65rem] text-slate-500">
+                            {theme.mood}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {activeStep === 3 && mode === "admin" && (
+              <>
+                <SectionTitle label="Yazı Tipi" />
+                <div className="mb-3 text-xs text-slate-300">
+                  <select
+                    value={settings.fontFamily}
                     onChange={(e) =>
-                      handleChange("heroSubtitle", e.target.value)
+                      handleChange("fontFamily", e.target.value as FontFamily)
                     }
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+                    className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
+                  >
+                    <option value="great-vibes">Great Vibes</option>
+                    <option value="cormorant">Cormorant Garamond</option>
+                    <option value="pacifico">Pacifico</option>
+                    <option value="sofia">Sofia</option>
+                    <option value="cookie">Cookie</option>
+                    <option value="dancing-script">Dancing Script</option>
+                    <option value="parisienne">Parisienne</option>
+                    <option value="playfair">Playfair Display</option>
+                    <option value="charm">Charm</option>
+                    <option value="lugrasimo">Lugrasimo</option>
+                    <option value="italianno">Italianno</option>
+                  </select>
+                  <p className="mt-1 text-[0.65rem] text-slate-400">
+                    Başlık ve davet metninde kullanılacak yazı tipi.
+                  </p>
+                </div>
+
+                <SectionTitle label="Genel Arka Plan" />
+
+                <div className="mb-3 text-xs text-slate-300">
+                  <p className="text-[0.7rem] text-slate-400 mb-2">
+                    Arka plan rengini ve opaklığını buradan ayarlayabilirsiniz.
+                  </p>
+
+                  <ColorField
+                    label="Arka Plan Rengi"
+                    value={settings.backgroundColor}
+                    onChange={(v) =>
+                      setSettings((prev) => ({ ...prev, backgroundColor: v }))
+                    }
                   />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const options = HERO_SUBTITLE_OPTIONS.filter(
-                        (o) => o !== settings.heroSubtitle
-                      );
-                      const pool =
-                        options.length > 0 ? options : HERO_SUBTITLE_OPTIONS;
-                      const next =
-                        pool[Math.floor(Math.random() * pool.length)];
+
+                  <label className="block mt-2 mb-1 text-xs font-medium text-slate-300">
+                    Opaklık (%)
+                  </label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={Math.round(settings.backgroundOverlayOpacity * 100)}
+                    onChange={(e) =>
                       setSettings((prev) => ({
                         ...prev,
-                        heroSubtitle: next,
-                      }));
-                    }}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
-                    title="Rastgele başlık"
-                  >
-                    🎲
-                  </button>
-                </div>
-              </div>
-
-              <SectionTitle label="Çift Bilgileri" />
-              <TextField
-                label="Gelin Adı"
-                value={settings.brideName}
-                onChange={(v) => handleChange("brideName", v)}
-              />
-              <TextField
-                label="Damat Adı"
-                value={settings.groomName}
-                onChange={(v) => handleChange("groomName", v)}
-              />
-            </>
-          )}
-
-          {activeStep === 2 && (
-            <>
-              <SectionTitle label="Tarih & Konum" />
-              <div className="mb-3">
-                <label className="block mb-1 text-xs font-medium text-slate-300">
-                  Tarih
-                </label>
-
-                <div className="flex gap-2">
-                  {/* Gün */}
-                  <select
-                    value={dateDay}
-                    onChange={(e) =>
-                      handleDatePartChange("day", e.target.value)
+                        backgroundOverlayOpacity: Number(e.target.value) / 100,
+                      }))
                     }
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
-                  >
-                    <option value="">Gün</option>
-                    {Array.from({ length: 31 }, (_, i) => {
-                      const d = String(i + 1).padStart(2, "0");
-                      return (
-                        <option key={d} value={d}>
-                          {i + 1}
-                        </option>
-                      );
-                    })}
-                  </select>
-
-                  {/* Ay */}
-                  <select
-                    value={dateMonth}
-                    onChange={(e) =>
-                      handleDatePartChange("month", e.target.value)
-                    }
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
-                  >
-                    <option value="">Ay</option>
-                    {[
-                      "01|Ocak",
-                      "02|Şubat",
-                      "03|Mart",
-                      "04|Nisan",
-                      "05|Mayıs",
-                      "06|Haziran",
-                      "07|Temmuz",
-                      "08|Ağustos",
-                      "09|Eylül",
-                      "10|Ekim",
-                      "11|Kasım",
-                      "12|Aralık",
-                    ].map((m) => {
-                      const [val, label] = m.split("|");
-                      return (
-                        <option key={val} value={val}>
-                          {label}
-                        </option>
-                      );
-                    })}
-                  </select>
-
-                  {/* Yıl */}
-                  <select
-                    value={dateYear}
-                    onChange={(e) =>
-                      handleDatePartChange("year", e.target.value)
-                    }
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
-                  >
-                    <option value="">Yıl</option>
-                    {Array.from({ length: 6 }, (_, i) => {
-                      const y = 2024 + i;
-                      return (
-                        <option key={y} value={String(y)}>
-                          {y}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    className="w-full"
+                  />
                 </div>
 
-                <p className="mt-1 text-[0.7rem] text-slate-400">
-                  {datePreviewText ?? "Gün / ay / yıl seçin"}
-                </p>
-              </div>
-
-              <TextField
-                label="Saat"
-                value={settings.time}
-                onChange={(v) => handleChange("time", v)}
-              />
-              <SectionTitle label="Etkinlik Mekanı Görseli" />
-              <div className="mb-3 text-xs">
-                <div className="flex items-center gap-2">
-                  <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
-                    Dosya Seç
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleLocationImageUpload(file);
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
-                  {settings.locationImageUrl && (
+                <SectionTitle label="Renkler" />
+                <div className="mb-3 text-xs text-slate-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[0.7rem] text-slate-400 max-w-xs">
+                      Bütün renkleri buradan değiştirebilirsiniz. Tasarım
+                      bozulursa her zaman sıfırlayabilirsiniz.
+                    </p>
                     <button
                       type="button"
                       onClick={() =>
                         setSettings((prev) => ({
                           ...prev,
-                          locationImageUrl: "",
+                          backgroundColor: "#000000",
+                          backgroundOverlayOpacity: 0.6,
+                          heroSubtitleColor: "#ffffff",
+                          heroNamesColor: "#ffffff",
+                          ampersandColor: "#ffffff",
+                          dividerColor: "rgba(255,255,255,0.5)",
+                          backgroundBaseColor: "#111111",
+                          headingColor: "#ffffff",
+                          personNameColor: "#ffffff",
+                          familyRowColor: "#ffffff",
+                          parentRowColor: "#ffffff",
+                          photoBorderColor: "#ffffff",
+                          lowerMessageColor: "#ffffff",
+                          lowerCoupleNameColor: "#ffffff",
+                          sectionCardBackground: "rgba(0,0,0,0.58)",
+                          sectionCardBorderColor: "rgba(255,255,255,0.15)",
+                          donationBackground: "rgba(0,0,0,0.58)",
+                          locationBackground: "rgba(0,0,0,0.58)",
+                          footerBackground: "rgba(0,0,0,0.58)",
                         }))
                       }
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
-                      title="Görseli kaldır"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-300 bg-slate-100 text-[0.75rem] font-medium text-slate-900 hover:bg-white hover:border-slate-400 transition"
                     >
-                      🗑
+                      ↺ Sıfırla
                     </button>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              <TextAreaField
-                label="Adres"
-                value={settings.locationText}
-                onChange={(v) => handleChange("locationText", v)}
-              />
-
-              <MapPicker
-                mapLat={settings.mapLat ?? null}
-                mapLng={settings.mapLng ?? null}
-                onChange={(lat, lng) => {
-                  setSettings((prev) => ({
-                    ...prev,
-                    mapLat: lat,
-                    mapLng: lng,
-                  }));
-                }}
-              />
-            </>
-          )}
-          {activeStep === 3 && mode === "user" && (
-            <>
-              <SectionTitle label="Tema Seçimi" />
-              <p className="mb-2 text-[0.7rem] text-slate-400">
-                Hazır temalardan birini seçin. Font ve renkler tema ile birlikte
-                otomatik ayarlanır.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {THEMES.map((theme) => {
-                  const isActive = settings.fontFamily === theme.id;
-
-                  return (
-                    <button
-                      key={theme.id}
-                      type="button"
-                      onClick={() => applyTheme(theme.id)}
-                      className={[
-                        "flex flex-col items-stretch rounded-xl border overflow-hidden text-left text-[0.7rem] transition shadow-sm",
-                        isActive
-                          ? "border-emerald-400 bg-emerald-50"
-                          : "border-slate-200 bg-white hover:bg-slate-50",
-                      ].join(" ")}
-                    >
-                      <div className="h-28 w-full overflow-hidden bg-slate-800">
-                        <img
-                          src={theme.previewImage}
-                          alt={theme.label}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="px-3 py-2">
-                        <p className="font-medium text-slate-900">
-                          {theme.label}
-                        </p>
-                        <p className="text-[0.65rem] text-slate-500">
-                          {theme.mood}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {activeStep === 3 && mode === "admin" && (
-            <>
-              <SectionTitle label="Yazı Tipi" />
-              <div className="mb-3 text-xs text-slate-300">
-                <select
-                  value={settings.fontFamily}
-                  onChange={(e) =>
-                    handleChange("fontFamily", e.target.value as FontFamily)
-                  }
-                  className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
-                >
-                  <option value="great-vibes">Great Vibes</option>
-                  <option value="cormorant">Cormorant Garamond</option>
-                  <option value="pacifico">Pacifico</option>
-                  <option value="sofia">Sofia</option>
-                  <option value="cookie">Cookie</option>
-                  <option value="dancing-script">Dancing Script</option>
-                  <option value="parisienne">Parisienne</option>
-                  <option value="playfair">Playfair Display</option>
-                  <option value="charm">Charm</option>
-                  <option value="lugrasimo">Lugrasimo</option>
-                  <option value="italianno">Italianno</option>
-                </select>
-                <p className="mt-1 text-[0.65rem] text-slate-400">
-                  Başlık ve davet metninde kullanılacak yazı tipi.
-                </p>
-              </div>
-
-              <SectionTitle label="Genel Arka Plan" />
-
-              <div className="mb-3 text-xs text-slate-300">
-                <p className="text-[0.7rem] text-slate-400 mb-2">
-                  Arka plan rengini ve opaklığını buradan ayarlayabilirsiniz.
-                </p>
-
-                <ColorField
-                  label="Arka Plan Rengi"
-                  value={settings.backgroundColor}
-                  onChange={(v) =>
-                    setSettings((prev) => ({ ...prev, backgroundColor: v }))
-                  }
-                />
-
-                <label className="block mt-2 mb-1 text-xs font-medium text-slate-300">
-                  Opaklık (%)
-                </label>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={5}
-                  value={Math.round(settings.backgroundOverlayOpacity * 100)}
-                  onChange={(e) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      backgroundOverlayOpacity: Number(e.target.value) / 100,
-                    }))
-                  }
-                  className="w-full"
-                />
-              </div>
-
-              <SectionTitle label="Renkler" />
-              <div className="mb-3 text-xs text-slate-300">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[0.7rem] text-slate-400 max-w-xs">
-                    Bütün renkleri buradan değiştirebilirsiniz. Tasarım
-                    bozulursa her zaman sıfırlayabilirsiniz.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSettings((prev) => ({
-                        ...prev,
-                        backgroundColor: "#000000",
-                        backgroundOverlayOpacity: 0.6,
-                        heroSubtitleColor: "#ffffff",
-                        heroNamesColor: "#ffffff",
-                        ampersandColor: "#ffffff",
-                        dividerColor: "rgba(255,255,255,0.5)",
-                        backgroundBaseColor: "#111111",
-                        headingColor: "#ffffff",
-                        personNameColor: "#ffffff",
-                        familyRowColor: "#ffffff",
-                        parentRowColor: "#ffffff",
-                        photoBorderColor: "#ffffff",
-                        lowerMessageColor: "#ffffff",
-                        lowerCoupleNameColor: "#ffffff",
-                        sectionCardBackground: "rgba(0,0,0,0.58)",
-                        sectionCardBorderColor: "rgba(255,255,255,0.15)",
-                        donationBackground: "rgba(0,0,0,0.58)",
-                        locationBackground: "rgba(0,0,0,0.58)",
-                        footerBackground: "rgba(0,0,0,0.58)",
-                      }))
-                    }
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-300 bg-slate-100 text-[0.75rem] font-medium text-slate-900 hover:bg-white hover:border-slate-400 transition"
-                  >
-                    ↺ Sıfırla
-                  </button>
-                </div>
-
-                {/* 2 sütun 4 satır grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
-                  <ColorField
-                    label="Davetiye Metni"
-                    value={settings.heroSubtitleColor}
-                    onChange={(v) => handleChange("heroSubtitleColor", v)}
-                  />
-
-                  <ColorField
-                    label="Gelin / Damat"
-                    value={settings.heroNamesColor}
-                    onChange={(v) => handleChange("heroNamesColor", v)}
-                  />
-
-                  <ColorField
-                    label="Çizgiler"
-                    value={settings.dividerColor}
-                    onChange={(v) => handleChange("dividerColor", v)}
-                  />
-                  <ColorField
-                    label="& İşareti"
-                    value={settings.ampersandColor}
-                    onChange={(v) => handleChange("ampersandColor", v)}
-                  />
-                  <ColorField
-                    label="Aile Satırı"
-                    value={settings.familyRowColor}
-                    onChange={(v) => handleChange("familyRowColor", v)}
-                  />
-                  <ColorField
-                    label="Ebeveyn Satırı Rengi"
-                    value={settings.parentRowColor}
-                    onChange={(v) => handleChange("parentRowColor", v)}
-                  />
-
-                  <ColorField
-                    label="Alt Mesaj Rengi"
-                    value={settings.lowerMessageColor}
-                    onChange={(v) => handleChange("lowerMessageColor", v)}
-                  />
-                  <ColorField
-                    label="Alt Çift İsmi Rengi"
-                    value={settings.lowerCoupleNameColor}
-                    onChange={(v) => handleChange("lowerCoupleNameColor", v)}
-                  />
-                  <ColorField
-                    label="Bağış Bölümü Arka Planı"
-                    value={settings.donationBackground}
-                    onChange={(v) => handleChange("donationBackground", v)}
-                  />
-                  <ColorField
-                    label="Konum Bölümü Arka Planı"
-                    value={settings.locationBackground}
-                    onChange={(v) => handleChange("locationBackground", v)}
-                  />
-                  <ColorField
-                    label="Footer Arka Planı"
-                    value={settings.footerBackground}
-                    onChange={(v) => handleChange("footerBackground", v)}
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeStep === 4 && (
-            <>
-              <SectionTitle label="Aile Bilgileri" />
-
-              <div className="mb-3 text-xs text-slate-300">
-                <label className="inline-flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    checked={settings.showFamilySection}
-                    onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
-                        showFamilySection: e.target.checked,
-                      }))
-                    }
-                    className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
-                  />
-                  <span className="text-[0.8rem]">
-                    Aile bilgileri bölümünü davetiyede göster
-                  </span>
-                </label>
-              </div>
-              {/* Tab başlıkları */}
-              {settings.showFamilySection && (
-                <div className="inline-flex mb-3 rounded-full bg-slate-800/70 p-0.5 text-[0.7rem]">
-                  <button
-                    type="button"
-                    onClick={() => setFamilyTab("family1")}
-                    className={`px-3 py-1.5 rounded-full transition ${
-                      familyTab === "family1"
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-300 hover:text-white"
-                    }`}
-                  >
-                    Birinci Aile
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFamilyTab("family2")}
-                    className={`px-3 py-1.5 rounded-full transition ${
-                      familyTab === "family2"
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-300 hover:text-white"
-                    }`}
-                  >
-                    İkinci Aile
-                  </button>
-                </div>
-              )}
-
-              {familyTab === "family1" && settings.showFamilySection && (
-                <div className="mb-3">
-                  <TextField
-                    label="Birinci Aile - Anne Adı"
-                    value={settings.family1Mother}
-                    onChange={(v) => handleChange("family1Mother", v)}
-                  />
-                  <TextField
-                    label="Birinci Aile - Baba Adı"
-                    value={settings.family1Father}
-                    onChange={(v) => handleChange("family1Father", v)}
-                  />
-                  <TextField
-                    label="Birinci Aile - Soyadı"
-                    value={settings.family1Surname}
-                    onChange={(v) => handleChange("family1Surname", v)}
-                  />
-                </div>
-              )}
-              {familyTab === "family2" && settings.showFamilySection && (
-                <div className="mb-3">
-                  <TextField
-                    label="İkinci Aile - Anne Adı"
-                    value={settings.family2Mother}
-                    onChange={(v) => handleChange("family2Mother", v)}
-                  />
-                  <TextField
-                    label="İkinci Aile - Baba Adı"
-                    value={settings.family2Father}
-                    onChange={(v) => handleChange("family2Father", v)}
-                  />
-                  <TextField
-                    label="İkinci Aile - Soyadı"
-                    value={settings.family2Surname}
-                    onChange={(v) => handleChange("family2Surname", v)}
-                  />
-                </div>
-              )}
-              <SectionTitle label="Bağış Bölümü" />
-
-              <div className="mb-3 text-xs text-slate-300">
-                <label className="inline-flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    checked={settings.showDonationSection}
-                    onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
-                        showDonationSection: e.target.checked,
-                      }))
-                    }
-                    className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
-                  />
-                  <span className="text-[0.8rem]">
-                    Bağış / vakıf bölümünü davetiyede göster
-                  </span>
-                </label>
-
-                {settings.showDonationSection && (
-                  <>
-                    <div className="mb-3">
-                      <label className="block mb-1 text-xs font-medium text-slate-300">
-                        Vakıf Seçimi
-                      </label>
-                      <select
-                        value={settings.donationOrganization}
-                        onChange={(e) =>
-                          handleChange(
-                            "donationOrganization",
-                            e.target
-                              .value as InvitationSettings["donationOrganization"]
-                          )
-                        }
-                        className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
-                      >
-                        <option value="tema">TEMA Vakfı</option>
-                        <option value="cydd">
-                          Çağdaş Yaşamı Destekleme Derneği
-                        </option>
-                        <option value="kiz-cocuklari">
-                          Kız Çocuklarını Okutma Burs Fonu
-                        </option>
-                        <option value="losev">LÖSEV</option>
-                        <option value="custom">Diğer / Özel</option>
-                      </select>
-                    </div>
-
-                    <TextAreaField
-                      label="Bağış / Not Metni"
-                      value={settings.donationText}
-                      onChange={(v) => handleChange("donationText", v)}
-                      placeholder="Örn: Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk."
-                      helperText="Bu metin davetiyede bağış bölümünde görünecek."
+                  {/* 2 sütun 4 satır grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
+                    <ColorField
+                      label="Davetiye Metni"
+                      value={settings.heroSubtitleColor}
+                      onChange={(v) => handleChange("heroSubtitleColor", v)}
                     />
 
-                    <div className="mt-2">
-                      <label className="block mb-1 text-xs font-medium text-slate-300">
-                        Bağış Sertifikası / Görsel
-                      </label>
+                    <ColorField
+                      label="Gelin / Damat"
+                      value={settings.heroNamesColor}
+                      onChange={(v) => handleChange("heroNamesColor", v)}
+                    />
+
+                    <ColorField
+                      label="Çizgiler"
+                      value={settings.dividerColor}
+                      onChange={(v) => handleChange("dividerColor", v)}
+                    />
+                    <ColorField
+                      label="& İşareti"
+                      value={settings.ampersandColor}
+                      onChange={(v) => handleChange("ampersandColor", v)}
+                    />
+                    <ColorField
+                      label="Aile Satırı"
+                      value={settings.familyRowColor}
+                      onChange={(v) => handleChange("familyRowColor", v)}
+                    />
+                    <ColorField
+                      label="Ebeveyn Satırı Rengi"
+                      value={settings.parentRowColor}
+                      onChange={(v) => handleChange("parentRowColor", v)}
+                    />
+
+                    <ColorField
+                      label="Alt Mesaj Rengi"
+                      value={settings.lowerMessageColor}
+                      onChange={(v) => handleChange("lowerMessageColor", v)}
+                    />
+                    <ColorField
+                      label="Alt Çift İsmi Rengi"
+                      value={settings.lowerCoupleNameColor}
+                      onChange={(v) => handleChange("lowerCoupleNameColor", v)}
+                    />
+                    <ColorField
+                      label="Bağış Bölümü Arka Planı"
+                      value={settings.donationBackground}
+                      onChange={(v) => handleChange("donationBackground", v)}
+                    />
+                    <ColorField
+                      label="Konum Bölümü Arka Planı"
+                      value={settings.locationBackground}
+                      onChange={(v) => handleChange("locationBackground", v)}
+                    />
+                    <ColorField
+                      label="Footer Arka Planı"
+                      value={settings.footerBackground}
+                      onChange={(v) => handleChange("footerBackground", v)}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {activeStep === 4 && (
+              <>
+                <SectionTitle label="Aile Bilgileri" />
+
+                <div className="mb-3 text-xs text-slate-300">
+                  <label className="inline-flex items-center gap-2 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={settings.showFamilySection}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          showFamilySection: e.target.checked,
+                        }))
+                      }
+                      className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
+                    />
+                    <span className="text-[0.8rem]">
+                      Aile bilgileri bölümünü davetiyede göster
+                    </span>
+                  </label>
+                </div>
+                {/* Tab başlıkları */}
+                {settings.showFamilySection && (
+                  <div className="inline-flex mb-3 rounded-full bg-slate-800/70 p-0.5 text-[0.7rem]">
+                    <button
+                      type="button"
+                      onClick={() => setFamilyTab("family1")}
+                      className={`px-3 py-1.5 rounded-full transition ${
+                        familyTab === "family1"
+                          ? "bg-slate-100 text-slate-900"
+                          : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      Birinci Aile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFamilyTab("family2")}
+                      className={`px-3 py-1.5 rounded-full transition ${
+                        familyTab === "family2"
+                          ? "bg-slate-100 text-slate-900"
+                          : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      İkinci Aile
+                    </button>
+                  </div>
+                )}
+
+                {familyTab === "family1" && settings.showFamilySection && (
+                  <div className="mb-3">
+                    <TextField
+                      label="Birinci Aile - Anne Adı"
+                      value={settings.family1Mother}
+                      onChange={(v) => handleChange("family1Mother", v)}
+                    />
+                    <TextField
+                      label="Birinci Aile - Baba Adı"
+                      value={settings.family1Father}
+                      onChange={(v) => handleChange("family1Father", v)}
+                    />
+                    <TextField
+                      label="Birinci Aile - Soyadı"
+                      value={settings.family1Surname}
+                      onChange={(v) => handleChange("family1Surname", v)}
+                    />
+                  </div>
+                )}
+                {familyTab === "family2" && settings.showFamilySection && (
+                  <div className="mb-3">
+                    <TextField
+                      label="İkinci Aile - Anne Adı"
+                      value={settings.family2Mother}
+                      onChange={(v) => handleChange("family2Mother", v)}
+                    />
+                    <TextField
+                      label="İkinci Aile - Baba Adı"
+                      value={settings.family2Father}
+                      onChange={(v) => handleChange("family2Father", v)}
+                    />
+                    <TextField
+                      label="İkinci Aile - Soyadı"
+                      value={settings.family2Surname}
+                      onChange={(v) => handleChange("family2Surname", v)}
+                    />
+                  </div>
+                )}
+                <SectionTitle label="Bağış Bölümü" />
+
+                <div className="mb-3 text-xs text-slate-300">
+                  <label className="inline-flex items-center gap-2 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={settings.showDonationSection}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          showDonationSection: e.target.checked,
+                        }))
+                      }
+                      className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950/60"
+                    />
+                    <span className="text-[0.8rem]">
+                      Bağış / vakıf bölümünü davetiyede göster
+                    </span>
+                  </label>
+
+                  {settings.showDonationSection && (
+                    <>
+                      <div className="mb-3">
+                        <label className="block mb-1 text-xs font-medium text-slate-300">
+                          Vakıf Seçimi
+                        </label>
+                        <select
+                          value={settings.donationOrganization}
+                          onChange={(e) =>
+                            handleChange(
+                              "donationOrganization",
+                              e.target
+                                .value as InvitationSettings["donationOrganization"]
+                            )
+                          }
+                          className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
+                        >
+                          <option value="tema">TEMA Vakfı</option>
+                          <option value="cydd">
+                            Çağdaş Yaşamı Destekleme Derneği
+                          </option>
+                          <option value="kiz-cocuklari">
+                            Kız Çocuklarını Okutma Burs Fonu
+                          </option>
+                          <option value="losev">LÖSEV</option>
+                          <option value="custom">Diğer / Özel</option>
+                        </select>
+                      </div>
+
+                      <TextAreaField
+                        label="Bağış / Not Metni"
+                        value={settings.donationText}
+                        onChange={(v) => handleChange("donationText", v)}
+                        placeholder="Örn: Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk."
+                        helperText="Bu metin davetiyede bağış bölümünde görünecek."
+                      />
+
+                      <div className="mt-2">
+                        <label className="block mb-1 text-xs font-medium text-slate-300">
+                          Bağış Sertifikası / Görsel
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
+                            Dosya Seç
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    const result = ev.target?.result;
+                                    if (typeof result === "string") {
+                                      setSettings((prev) => ({
+                                        ...prev,
+                                        donationImageUrl: result,
+                                      }));
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                          {settings.donationImageUrl && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSettings((prev) => ({
+                                  ...prev,
+                                  donationImageUrl: "",
+                                }))
+                              }
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
+                              title="Görseli kaldır"
+                            >
+                              🗑
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+
+            {activeStep === 5 && (
+              <>
+                <SectionTitle label="Davetli Listesi & Linkler" />
+                <div className="mb-3 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-2">
-                        <label className="inline-flex items-center px-3 py-1.5 rounded-md bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500 cursor-pointer">
-                          Dosya Seç
+                        {/* Örnek CSV indir + Dosya Yükle butonları */}
+                      </div>
+                      <p className="mt-1 text-[0.7rem] text-slate-400">
+                        Lisansınız: en fazla {license.maxGuests} davetli linki
+                        oluşturabilirsiniz.
+                      </p>
+                      {licenseError && (
+                        <p className="mt-1 text-[0.7rem] text-red-400">
+                          {licenseError}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleAddManualGuest}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-500/90 text-slate-900 text-[0.7rem] font-medium hover:bg-emerald-400"
+                        >
+                          +1 Davetli Ekle
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const remaining = license.maxGuests - guests.length;
+                            if (remaining <= 0) {
+                              setLicenseError(
+                                `Lisans sınırına ulaştınız (${license.maxGuests} davetli).`
+                              );
+                              return;
+                            }
+                            const toAdd = Math.min(10, remaining);
+                            for (let i = 0; i < toAdd; i++) {
+                              handleAddManualGuest();
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
+                        >
+                          +10 Davetli Ekle
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            for (let i = 0; i < 50; i++) {
+                              handleAddManualGuest();
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
+                        >
+                          +50 Davetli Ekle
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {csvError && (
+                    <p className="mt-1 text-[0.7rem] text-red-400">
+                      {csvError}
+                    </p>
+                  )}
+
+                  {guests.length > 0 ? (
+                    <div className="mt-2 space-y-2">
+                      {guests.map((guest) => {
+                        const tempSlug =
+                          guest.slug && guest.slug.length > 0
+                            ? guest.slug
+                            : slugifyName(guest.name || "davetli");
+
+                        const tempPayload = buildGuestPayload(guest, settings);
+                        const tempEncoded = encodeURIComponent(
+                          base64EncodeUnicode(JSON.stringify(tempPayload))
+                        );
+                        const tempHref =
+                          origin.length > 0
+                            ? `${origin}/invite/${tempSlug}?d=${tempEncoded}`
+                            : `/invite/${tempSlug}?d=${tempEncoded}`;
+
+                        const isCopied = !!guest.lastCopiedAt;
+
+                        return (
+                          <div
+                            key={guest.id}
+                            className="rounded-2xl bg-white border border-slate-200 shadow-xs px-3 py-2.5 flex flex-col gap-1.5"
+                          >
+                            {/* Üst satır: İsim input + sağda aksiyonlar */}
+                            <div className="flex items-start gap-2">
+                              <div className="flex-1">
+                                <input
+                                  value={guest.name}
+                                  onChange={(e) =>
+                                    handleGuestFieldChange(
+                                      guest.id,
+                                      "name",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Ayşe ve Alp Kaya Ailesi"
+                                  className="w-full px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                                />
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyGuestLink(guest)}
+                                  className={
+                                    "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[0.7rem] font-medium border " +
+                                    (isCopied
+                                      ? "bg-emerald-500 text-slate-900 border-emerald-400"
+                                      : "bg-slate-900 text-white border-slate-900 hover:bg-slate-800")
+                                  }
+                                  title={
+                                    isCopied
+                                      ? "Kopyalandı"
+                                      : "Linki panoya kopyala"
+                                  }
+                                >
+                                  {isCopied ? "Kopyalandı" : "Kopyala"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveGuest(guest.id)}
+                                  className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500 text-white text-[0.7rem] hover:bg-red-400"
+                                  title="Satırı sil"
+                                >
+                                  🗑
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Alt satır: Link */}
+                            <div className="flex items-center justify-between gap-2 pl-1">
+                              <span className="text-[0.7rem] text-slate-500">
+                                Link
+                              </span>
+                              <a
+                                href={tempHref}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 text-right text-[0.7rem] font-mono text-slate-800 hover:text-slate-900 hover:underline break-all"
+                              >
+                                {origin.length > 0
+                                  ? `${origin}/invite/${tempSlug}`
+                                  : `/invite/${tempSlug}`}
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <div className="flex items-center justify-between px-1 pt-1 text-[0.7rem] text-slate-600">
+                        <span>
+                          Toplam{" "}
+                          <span className="font-semibold text-slate-900">
+                            {guests.length}
+                          </span>{" "}
+                          davetli.
+                        </span>
+                        <span className="text-slate-400">
+                          Lisans sınırı: {license.maxGuests}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-[0.75rem] text-slate-500">
+                      Henüz davetli eklenmedi. Excel’den liste yükleyebilir veya
+                      yukarıdan “+ Davetli Ekle” butonlarıyla yeni satırlar
+                      oluşturabilirsin.
+                    </p>
+                  )}
+
+                  <SectionTitle label="Excel ile Davetli Listesi Hazırla" />
+                  <div className="mb-4 text-xs">
+                    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70 p-3">
+                      <p className="text-[0.7rem] font-medium text-slate-700 mb-1">
+                        Excel ile davetli listeni hazırla
+                      </p>
+                      <p className="text-[0.7rem] text-slate-500 mb-3">
+                        Örnek Excel’i indir, kendi listenle doldur ve geri
+                        yükle. Tüm davetliler için isimle eşleşen URL’ler
+                        otomatik oluşur.
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleDownloadCsvExample}
+                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
+                        >
+                          Örnek Excel İndir
+                        </button>
+
+                        <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800 cursor-pointer">
+                          Dosya Yükle
                           <input
                             type="file"
-                            accept="image/*"
+                            accept=".csv,.txt"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (ev) => {
-                                  const result = ev.target?.result;
-                                  if (typeof result === "string") {
-                                    setSettings((prev) => ({
-                                      ...prev,
-                                      donationImageUrl: result,
-                                    }));
-                                  }
-                                };
-                                reader.readAsDataURL(file);
+                                handleCsvUpload(file);
                               }
                             }}
                             className="hidden"
                           />
                         </label>
-                        {settings.donationImageUrl && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setSettings((prev) => ({
-                                ...prev,
-                                donationImageUrl: "",
-                              }))
-                            }
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600/80 text-white hover:bg-red-500 text-xs"
-                            title="Görseli kaldır"
-                          >
-                            🗑
-                          </button>
-                        )}
+
+                        <span className="text-[0.65rem] text-slate-500">
+                          .csv veya .txt dosyası yükleyebilirsin.
+                        </span>
                       </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-
-          {activeStep === 5 && (
-            <>
-              <SectionTitle label="Davetli Listesi & Linkler" />
-              <div className="mb-3 text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      {/* Örnek CSV indir + Dosya Yükle butonları */}
-                    </div>
-                    <p className="mt-1 text-[0.7rem] text-slate-400">
-                      Lisansınız: en fazla {license.maxGuests} davetli linki
-                      oluşturabilirsiniz.
-                    </p>
-                    {licenseError && (
-                      <p className="mt-1 text-[0.7rem] text-red-400">
-                        {licenseError}
-                      </p>
-                    )}
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleAddManualGuest}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-500/90 text-slate-900 text-[0.7rem] font-medium hover:bg-emerald-400"
-                      >
-                        +1 Davetli Ekle
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const remaining = license.maxGuests - guests.length;
-                          if (remaining <= 0) {
-                            setLicenseError(
-                              `Lisans sınırına ulaştınız (${license.maxGuests} davetli).`
-                            );
-                            return;
-                          }
-                          const toAdd = Math.min(10, remaining);
-                          for (let i = 0; i < toAdd; i++) {
-                            handleAddManualGuest();
-                          }
-                        }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
-                      >
-                        +10 Davetli Ekle
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          for (let i = 0; i < 50; i++) {
-                            handleAddManualGuest();
-                          }
-                        }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
-                      >
-                        +50 Davetli Ekle
-                      </button>
+                      {csvError && (
+                        <p className="mt-2 text-[0.7rem] text-red-500">
+                          {csvError}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
+              </>
+            )}
+          </div>
 
-                {csvError && (
-                  <p className="mt-1 text-[0.7rem] text-red-400">{csvError}</p>
-                )}
+          <div className="h-[calc(100%-44px)] overflow-y-auto px-4 pb-6 pt-3">
+            {/* Üst başlık + random zar */}
 
-                {guests.length > 0 ? (
-                  <div className="mt-2 space-y-2">
-                    {guests.map((guest) => {
-                      const tempSlug =
-                        guest.slug && guest.slug.length > 0
-                          ? guest.slug
-                          : slugifyName(guest.name || "davetli");
-
-                      const tempPayload = buildGuestPayload(guest, settings);
-                      const tempEncoded = encodeURIComponent(
-                        base64EncodeUnicode(JSON.stringify(tempPayload))
-                      );
-                      const tempHref =
-                        origin.length > 0
-                          ? `${origin}/invite/${tempSlug}?d=${tempEncoded}`
-                          : `/invite/${tempSlug}?d=${tempEncoded}`;
-
-                      const isCopied = !!guest.lastCopiedAt;
-
-                      return (
-                        <div
-                          key={guest.id}
-                          className="rounded-2xl bg-white border border-slate-200 shadow-xs px-3 py-2.5 flex flex-col gap-1.5"
-                        >
-                          {/* Üst satır: İsim input + sağda aksiyonlar */}
-                          <div className="flex items-start gap-2">
-                            <div className="flex-1">
-                              <input
-                                value={guest.name}
-                                onChange={(e) =>
-                                  handleGuestFieldChange(
-                                    guest.id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Ayşe ve Alp Kaya Ailesi"
-                                className="w-full px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                              />
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleCopyGuestLink(guest)}
-                                className={
-                                  "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[0.7rem] font-medium border " +
-                                  (isCopied
-                                    ? "bg-emerald-500 text-slate-900 border-emerald-400"
-                                    : "bg-slate-900 text-white border-slate-900 hover:bg-slate-800")
-                                }
-                                title={
-                                  isCopied
-                                    ? "Kopyalandı"
-                                    : "Linki panoya kopyala"
-                                }
-                              >
-                                {isCopied ? "Kopyalandı" : "Kopyala"}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveGuest(guest.id)}
-                                className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500 text-white text-[0.7rem] hover:bg-red-400"
-                                title="Satırı sil"
-                              >
-                                🗑
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Alt satır: Link */}
-                          <div className="flex items-center justify-between gap-2 pl-1">
-                            <span className="text-[0.7rem] text-slate-500">
-                              Link
-                            </span>
-                            <a
-                              href={tempHref}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex-1 text-right text-[0.7rem] font-mono text-slate-800 hover:text-slate-900 hover:underline break-all"
-                            >
-                              {origin.length > 0
-                                ? `${origin}/invite/${tempSlug}`
-                                : `/invite/${tempSlug}`}
-                            </a>
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    <div className="flex items-center justify-between px-1 pt-1 text-[0.7rem] text-slate-600">
-                      <span>
-                        Toplam{" "}
-                        <span className="font-semibold text-slate-900">
-                          {guests.length}
-                        </span>{" "}
-                        davetli.
-                      </span>
-                      <span className="text-slate-400">
-                        Lisans sınırı: {license.maxGuests}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="mt-2 text-[0.75rem] text-slate-500">
-                    Henüz davetli eklenmedi. Excel’den liste yükleyebilir veya
-                    yukarıdan “+ Davetli Ekle” butonlarıyla yeni satırlar
-                    oluşturabilirsin.
-                  </p>
-                )}
-
-                <SectionTitle label="Excel ile Davetli Listesi Hazırla" />
-                <div className="mb-4 text-xs">
-                  <div className="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70 p-3">
-                    <p className="text-[0.7rem] font-medium text-slate-700 mb-1">
-                      Excel ile davetli listeni hazırla
-                    </p>
-                    <p className="text-[0.7rem] text-slate-500 mb-3">
-                      Örnek Excel’i indir, kendi listenle doldur ve geri yükle.
-                      Tüm davetliler için isimle eşleşen URL’ler otomatik
-                      oluşur.
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleDownloadCsvExample}
-                        className="inline-flex items-center px-3 py-1.5 rounded-full bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
-                      >
-                        Örnek Excel İndir
-                      </button>
-
-                      <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800 cursor-pointer">
-                        Dosya Yükle
-                        <input
-                          type="file"
-                          accept=".csv,.txt"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              handleCsvUpload(file);
-                            }
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-
-                      <span className="text-[0.65rem] text-slate-500">
-                        .csv veya .txt dosyası yükleyebilirsin.
-                      </span>
-                    </div>
-                    {csvError && (
-                      <p className="mt-2 text-[0.7rem] text-red-500">
-                        {csvError}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+            <SpeedInsights />
+          </div>
         </div>
-
-        <div className="h-[calc(100%-44px)] overflow-y-auto px-4 pb-6 pt-3">
-          {/* Üst başlık + random zar */}
-
-          <SpeedInsights />
-        </div>
-      </div>
-
+      )}
       {/* Orta kısım: Davetiye + Davetli Linkleri */}
-      <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
+      <div className="max-w-5xl mx-auto px-4 pt-24 pb-8 md:pt-12 md:pb-12">
         <InvitationPreview
           settings={settings}
           countdown={countdown}

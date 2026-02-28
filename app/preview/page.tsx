@@ -126,7 +126,7 @@ export default function PreviewPage() {
         </div>
       </div>
 
-      <div className="opacity-75 pointer-events-none">
+      <div className="opacity-75 pointer-events-none pt-24 md:pt-12 pb-8">
         <InvitationPreview
           settings={settings}
           countdown={countdown}
