@@ -44,7 +44,21 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     });
   }, []);
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) {
+      setResults([]);
+      setSearchError(null);
+      return;
+    }
 
+    const id = setTimeout(() => {
+      handleSearch(q);
+    }, 400); // yazma durunca 0.4 sn sonra ara
+
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
   // Haritayı ilk kez oluştur
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -110,8 +124,8 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
     setSelectedLabel("Konum seçildi");
   }, [mapLat, mapLng]);
 
-  const handleSearch = async () => {
-    const q = query.trim();
+  const handleSearch = async (qParam?: string) => {
+    const q = (qParam ?? query).trim();
     if (!q) {
       setResults([]);
       setSearchError(null);
@@ -122,19 +136,14 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
     setSearchError(null);
 
     try {
-      // Nominatim / OSM araması – Türkiye odaklı “viewbox” ile biraz sınırlandırabiliriz
       const url = new URL("https://nominatim.openstreetmap.org/search");
       url.searchParams.set("q", q);
       url.searchParams.set("format", "json");
       url.searchParams.set("addressdetails", "0");
       url.searchParams.set("limit", "5");
-      // İstersen Türkiye'ye yakın alanla sınırla (optional)
-      // url.searchParams.set("countrycodes", "tr");
 
       const res = await fetch(url.toString(), {
-        headers: {
-          "Accept-Language": "tr",
-        },
+        headers: { "Accept-Language": "tr" },
       });
 
       if (!res.ok) {
@@ -142,7 +151,6 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
       }
 
       const data = (await res.json()) as SearchResult[];
-
       setResults(data);
       if (data.length === 0) {
         setSearchError("Eşleşen mekan bulunamadı.");
@@ -204,7 +212,7 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
         />
         <button
           type="button"
-          onClick={handleSearch}
+          //onClick={handleSearch}
           disabled={isSearching}
           className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium disabled:opacity-60 disabled:cursor-wait"
         >
@@ -233,17 +241,33 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
 
       <div className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50">
         <div ref={mapContainerRef} className="w-full" style={{ height: 220 }} />
-        <div className="px-3 py-2 flex items-center justify-between bg-white">
+        <div
+          className={
+            "px-3 py-2 flex items-center justify-between " +
+            (mapLat != null && mapLng != null
+              ? "bg-emerald-50 border-t border-emerald-100"
+              : "bg-white")
+          }
+        >
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-white text-[0.6rem]">
-              ⓘ
+            <span
+              className={
+                "inline-flex h-6 w-6 items-center justify-center rounded-full text-[0.6rem] " +
+                (mapLat != null && mapLng != null
+                  ? "bg-emerald-500 text-white"
+                  : "bg-slate-900 text-white")
+              }
+            >
+              {mapLat != null && mapLng != null ? "✓" : "ⓘ"}
             </span>
-            <span className="text-[0.7rem] text-slate-600">
-              {selectedLabel}
+            <span className="text-[0.7rem] text-slate-700">
+              {mapLat != null && mapLng != null
+                ? `Seçilen konum: ${selectedLabel}`
+                : selectedLabel}
             </span>
           </div>
           {mapLat != null && mapLng != null && (
-            <span className="inline-flex items-center px-2 py-1 rounded-full bg-slate-100 text-[0.65rem] text-slate-500">
+            <span className="inline-flex items-center px-2 py-1 rounded-full bg-emerald-100 text-[0.65rem] text-emerald-700">
               Haritadan seçildi
             </span>
           )}

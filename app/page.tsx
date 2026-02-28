@@ -626,11 +626,11 @@ export default function EditorPage() {
   }, [settings, settingsLoaded]);
 
   const steps = [
-    { id: 1, label: "Çift Bilgileri" },
-    { id: 2, label: "Tarih & Konum" },
-    { id: 3, label: "Tema & Renk" },
-    { id: 4, label: "Aile & Bağış" },
-    { id: 5, label: "Davetliler & Linkler" },
+    { id: 1, label: "Çift", icon: "👩‍❤️‍👨" },
+    { id: 2, label: "Tarih", icon: "📅" },
+    { id: 3, label: "Tema", icon: "🎨" },
+    { id: 4, label: "Aile", icon: "🏡" },
+    { id: 5, label: "Davet", icon: "📬" },
   ];
 
   const [license, setLicense] = useState<LicenseInfo>(DEFAULT_LICENSE);
@@ -669,6 +669,15 @@ export default function EditorPage() {
   const [dateYear, setDateYear] = useState<string>("");
   const [hasPaid, setHasPaid] = useState<boolean>(false); // gerçekte bu backend'den gelir
 
+  useEffect(() => {
+    if (!isEditorOpen) return;
+    if (typeof window === "undefined") return;
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [isEditorOpen]);
   const applyTheme = (themeId: ThemeId) => {
     const theme = THEMES.find((t) => t.id === themeId);
     if (!theme) return;
@@ -1222,6 +1231,7 @@ export default function EditorPage() {
                 ].join(" ")}
               >
                 {step.id}. {step.label}
+                <span>{step.icon}</span>
               </button>
             ))}
           </div>
