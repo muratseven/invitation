@@ -13,9 +13,6 @@ const MapPicker = dynamic(
   { ssr: false }
 );
 
-
-
-
 type LicenseInfo = {
   maxGuests: number;
 };
@@ -662,7 +659,7 @@ export default function EditorPage() {
   const [csvError, setCsvError] = useState<string | null>(null);
 
   const [origin, setOrigin] = useState<string>("");
-  const [isEditorOpen, setIsEditorOpen] = useState<boolean>(true);
+  const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   type EditorMode = "user" | "admin";
 
   const [mode, setMode] = useState<EditorMode>("user");
@@ -1119,44 +1116,43 @@ export default function EditorPage() {
       style={{ background: overlayColor }}
     >
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between text-[0.75rem]">
-          {/* Sol: logo + menü */}
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-300/60">
-                💌
+        <div className="mx-auto max-w-6xl px-4 py-2.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-[0.75rem]">
+          {/* Sol: logo + açıklama */}
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-300/60">
+              💌
+            </span>
+            <div className="flex flex-col">
+              <span className="text-[0.7rem] tracking-[0.18em] uppercase text-slate-700">
+                Dijital Davetiye Stüdyosu
               </span>
-              <div className="flex flex-col">
-                <span className="text-[0.7rem] tracking-[0.18em] uppercase text-slate-700">
-                  Dijital Davetiye Stüdyosu
-                </span>
-                <span className="text-xs text-slate-500">
-                  Davetiyeni düzenle ve canlı önizle
-                </span>
-              </div>
+              <span className="text-[0.7rem] text-slate-500">
+                Davetiyeni düzenle ve canlı önizle
+              </span>
             </div>
-
-            <nav className="flex items-center gap-2">
-              <Link
-                href="/landing#how-it-works"
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-900 shadow-sm shadow-emerald-300/70 hover:bg-emerald-400 border border-emerald-300 transition-colors"
-              >
-                Anasayfa
-              </Link>
-              <Link
-                href="/landing#pricing"
-                className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white border border-slate-200 hover:bg-amber-400 hover:text-slate-900 hover:border-amber-300 transition-colors"
-              >
-                Fiyatlandırma
-              </Link>
-            </nav>
           </div>
+
+          {/* Sağ: menü – mobile’da alt satıra iner, daha sıkı görünür */}
+          <nav className="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
+            <Link
+              href="/landing#how-it-works"
+              className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white border border-slate-200 hover:bg-emerald-500 hover:text-slate-900 hover:border-emerald-300 transition-colors"
+            >
+              Anasayfa
+            </Link>
+            <Link
+              href="/landing#pricing"
+              className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-800 bg-white border border-slate-200 hover:bg-amber-400 hover:text-slate-900 hover:border-amber-300 transition-colors"
+            >
+              Fiyatlandırma
+            </Link>
+          </nav>
         </div>
       </div>
 
       {/* Sağ alt köşedeki butonlar */}
       {!isEditorOpen && (
-        <div className="fixed bottom-5 right-5 z-30 flex flex-col gap-2">
+        <div className="hidden md:flex fixed bottom-5 right-5 z-30 flex-col gap-2">
           <button
             onClick={() => {
               setMode("user");
@@ -1187,9 +1183,15 @@ export default function EditorPage() {
 
       {/* Editör paneli */}
       <div
-        className={`fixed top-[60px] h-[calc(100%-60px)] right-0 h-[calc(100%-40px)] w-full max-w-md bg-white/95 text-slate-900 border-l border-slate-200 z-40 rounded-l-3xl shadow-xl shadow-slate-300/60 transform transition-transform duration-300 ease-in-out ${
-          isEditorOpen ? "translate-x-0" : "translate-x-full"
-        } editor-font`}
+        className={[
+          // Mobile: header’ın altında başlasın
+          "mt-[88px] w-full bg-white/95 text-slate-900 border-t border-slate-200 z-40 editor-font",
+          // Desktop ve üstü: sağda fixed sidebar
+          "md:mt-0 md:fixed md:top-[60px] md:right-0 md:h-[calc(100%-60px)] md:max-w-md md:border-l md:border-t-0 md:rounded-l-3xl md:shadow-xl md:shadow-slate-300/60",
+          // Slide-in/slide-out sadece md+ için
+          isEditorOpen ? "md:translate-x-0" : "md:translate-x-full",
+          "md:transform md:transition-transform md:duration-300 md:ease-in-out",
+        ].join(" ")}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
           <div>
@@ -1228,7 +1230,7 @@ export default function EditorPage() {
           ))}
         </div>
 
-        <div className="h-[calc(100%-80px)] overflow-y-auto px-4 pb-6 pt-3 bg-white">
+        <div className="px-4 pb-6 pt-3 bg-white md:h-[calc(100%-80px)] md:overflow-y-auto">
           {activeStep === 1 && (
             <>
               <SectionTitle label="Davetiye Başlığı" />

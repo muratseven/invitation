@@ -84,24 +84,16 @@ export default function LandingPage() {
                 <span className="text-xs">→</span>
               </Link>
             </nav>
-            <div className="flex sm:hidden items-center gap-2 text-[0.7rem] text-slate-500">
-              <Link
-                href="/"
-                className="px-3 py-1 rounded-full bg-emerald-500 text-slate-900 font-medium border border-emerald-300"
-              >
-                Davetiyemi oluştur
-              </Link>
-            </div>
           </div>
 
-          <div className="flex md:hidden items-center gap-2 text-[0.7rem] text-slate-500">
+          {/* <div className="flex md:hidden items-center gap-2 text-[0.7rem] text-slate-500">
             <a
               href="#pricing"
               className="px-3 py-1 rounded-full bg-white/80 border border-slate-200"
             >
               Fiyatlar
             </a>
-          </div>
+          </div> */}
         </div>
       </header>
 
