@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import type { InvitationSettings, Countdown } from "../page";
 import { InvitationPreview, DEFAULT_SETTINGS } from "../page";
+import Link from "next/link";
+
 // preview/page.tsx
 function hexToRgba(hex: string, alpha: number): string {
   let clean = hex.replace("#", "").trim();
@@ -116,17 +118,52 @@ export default function PreviewPage() {
 
   return (
     <div
-      className="relative min-h-screen text-slate-50"
+      className="relative min-h-screen text-slate-50 page-overlay"
       style={{ background: overlayColor }}
     >
-      <div className="absolute top-4 inset-x-0 flex justify-center z-30">
+      {/* Üst menü */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-black/60 backdrop-blur-md border-b border-white/10">
+        <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-between text-[0.75rem]">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-rose-500 text-white text-xs font-semibold shadow-lg shadow-rose-300/60">
+              💌
+            </span>
+            <div className="flex flex-col">
+              <span className="text-[0.7rem] tracking-[0.18em] uppercase text-slate-100">
+                Dijital Davetiye Stüdyosu
+              </span>
+              <span className="text-[0.7rem] text-slate-300">
+                Önizleme ekranı
+              </span>
+            </div>
+          </div>
+
+          <nav className="flex items-center gap-2">
+            <Link
+              href="/landing#how-it-works"
+              className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-900 bg-white border border-slate-200 hover:bg-emerald-500 hover:text-slate-900 hover:border-emerald-300 transition-colors"
+            >
+              Anasayfa
+            </Link>
+            <Link
+              href="/"
+              className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-900 bg-amber-300 border border-amber-200 hover:bg-amber-400 hover:border-amber-300 transition-colors"
+            >
+              Editöre dön
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Uyarı balonu */}
+      <div className="absolute top-16 inset-x-0 flex justify-center z-30">
         <div className="rounded-full bg-black/70 px-4 py-1.5 text-[0.7rem] text-slate-100 border border-slate-500/60">
-          Bu sadece önizleme. Kendi davetiyenizi paylaşmak için ödeme adımını
-          tamamlamanız gerekir.
+          Bu sadece önizleme. Kendi davetiye ayarlarınızı davetlilerle
+          paylaşmadan önce kontrol etmeniz için hazırlanmıştır.
         </div>
       </div>
 
-      <div className="opacity-75 pointer-events-none pt-24 md:pt-12 pb-8">
+      <div className="relative opacity-75 pointer-events-none pt-24 md:pt-12 pb-8">
         <InvitationPreview
           settings={settings}
           countdown={countdown}

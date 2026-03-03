@@ -1231,7 +1231,7 @@ export default function EditorPage() {
                 ].join(" ")}
               >
                 {step.id}. {step.label}
-                <span>{step.icon}</span>
+                <span> {step.icon}</span>
               </button>
             ))}
           </div>
@@ -2253,7 +2253,24 @@ export function InvitationPreview({
   const weddingDateForHero = dateText;
   const countdownFinished = countdown.finished;
 
-  const { embedSrc: embedUrl, buttonHref } = parseMapInput(mapsUrl);
+  // const { embedSrc: embedUrl, buttonHref } = parseMapInput(mapsUrl);
+
+  let embedUrl = "about:blank";
+  let buttonHref = "";
+
+  if (settings.mapLat != null && settings.mapLng != null) {
+    const { mapLat, mapLng } = settings;
+    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
+      mapLng - 0.01
+    }%2C${mapLat - 0.01}%2C${mapLng + 0.01}%2C${
+      mapLat + 0.01
+    }&layer=mapnik&marker=${mapLat}%2C${mapLng}`;
+    buttonHref = `https://www.google.com/maps/search/?api=1&query=${mapLat},${mapLng}`;
+  } else {
+    const parsed = parseMapInput(mapsUrl);
+    embedUrl = parsed.embedSrc;
+    buttonHref = parsed.buttonHref;
+  }
 
   const hasFamily1 = family1Mother || family1Father;
   const hasFamily2 = family2Mother || family2Father;

@@ -1,5 +1,4 @@
 // app/components/MapPicker.tsx
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -32,7 +31,7 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  // Leaflet default icon fix (Next.js / bundler ortamı için)
+  // Leaflet default icon fix
   useEffect(() => {
     // @ts-ignore
     delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -44,21 +43,7 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     });
   }, []);
-  useEffect(() => {
-    const q = query.trim();
-    if (!q) {
-      setResults([]);
-      setSearchError(null);
-      return;
-    }
 
-    const id = setTimeout(() => {
-      handleSearch(q);
-    }, 400); // yazma durunca 0.4 sn sonra ara
-
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
   // Haritayı ilk kez oluştur
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -76,14 +61,12 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
       attribution: "© OpenStreetMap katkıda bulunanlar",
     }).addTo(map);
 
-    // Mevcut konum varsa marker koy
     if (mapLat != null && mapLng != null) {
       const marker = L.marker([mapLat, mapLng]).addTo(map);
       markerRef.current = marker;
       setSelectedLabel("Konum seçildi");
     }
 
-    // Haritaya tıklanınca marker güncelle
     map.on("click", (e: LeafletMouseEvent) => {
       const { lat, lng } = e.latlng;
 
@@ -107,12 +90,11 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Dışarıdan gelen mapLat/mapLng değişirse haritayı güncelle
+  // mapLat/mapLng dışarıdan değişirse haritayı güncelle
   useEffect(() => {
     if (!mapRef.current || mapLat == null || mapLng == null) return;
 
     const map = mapRef.current;
-
     map.setView([mapLat, mapLng], map.getZoom());
 
     if (markerRef.current) {
@@ -124,6 +106,7 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
     setSelectedLabel("Konum seçildi");
   }, [mapLat, mapLng]);
 
+  // TR öncelikli arama
   const handleSearch = async (qParam?: string) => {
     const q = (qParam ?? query).trim();
     if (!q) {
@@ -136,21 +119,38 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
     setSearchError(null);
 
     try {
-      const url = new URL("https://nominatim.openstreetmap.org/search");
-      url.searchParams.set("q", q);
-      url.searchParams.set("format", "json");
-      url.searchParams.set("addressdetails", "0");
-      url.searchParams.set("limit", "5");
+      const urlTr = new URL("https://nominatim.openstreetmap.org/search");
+      urlTr.searchParams.set("q", q);
+      urlTr.searchParams.set("format", "json");
+      urlTr.searchParams.set("addressdetails", "0");
+      urlTr.searchParams.set("limit", "5");
+      urlTr.searchParams.set("countrycodes", "tr");
 
-      const res = await fetch(url.toString(), {
+      const urlGlobal = new URL("https://nominatim.openstreetmap.org/search");
+      urlGlobal.searchParams.set("q", q);
+      urlGlobal.searchParams.set("format", "json");
+      urlGlobal.searchParams.set("addressdetails", "0");
+      urlGlobal.searchParams.set("limit", "5");
+
+      const resTr = await fetch(urlTr.toString(), {
         headers: { "Accept-Language": "tr" },
       });
 
-      if (!res.ok) {
-        throw new Error("Arama isteği başarısız");
+      let data: SearchResult[] = [];
+      if (resTr.ok) {
+        data = (await resTr.json()) as SearchResult[];
       }
 
-      const data = (await res.json()) as SearchResult[];
+      if (data.length === 0) {
+        const resGlobal = await fetch(urlGlobal.toString(), {
+          headers: { "Accept-Language": "tr" },
+        });
+        if (!resGlobal.ok) {
+          throw new Error("Arama isteği başarısız");
+        }
+        data = (await resGlobal.json()) as SearchResult[];
+      }
+
       setResults(data);
       if (data.length === 0) {
         setSearchError("Eşleşen mekan bulunamadı.");
@@ -163,6 +163,23 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
       setIsSearching(false);
     }
   };
+
+  // Yazarken 400ms debounce ile ara
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) {
+      setResults([]);
+      setSearchError(null);
+      return;
+    }
+
+    const id = setTimeout(() => {
+      handleSearch(q);
+    }, 400);
+
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
   const handleSelectResult = (result: SearchResult) => {
     const lat = Number(result.lat);
@@ -212,7 +229,7 @@ export function MapPicker({ mapLat, mapLng, onChange }: Props) {
         />
         <button
           type="button"
-          //onClick={handleSearch}
+          onClick={() => handleSearch()}
           disabled={isSearching}
           className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium disabled:opacity-60 disabled:cursor-wait"
         >
