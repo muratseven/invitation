@@ -309,10 +309,11 @@ export default function InviteClient({
 
   if (settings.mapLat != null && settings.mapLng != null) {
     const { mapLat, mapLng } = settings;
+    const delta = 0.0015; // daha da yakın zoom
     embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
-      mapLng - 0.01
-    }%2C${mapLat - 0.01}%2C${mapLng + 0.01}%2C${
-      mapLat + 0.01
+      mapLng - delta
+    }%2C${mapLat - delta}%2C${mapLng + delta}%2C${
+      mapLat + delta
     }&layer=mapnik&marker=${mapLat}%2C${mapLng}`;
     buttonHref = `https://www.google.com/maps/search/?api=1&query=${mapLat},${mapLng}`;
   } else {

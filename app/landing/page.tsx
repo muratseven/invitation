@@ -78,7 +78,7 @@ export default function LandingPage() {
             </a>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-slate-400/60 hover:bg-black transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-900 shadow-sm shadow-emerald-300/70 hover:bg-emerald-400 transition-colors"
             >
               Davetiyemi Oluştur
               <span className="text-xs">→</span>
@@ -200,8 +200,9 @@ export default function LandingPage() {
               </h3>
               <p className="mt-2 text-[0.8rem] text-slate-600">
                 Excel’den davetli listeni içeri alabilir veya editörde tek tek
-                isim ekleyebilirsin. Her satır için otomatik bir davet linki
-                üretiliyor; WhatsApp, SMS veya e‑posta ile paylaşıyorsun.
+                isim ekleyebilirsin. Her satır için kişiye özel otomatik bir
+                davet linki üretiliyor; WhatsApp, SMS veya e‑posta ile
+                paylaşıyorsun.
               </p>
               <ul className="mt-2 space-y-1 text-[0.75rem] text-slate-500">
                 <li>• Her davetli için isme özel URL</li>
@@ -344,10 +345,10 @@ export default function LandingPage() {
             <p className="text-[0.75rem] tracking-[0.18em] uppercase text-amber-500">
               Fiyatlandırma
             </p>
-            <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-slate-900">
+            <h2 className="mt-2 text-3xl md:text-4xl font-semibold text-slate-900">
               Aynı güçlü özellikler, sadece davetli sayısı değişiyor
             </h2>
-            <p className="mt-2 text-sm text-slate-600 max-w-2xl mx-auto">
+            <p className="mt-2 text-sm md:text-base text-slate-600 max-w-2xl mx-auto">
               Her pakette kişiye özel URL, canlı önizleme, Google Maps ve bağış
               bölümü var. Sadece kaç davetli için link üretmek istediğine karar
               veriyorsun.
@@ -477,7 +478,7 @@ export default function LandingPage() {
 
       {/* Davetli listesi & linkler */}
       <section className="bg-transparent py-16">
-        <div className="mx-auto max-w-6xl px-4 grid gap-10 md:grid-cols-2 items-center">
+        <div className="mx-auto max-w-6xl px-4 grid gap-10 md:grid-cols-[1.2fr,0.8fr] items-center">
           <div>
             <p className="text-[0.75rem] tracking-[0.18em] uppercase text-sky-500">
               Davetli listesi &amp; linkler
@@ -487,8 +488,8 @@ export default function LandingPage() {
             </h2>
             <p className="mt-3 text-sm text-slate-700">
               Davetlilerini Excel’den içeri alabilir veya editörde tek tek isim
-              ekleyebilirsin. Her satır için otomatik bir davet linki
-              üretiliyor;{" "}
+              ekleyebilirsin. Her satır için kişiye özel otomatik bir davet
+              linki üretiliyor;{" "}
               <span className="font-medium text-slate-900">Kopyala</span>{" "}
               butonuna basman WhatsApp, SMS veya e‑posta göndermek için yeterli.
               Tüm linkler mobil cihazlarda okunabilir ve tıklanabilir olacak
@@ -531,7 +532,7 @@ export default function LandingPage() {
                       Hülya ve Mehmet Yılmaz Ailesi
                     </td>
                     <td className="px-3 py-1.5 text-rose-500 break-all font-mono">
-                      /davetli/hülya-mehmet-yilmaz-ailesi
+                      /davetli/hulya-mehmet-yilmaz-ailesi
                     </td>
                     <td className="px-3 py-1.5 text-center">
                       <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/90 text-slate-900 text-xs">
@@ -552,14 +553,36 @@ export default function LandingPage() {
                       </span>
                     </td>
                   </tr>
-                  {/* 1–2 satır daha mock ekleyebilirsin */}
+                  {/* Yeni: “ailesi” olmayan örnekler */}
+                  <tr className="border-t border-slate-100">
+                    <td className="px-3 py-1.5">Elif Arslan</td>
+                    <td className="px-3 py-1.5 text-rose-500 break-all font-mono">
+                      /davetli/elif-arslan
+                    </td>
+                    <td className="px-3 py-1.5 text-center">
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/90 text-slate-900 text-xs">
+                        ⧉
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-t border-slate-100">
+                    <td className="px-3 py-1.5">Ayşe &amp; Alp Kaya</td>
+                    <td className="px-3 py-1.5 text-rose-500 break-all font-mono">
+                      /davetli/ayse-alp-kaya
+                    </td>
+                    <td className="px-3 py-1.5 text-center">
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/90 text-slate-900 text-xs">
+                        ⧉
+                      </span>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
             <p className="mt-2 text-[0.7rem] text-slate-500">
-              Editörde bu tabloyu doldurduğunda, her satır için otomatik
-              davetiye linki oluşuyor ve tüm linkler mobilde de okunaklı
-              görünecek şekilde kısaltılıyor.
+              Editörde bu tabloyu doldurduğunda, her satır için kişiye özel
+              otomatik davetiye linki oluşuyor ve tüm linkler mobilde de
+              okunaklı görünecek şekilde kısaltılıyor.
             </p>
           </div>
         </div>

@@ -118,7 +118,7 @@ export default function PreviewPage() {
 
   return (
     <div
-      className="relative min-h-screen text-slate-50 page-overlay"
+      className="relative min-h-screen text-slate-900 bg-gradient-to-b from-slate-900 via-slate-950 to-[#1a1012]"
       style={{ background: overlayColor }}
     >
       {/* Üst menü */}
@@ -163,13 +163,13 @@ export default function PreviewPage() {
         </div>
       </div>
 
-      <div className="relative opacity-75 pointer-events-none pt-24 md:pt-12 pb-8">
+      <main className="relative min-h-screen flex items-center justify-center pt-28 md:pt-32 pb-10">
         <InvitationPreview
           settings={settings}
           countdown={countdown}
           overlayColor={overlayColor}
         />
-      </div>
+      </main>
     </div>
   );
 }
