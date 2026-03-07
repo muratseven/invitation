@@ -68,7 +68,7 @@ export type InvitationSettings = {
   primaryTextColor: string;
   buttonBackground: string;
   buttonTextColor: string;
-
+  guestName?: string;
   fontFamily: FontFamily;
 
   // ↓↓↓ YENİ EKLE
@@ -126,7 +126,7 @@ export const DEFAULT_SETTINGS: InvitationSettings = {
   donationOrganization: "tema",
   donationImageUrl: "/fidan_ga_wm.jpg",
   showFamilySection: false,
-
+  guestName: undefined,
   backgroundColor: "#000000",
   backgroundOverlayOpacity: 0.6,
 
@@ -184,6 +184,7 @@ type Guest = {
   phone?: string;
   source: "csv" | "manual";
   lastCopiedAt?: number;
+  lastSharedAt?: number;
 };
 
 export type Countdown = {
@@ -630,7 +631,7 @@ export default function EditorPage() {
   const [license, setLicense] = useState<LicenseInfo>(DEFAULT_LICENSE);
   const [licenseError, setLicenseError] = useState<string | null>(null);
   const [tokenInput, setTokenInput] = useState<string>("");
-
+  const [isEditingToken, setIsEditingToken] = useState(false);
   const emptyCountdown: Countdown = {
     days: 0,
     hours: 0,
@@ -638,15 +639,26 @@ export default function EditorPage() {
     seconds: 0,
     finished: false,
   };
-
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [isSavingEvent, setIsSavingEvent] = useState<boolean>(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [openGuestMenuId, setOpenGuestMenuId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
     "idle"
   );
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("invitationLicense", JSON.stringify(license));
-  }, [license]);
+  const handleShareWhatsApp = (guest: Guest, href: string) => {
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(
+      `Davet linkiniz: ${href}`
+    )}`;
+    window.open(waUrl, "_blank", "noopener,noreferrer");
+
+    const now = Date.now();
+    setGuests((prev) =>
+      prev.map((g) => (g.id === guest.id ? { ...g, lastSharedAt: now } : g))
+    );
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -661,6 +673,11 @@ export default function EditorPage() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("invitationLicense", JSON.stringify(license));
+  }, [license]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -698,6 +715,117 @@ export default function EditorPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+  // app/page.tsx içinde, settingsLoaded && license.valid koşuluyla
+  useEffect(() => {
+    if (!settingsLoaded) return;
+    if (!license.valid || !license.token) return;
+    if (!isDirty) return; // kaydedilmemiş değişiklik yoksa çağırma
+
+    const controller = new AbortController();
+
+    const save = async () => {
+      try {
+        setIsSavingEvent(true);
+        setSaveError(null);
+
+        const res = await fetch(`${API_BASE}/save_event.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            token: license.token,
+            settings,
+          }),
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          console.warn("save_event http error", res.status, text);
+          setSaveError("Değişiklikler kaydedilemedi.");
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!data.success) {
+          console.warn("save_event error", data);
+          setSaveError(data.error || "Değişiklikler kaydedilemedi.");
+          return;
+        }
+
+        // başarılı
+        setIsDirty(false);
+        setLastSavedAt(new Date());
+      } catch (e) {
+        console.error("save_event error", e);
+        setSaveError("Sunucuya ulaşılamadı.");
+      } finally {
+        setIsSavingEvent(false);
+      }
+    };
+
+    const t = setTimeout(save, 2500); // 2.5s debounce
+    return () => {
+      clearTimeout(t);
+      controller.abort();
+    };
+  }, [settings, settingsLoaded, license.valid, license.token, isDirty]);
+
+  useEffect(() => {
+    if (!license.valid || !license.token) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/list_guests.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: license.token }),
+        });
+
+        const text = await res.text();
+        let data: any;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("list_guests JSON parse error", e, text);
+          return;
+        }
+
+        if (!data.success) {
+          console.error("list_guests error", data.error);
+          return;
+        }
+
+        // Lisans bilgilerini backend'den gelen değerle de senkronize edebilirsin
+        setLicense((prev) => ({
+          ...prev,
+          maxGuests: Number(data.maxGuests ?? prev.maxGuests),
+          usedGuests: Number(data.usedGuests ?? prev.usedGuests),
+        }));
+
+        const rows = (data.guests ?? []) as {
+          id: number;
+          guest_name: string;
+          guest_slug: string;
+          link?: string;
+        }[];
+
+        const mapped: Guest[] = rows.map((row) => ({
+          id: `db-${row.id}`,
+          backendId: row.id,
+          name: row.guest_name,
+          slug: row.guest_slug,
+          source: "manual",
+          status: "saved",
+          inviteUrl: row.link, // artık dolu
+        }));
+
+        setGuests(mapped);
+      } catch (e) {
+        console.error("list_guests fetch error", e);
+      }
+    })();
+  }, [license.valid, license.token]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -765,41 +893,33 @@ export default function EditorPage() {
   };
 
   const handleCopyGuestLink = async (guest: Guest) => {
-    if (!origin) return;
-
-    const payload = buildGuestPayload(guest, settings);
-
-    const encoded = encodeURIComponent(
-      base64EncodeUnicode(JSON.stringify(payload))
-    );
-
-    const slug =
-      guest.slug && guest.slug.length > 0
-        ? guest.slug
-        : slugifyName(guest.name || "davetli");
-
-    const href =
-      origin.length > 0
-        ? `${origin}/invite/${slug}?d=${encoded}`
-        : `/invite/${slug}?d=${encoded}`;
-
+    if (!guest.inviteUrl) return;
     try {
-      await navigator.clipboard.writeText(href);
+      await navigator.clipboard.writeText(guest.inviteUrl);
       const now = Date.now();
-
       setGuests((prev) =>
-        prev.map((g) =>
-          g.id === guest.id ? { ...g, slug, lastCopiedAt: now } : g
-        )
+        prev.map((g) => (g.id === guest.id ? { ...g, lastCopiedAt: now } : g))
       );
     } catch (e) {
       console.error("clipboard error", e);
     }
   };
 
-  const handleAddManualGuest = () => {
+  const handleAddManualGuest = async () => {
     if (!license.valid) {
       setLicenseError("Önce geçerli bir lisans token doğrulamalısınız.");
+      return;
+    }
+
+    // Bu token için: backend'de kullanılan + henüz kaydedilmemiş draft satırlar
+    const savedGuestsCount = license.usedGuests; // list_guests'ten rows.length ile güncellenecek
+    const draftGuestsCount = guests.filter((g) => g.status !== "saved").length;
+    const effectiveUsed = savedGuestsCount + draftGuestsCount;
+
+    if (effectiveUsed >= license.maxGuests) {
+      setLicenseError(
+        `Lisans limitiniz dolu görünüyor. Maksimum ${license.maxGuests} davetli linki oluşturabilirsiniz.`
+      );
       return;
     }
 
@@ -831,7 +951,6 @@ export default function EditorPage() {
       mapsUrl: settings.mapsUrl,
       guestName: guest.name,
 
-      // Tasarım & tema
       sectionCardBackground:
         settings.locationBackground || settings.sectionCardBackground,
       sectionCardBorderColor: settings.sectionCardBorderColor,
@@ -846,17 +965,14 @@ export default function EditorPage() {
       ampersandColor: settings.ampersandColor,
       dividerColor: settings.dividerColor,
 
-      // Bağış bölümü
       donationBackground: settings.donationBackground,
       showDonationSection: settings.showDonationSection,
       donationText: settings.donationText,
       donationImageUrl: settings.donationImageUrl,
 
-      // Konum kartı & görsel
       locationBackground: settings.locationBackground,
       locationImageUrl: settings.locationImageUrl,
 
-      // Aile bilgileri
       showFamilySection: settings.showFamilySection,
       family1Mother: settings.family1Mother,
       family1Father: settings.family1Father,
@@ -868,6 +984,7 @@ export default function EditorPage() {
       mapLng: settings.mapLng,
     };
   }
+
   const handleSaveGuest = async (guest: Guest) => {
     if (!license.valid || !license.token) {
       setLicenseError("Önce geçerli bir lisans token doğrulamalısınız.");
@@ -993,8 +1110,44 @@ export default function EditorPage() {
       })
     );
   };
-  const handleRemoveGuest = (id: string) => {
-    setGuests((prev) => prev.filter((g) => g.id !== id));
+  const handleRemoveGuest = async (guest: Guest) => {
+    setGuests((prev) => prev.filter((g) => g.id !== guest.id));
+
+    if (!guest.backendId || !license.valid || !license.token) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/delete_guest.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: license.token,
+          guest_id: guest.backendId,
+        }),
+      });
+
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error("delete_guest JSON parse error", e, text);
+        return;
+      }
+
+      if (!data.success) {
+        console.error("delete_guest error", data.error);
+        return;
+      }
+
+      setLicense((prev) => ({
+        ...prev,
+        usedGuests: Number(data.usedGuests ?? prev.usedGuests),
+      }));
+    } catch (e) {
+      console.error("delete_guest fetch error", e);
+    }
   };
 
   const handleDownloadCsvExample = () => {
@@ -1095,6 +1248,10 @@ export default function EditorPage() {
       }
       return { ...prev, [field]: value as any };
     });
+
+    // her değişiklikte dirty yap
+    setIsDirty(true);
+    setSaveError(null);
   };
 
   useEffect(() => {
@@ -1162,29 +1319,8 @@ export default function EditorPage() {
       const lines = text.split(/\r?\n/).map((l) => l.trim());
       if (lines.length === 0) {
         setCsvError("Dosya boş görünüyor.");
-        setGuests([]);
         return;
       }
-
-      const parsedGuests: Guest[] = [];
-      const allowedCount =
-        license.maxGuests - license.usedGuests - guests.length;
-
-      if (allowedCount <= 0) {
-        setCsvError(
-          `Lisansınız en fazla ${license.maxGuests} davetliye izin veriyor. Yeni CSV'den davetli eklenemedi.`
-        );
-        return;
-      }
-
-      const limitedGuests = parsedGuests.slice(0, allowedCount);
-      if (limitedGuests.length < parsedGuests.length) {
-        setCsvError(
-          `Lisansınız gereği ilk ${limitedGuests.length} davetli eklendi, kalanlar lisans limitini aşıyor.`
-        );
-      }
-
-      setGuests((prev) => [...prev, ...limitedGuests]);
 
       const headerLine = lines[0];
       const headerColumns = headerLine
@@ -1198,6 +1334,8 @@ export default function EditorPage() {
 
       const startIndex = hasHeader ? 1 : 0;
 
+      const parsedGuests: Guest[] = [];
+
       for (let i = startIndex; i < lines.length; i++) {
         const line = lines[i];
         if (!line) continue;
@@ -1207,7 +1345,6 @@ export default function EditorPage() {
         let name = "";
         let email: string | undefined;
         let phone: string | undefined;
-        let maxGuests: number | undefined;
 
         if (hasHeader) {
           headerColumns.forEach((col, idx) => {
@@ -1220,11 +1357,6 @@ export default function EditorPage() {
               email = value;
             } else if (col === "phone" || col === "telefon") {
               phone = value;
-            } else if (col === "max_guests" || col === "kota") {
-              const n = Number(value);
-              if (!Number.isNaN(n)) {
-                maxGuests = n;
-              }
             }
           });
         } else {
@@ -1248,11 +1380,34 @@ export default function EditorPage() {
 
       if (parsedGuests.length === 0) {
         setCsvError("Geçerli isim içeren satır bulunamadı.");
-        setGuests([]);
         return;
       }
 
-      setGuests(parsedGuests);
+      // LİMİT BURADA HESAPLANIYOR
+      const savedGuestsCount = license.usedGuests;
+      const draftGuestsCount = guests.filter(
+        (g) => g.status !== "saved"
+      ).length;
+      const effectiveUsed = savedGuestsCount + draftGuestsCount;
+      const allowedCount = license.maxGuests - effectiveUsed;
+
+      if (allowedCount <= 0) {
+        setCsvError(
+          `Lisansınız en fazla ${license.maxGuests} davetliye izin veriyor. Yeni CSV'den davetli eklenemedi.`
+        );
+        return;
+      }
+
+      const limitedGuests = parsedGuests.slice(0, allowedCount);
+
+      if (limitedGuests.length < parsedGuests.length) {
+        setCsvError(
+          `Lisansınız gereği ilk ${limitedGuests.length} davetli eklendi, kalanlar lisans limitini aşıyor.`
+        );
+      }
+
+      // Mevcut davetlilerin üstüne ekliyoruz
+      setGuests((prev) => [...prev, ...limitedGuests]);
     };
 
     reader.onerror = () => {
@@ -1445,77 +1600,112 @@ export default function EditorPage() {
               <h1 className="text-sm font-semibold text-slate-900">
                 Davetiye Editörü
               </h1>
-              <p className="text-[0.65rem] text-slate-500">
-                {mode === "user"
-                  ? "Bilgileri doldurun, davetiye anında güncellensin"
-                  : "Gelişmiş tema ve renk ayarları"}
-              </p>
             </div>
-            <button
-              onClick={() => setIsEditorOpen(false)}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200"
-            >
-              ✕
-            </button>
+
+            <div className="flex flex-col items-end gap-1">
+              {/* Status satırı */}
+              {saveError ? (
+                <span className="text-[0.65rem] text-red-600">{saveError}</span>
+              ) : isSavingEvent ? (
+                <span className="text-[0.65rem] text-slate-500">
+                  Kaydediliyor…
+                </span>
+              ) : isDirty ? (
+                <span className="text-[0.65rem] text-slate-400">
+                  Değişiklikler kaydedilecek
+                </span>
+              ) : lastSavedAt ? (
+                <span className="text-[0.65rem] text-slate-400">
+                  Kaydedildi •{" "}
+                  {lastSavedAt.toLocaleTimeString("tr-TR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              ) : null}
+
+              <button
+                onClick={() => setIsEditorOpen(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200"
+              >
+                ✕
+              </button>
+            </div>
           </div>
-          <div
-            className={
-              "px-4 py-2 border-b border-slate-200 " +
-              (license.valid ? "bg-emerald-50" : "bg-amber-50")
-            }
-          >
-            {!license.valid ? (
-              <>
-                <label className="block text-[0.7rem] font-medium text-slate-800 mb-1">
-                  Lisans Token
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    value={tokenInput}
-                    onChange={(e) => setTokenInput(e.target.value)}
-                    placeholder="INV-50-ABC123"
-                    className="flex-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
-                  />
+
+          {/* Lisans barı – sadece user modunda göster */}
+          {mode === "user" && (
+            <div
+              className={
+                "px-4 py-2 border-b border-slate-200 " +
+                (license.valid ? "bg-emerald-50" : "bg-amber-50")
+              }
+            >
+              {license.valid && !isEditingToken && (
+                // DOĞRULANMIŞ LISANS – sadece bilgi
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-[0.7rem] font-medium text-emerald-800">
+                      Lisans doğrulandı
+                    </span>
+                    <span className="text-[0.7rem] text-emerald-700">
+                      Plan:{" "}
+                      {license.maxGuests === 0
+                        ? "Sadece davetiye"
+                        : `${license.maxGuests}, davetli linki`}
+                      : {license.usedGuests}
+                    </span>
+                  </div>
                   <button
                     type="button"
-                    onClick={handleVerifyToken}
-                    className="px-3 py-1.5 rounded-lg bg-amber-500 text-[0.75rem] font-semibold text-slate-900 hover:bg-amber-400"
+                    onClick={() => {
+                      setTokenInput(license.token ?? "");
+                      setIsEditingToken(true);
+                    }}
+                    className="px-3 py-1.5 rounded-full border border-emerald-300 bg-white text-[0.7rem] text-emerald-800 hover:bg-emerald-50"
                   >
-                    Doğrula
+                    Değiştir
                   </button>
                 </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex flex-col">
-                  <span className="text-[0.7rem] font-medium text-emerald-800">
-                    Lisans doğrulandı
-                  </span>
-                  <span className="text-[0.7rem] text-emerald-700">
-                    Plan: {license.maxGuests} davetli, kullanılan:{" "}
-                    {license.usedGuests}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLicense(DEFAULT_LICENSE);
-                    setTokenInput("");
-                    if (typeof window !== "undefined") {
-                      window.localStorage.removeItem("invitationLicense");
-                    }
-                  }}
-                  className="px-3 py-1.5 rounded-full border border-emerald-300 bg-white text-[0.7rem] text-emerald-800 hover:bg-emerald-50"
-                >
-                  Değiştir
-                </button>
-              </div>
-            )}
+              )}
 
-            {licenseError && (
-              <p className="mt-1 text-[0.7rem] text-red-600">{licenseError}</p>
-            )}
-          </div>
+              {(!license.valid || isEditingToken) && (
+                <>
+                  <label className="block text-[0.7rem] font-medium text-slate-800 mb-1">
+                    Lisans Token
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={tokenInput}
+                      onChange={(e) => setTokenInput(e.target.value)}
+                      placeholder="INV-50-ABC123"
+                      className="flex-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await handleVerifyToken();
+                        // doğrulama başarılıysa handleVerifyToken içinde license.valid true olacak
+                        // burada başarıyı anlamak için licenseError yoksa edit moddan çıkabiliriz:
+                        if (!licenseError) {
+                          setIsEditingToken(false);
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-[0.75rem] font-semibold text-slate-900 hover:bg-amber-400"
+                    >
+                      Doğrula
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {licenseError && (
+                <p className="mt-1 text-[0.7rem] text-red-600">
+                  {licenseError}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-200 text-[0.7rem] bg-slate-50">
             {steps.map((step) => (
@@ -1800,7 +1990,7 @@ export default function EditorPage() {
                         }}
                         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800"
                       >
-                        + Akış Adımı Ekle
+                        + Akış Ekle
                       </button>
                     </div>
                   )}
@@ -2294,299 +2484,288 @@ export default function EditorPage() {
 
             {activeStep === 5 && (
               <>
-                <SectionTitle label="Davetli Listesi & Linkler" />
                 {!license.valid ? (
+                  // 1) Lisans tamamen yok → token iste
                   <p className="mb-3 text-[0.75rem] text-slate-500">
                     Davetli listesi ve tekil linkler için lütfen önce lisans
                     token’ınızı doğrulayın.
                   </p>
+                ) : license.maxGuests === 0 ? (
+                  // 2) Lisans var ama plan sadece davetiye → link özelliği kapalı
+                  <p className="mb-3 text-[0.75rem] text-slate-500">
+                    Mevcut paketiniz sadece genel davetiye içeriyor. Tekil davet
+                    linkleri bu planda bulunmuyor.
+                  </p>
                 ) : (
+                  // 3) Lisans var ve link hakkı var → detaylı davetli UI'si
                   <div className="mb-3 text-xs">
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-2">
-                          {/* Örnek CSV indir + Dosya Yükle butonları */}
-                        </div>
-                        <p className="mt-1 text-[0.7rem] text-slate-400">
-                          Lisansınız: en fazla {license.maxGuests} davetli linki
-                          oluşturabilirsiniz.
-                        </p>
-                        {licenseError && (
-                          <p className="mt-1 text-[0.7rem] text-red-400">
-                            {licenseError}
-                          </p>
-                        )}
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={handleAddManualGuest}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-500/90 text-slate-900 text-[0.7rem] font-medium hover:bg-emerald-400"
-                          >
-                            +1 Davetli Ekle
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!license.valid) {
-                                setLicenseError(
-                                  "Önce geçerli bir lisans token doğrulamalısınız."
-                                );
-                                return;
-                              }
-                              const remaining =
-                                license.maxGuests -
-                                license.usedGuests -
-                                guests.length;
-                              if (remaining <= 0) {
-                                setLicenseError(
-                                  `Lisans sınırına ulaştınız (${license.maxGuests} davetli).`
-                                );
-                                return;
-                              }
-                              const toAdd = Math.min(10, remaining);
-                              for (let i = 0; i < toAdd; i++) {
-                                handleAddManualGuest();
-                              }
-                            }}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
-                          >
-                            +10 Davetli Ekle
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!license.valid) {
-                                setLicenseError(
-                                  "Önce geçerli bir lisans token doğrulamalısınız."
-                                );
-                                return;
-                              }
-                              const remaining =
-                                license.maxGuests -
-                                license.usedGuests -
-                                guests.length;
-                              if (remaining <= 0) {
-                                setLicenseError(
-                                  `Lisans sınırına ulaştınız (${license.maxGuests} davetli).`
-                                );
-                                return;
-                              }
-                              const toAdd = Math.min(50, remaining);
-                              for (let i = 0; i < toAdd; i++) {
-                                handleAddManualGuest();
-                              }
-                            }}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-[0.7rem] font-medium hover:bg-emerald-600"
-                          >
-                            +50 Davetli Ekle
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {csvError && (
-                      <p className="mt-1 text-[0.7rem] text-red-400">
-                        {csvError}
+                    <div className="mb-3 text-xs space-y-3">
+                      {/* ÖZET METİN: guests.length kullanıyoruz */}
+                      <p className="text-[0.7rem] text-slate-500">
+                        Lisansınız: en fazla {license.maxGuests} davetli linki
+                        oluşturabilirsiniz. Şu ana kadar {license.usedGuests}{" "}
+                        davetli kaydedildi.
                       </p>
-                    )}
 
-                    {guests.length > 0 ? (
-                      <div className="mt-2 space-y-2">
-                        {guests.map((guest) => {
-                          const isSaving = guest.status === "saving";
-                          const isSaved = guest.status === "saved";
-                          const hasError = guest.status === "error";
+                      {/* Davetli ekleme butonları */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleAddManualGuest}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800"
+                        >
+                          +1 Davetli Ekle
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!license.valid) {
+                              setLicenseError(
+                                "Önce geçerli bir lisans token doğrulamalısınız."
+                              );
+                              return;
+                            }
+                            const now = Date.now();
+                            const batch = Array.from({ length: 10 }).map(
+                              (_, i) => ({
+                                id: `${now}-${i}-${Math.random()
+                                  .toString(36)
+                                  .slice(2)}`,
+                                name: "",
+                                slug: "",
+                                source: "manual" as const,
+                                status: "draft" as GuestStatus,
+                              })
+                            );
+                            setGuests((prev) => [...prev, ...batch]);
+                          }}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-100 text-slate-800 text-[0.7rem] font-medium hover:bg-slate-200 border border-slate-200"
+                        >
+                          +10 Davetli Ekle
+                        </button>
+                      </div>
 
-                          const displayUrl =
-                            guest.inviteUrl ||
-                            (origin && guest.slug
-                              ? `${origin}/invite/${guest.slug}`
-                              : "");
+                      {/* Davetli tablosu – daha “yumuşak” scroll ve kart görünümü */}
+                      <div
+                        ref={tableRef}
+                        className="mt-2 max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 scroll-smooth px-1 py-1"
+                      >
+                        {guests.length === 0 ? (
+                          <div className="px-3 py-4 text-[0.7rem] text-slate-500">
+                            Henüz davetli eklenmedi. Yukarıdan “+1 Davetli Ekle”
+                            ile başlayın veya Excel dosyası yükleyin.
+                          </div>
+                        ) : (
+                          <div className="py-1">
+                            {guests.map((guest, index) => {
+                              const status = guest.status ?? "draft";
+                              const isSaving = status === "saving";
+                              const isSaved = status === "saved";
+                              const href =
+                                isSaved && license.token
+                                  ? `${origin}/invite/${
+                                      guest.slug
+                                    }?token=${encodeURIComponent(
+                                      license.token
+                                    )}`
+                                  : "#";
 
-                          return (
-                            <div
-                              key={guest.id}
-                              className="rounded-2xl bg-white border border-slate-200 shadow-xs px-3 py-2.5 flex flex-col gap-1.5"
-                            >
-                              {/* Üst satır: isim + aksiyonlar */}
-                              <div className="flex items-start gap-2">
-                                <div className="flex-1">
-                                  <input
-                                    value={guest.name}
-                                    onChange={(e) =>
-                                      handleGuestFieldChange(
-                                        guest.id,
-                                        "name",
-                                        e.target.value
-                                      )
-                                    }
-                                    placeholder="Ayşe ve Alp Kaya Ailesi"
-                                    className="w-full px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                                  />
-                                </div>
+                              const isShared = !!guest.lastSharedAt;
+                              const isLastRow = index === guests.length - 1;
+                              return (
+                                <div
+                                  key={guest.id}
+                                  className={[
+                                    "px-3 py-2.5 flex flex-col gap-1.5 rounded-2xl mx-2 mb-2 transition",
+                                    isShared
+                                      ? "bg-emerald-50 border border-emerald-200 shadow-sm"
+                                      : "bg-white border border-slate-200 shadow-sm hover:bg-slate-50",
+                                  ].join(" ")}
+                                >
+                                  {/* Üst satır: isim + aksiyonlar */}
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="flex-1 min-w-0">
+                                      <input
+                                        value={guest.name}
+                                        onChange={(e) =>
+                                          handleGuestFieldChange(
+                                            guest.id,
+                                            "name",
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Davetli adı"
+                                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                                      />
+                                    </div>
 
-                                <div className="flex items-center gap-1">
-                                  {/* Kaydet */}
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      if (isSaving || isSaved) return;
-                                      handleSaveGuest(guest);
-                                    }}
-                                    disabled={isSaving || isSaved}
-                                    className={
-                                      "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[0.7rem] font-medium border " +
-                                      (isSaved
-                                        ? "bg-emerald-100 text-emerald-800 border-emerald-300 cursor-default"
-                                        : "bg-slate-900 text-white border-slate-900 hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed")
-                                    }
-                                    title={
-                                      isSaved
-                                        ? "Davetli kaydedildi"
-                                        : "Davetliyi kaydet ve link oluştur"
-                                    }
-                                  >
-                                    {isSaving
-                                      ? "Kaydediliyor..."
-                                      : isSaved
-                                      ? "Kaydedildi"
-                                      : "Kaydet"}
-                                  </button>
+                                    <div className="flex items-center gap-1 relative flex-shrink-0">
+                                      {/* Kaydet butonu */}
+                                      {!isSaved && (
+                                        <button
+                                          type="button"
+                                          onClick={() => handleSaveGuest(guest)}
+                                          disabled={
+                                            isSaving || !guest.name.trim()
+                                          }
+                                          className={[
+                                            "inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[0.7rem] font-medium whitespace-nowrap",
+                                            isSaving || !guest.name.trim()
+                                              ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                                              : "bg-slate-900 text-white hover:bg-slate-800",
+                                          ].join(" ")}
+                                        >
+                                          {isSaving
+                                            ? "Kaydediliyor..."
+                                            : "Kaydet"}
+                                        </button>
+                                      )}
 
-                                  {/* WhatsApp */}
-                                  <button
-                                    type="button"
-                                    disabled={!isSaved || !displayUrl}
-                                    onClick={() => {
-                                      if (!displayUrl) return;
-                                      const message = `Sizi düğünümüze davet ediyoruz ${displayUrl}`;
-                                      const waUrl = `http://wa.me/?text=${encodeURIComponent(
-                                        message
-                                      )}`;
-                                      window.open(
-                                        waUrl,
-                                        "_blank",
-                                        "noopener,noreferrer"
-                                      );
-                                    }}
-                                    className={
-                                      "inline-flex items-center justify-center w-7 h-7 rounded-full text-[0.7rem] " +
-                                      (isSaved && displayUrl
-                                        ? "bg-green-500 text-white hover:bg-green-400"
-                                        : "bg-slate-200 text-slate-400 cursor-not-allowed")
-                                    }
-                                    title={
-                                      isSaved
-                                        ? "WhatsApp ile davet gönder"
-                                        : "Önce davetliyi kaydedin"
-                                    }
-                                  >
-                                    🟢
-                                  </button>
+                                      {/* Link ikonu */}
+                                      {isSaved && (
+                                        <a
+                                          href={href}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          aria-label="Davet linkini yeni sekmede aç"
+                                          className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                                        >
+                                          <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="14"
+                                            height="14"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                          >
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                            <polyline points="15 3 21 3 21 9" />
+                                            <line
+                                              x1="10"
+                                              y1="14"
+                                              x2="21"
+                                              y2="3"
+                                            />
+                                          </svg>
+                                        </a>
+                                      )}
 
-                                  {/* Sil */}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveGuest(guest.id)}
-                                    className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500 text-white text-[0.7rem] hover:bg-red-400"
-                                    title="Satırı sil"
-                                  >
-                                    🗑
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Alt satır: link + durum + hata */}
-                              <div className="flex flex-col gap-0.5 pl-1">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="text-[0.7rem] text-slate-500">
-                                    Link
-                                  </span>
-
-                                  {isSaved && displayUrl ? (
-                                    <a
-                                      href={displayUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800"
-                                    >
-                                      Link ile git
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="12"
-                                        height="12"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
+                                      {/* More butonu */}
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setOpenGuestMenuId((prev) =>
+                                            prev === guest.id ? null : guest.id
+                                          )
+                                        }
+                                        className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-slate-300 bg-white text-[0.75rem] text-slate-700 hover:bg-slate-50"
+                                        title="Daha fazla"
                                       >
-                                        <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                        <polyline points="15 3 21 3 21 9" />
-                                        <line x1="10" y1="14" x2="21" y2="3" />
-                                      </svg>
-                                    </a>
-                                  ) : (
-                                    <span className="flex-1 text-right text-[0.7rem] text-slate-400">
-                                      Kaydedildiğinde davet linki oluşacak
-                                    </span>
+                                        ⋯
+                                      </button>
+
+                                      {/* Dropdown menü */}
+                                      {openGuestMenuId === guest.id && (
+                                        <div
+                                          className={[
+                                            "absolute z-40 w-48 rounded-2xl border border-slate-200 bg-white shadow-xl py-1 max-h-60 overflow-y-auto",
+                                            isLastRow
+                                              ? "right-0 bottom-9"
+                                              : "right-0 top-9",
+                                          ].join(" ")}
+                                          style={{
+                                            transform: "translateY(4px)",
+                                          }}
+                                        >
+                                          {/* içerik aynı kalıyor */}
+                                          {isSaved && (
+                                            <>
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  handleShareWhatsApp(
+                                                    guest,
+                                                    href
+                                                  );
+                                                  setOpenGuestMenuId(null);
+                                                }}
+                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-slate-800 hover:bg-slate-50"
+                                              >
+                                                <span className="inline-flex w-4 h-4 items-center justify-center rounded-full bg-[#25D366] text-white text-[0.6rem]">
+                                                  W
+                                                </span>
+                                                WhatsApp ile paylaş
+                                              </button>
+
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  handleCopyGuestLink(guest);
+                                                  setOpenGuestMenuId(null);
+                                                }}
+                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-slate-800 hover:bg-slate-50"
+                                              >
+                                                <span className="inline-flex w-4 h-4 items-center justify-center rounded-full border border-slate-300 text-[0.6rem]">
+                                                  ⧉
+                                                </span>
+                                                Linki kopyala
+                                              </button>
+                                            </>
+                                          )}
+
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              handleRemoveGuest(guest);
+                                              setOpenGuestMenuId(null);
+                                            }}
+                                            className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-red-600 hover:bg-red-50"
+                                          >
+                                            <span className="inline-flex w-4 h-4 items-center justify-center rounded-full bg-red-500 text-white text-[0.6rem]">
+                                              🗑
+                                            </span>
+                                            Davetliyi sil
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Hata mesajı */}
+                                  {status === "error" && guest.error && (
+                                    <div className="mt-1 text-[0.7rem] text-red-600">
+                                      {guest.error}
+                                    </div>
                                   )}
                                 </div>
-
-                                {hasError && guest.error && (
-                                  <p className="text-[0.7rem] text-red-500">
-                                    {guest.error}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        <div className="flex items-center justify-between px-1 pt-1 text-[0.7rem] text-slate-600">
-                          <span>
-                            Toplam{" "}
-                            <span className="font-semibold text-slate-900">
-                              {guests.length}
-                            </span>{" "}
-                            davetli.
-                          </span>
-                          <span className="text-slate-400">
-                            Lisans sınırı: {license.maxGuests}
-                          </span>
-                        </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <p className="mt-2 text-[0.75rem] text-slate-500">
-                        Henüz davetli eklenmedi. Excel’den liste yükleyebilir
-                        veya yukarıdan “+ Davetli Ekle” butonlarıyla yeni
-                        satırlar oluşturabilirsin.
-                      </p>
-                    )}
 
-                    <SectionTitle label="Excel ile Davetli Listesi Hazırla" />
-                    <div className="mb-4 text-xs">
-                      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70 p-3">
+                      {/* CSV BLOĞU – davetli tablosunun altında */}
+                      <div className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-3 py-2.5">
                         <p className="text-[0.7rem] font-medium text-slate-700 mb-1">
-                          Excel ile davetli listeni hazırla
+                          Çok sayıda davetli eklemek için Excel / CSV
+                          yükleyebilirsiniz.
                         </p>
-                        <p className="text-[0.7rem] text-slate-500 mb-3">
-                          Örnek Excel’i indir, kendi listenle doldur ve geri
-                          yükle. Tüm davetliler için isimle eşleşen URL’ler
-                          otomatik oluşur.
+                        <p className="text-[0.65rem] text-slate-500 mb-2">
+                          Örnek dosyayı indirip kendi listenizle doldurun,
+                          ardından buradan yükleyin.
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
                           <button
                             type="button"
                             onClick={handleDownloadCsvExample}
-                            className="inline-flex items-center px-3 py-1.5 rounded-full bg-sky-600 text-white text-[0.7rem] font-medium hover:bg-sky-500"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-800 text-[0.7rem] font-medium hover:bg-slate-50 border border-slate-200"
                           >
                             Örnek Excel İndir
                           </button>
-
-                          <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800 cursor-pointer">
+                          <label className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800 cursor-pointer">
                             Dosya Yükle
                             <input
                               type="file"
@@ -2595,18 +2774,15 @@ export default function EditorPage() {
                                 const file = e.target.files?.[0];
                                 if (file) {
                                   handleCsvUpload(file);
+                                  e.target.value = "";
                                 }
                               }}
                               className="hidden"
                             />
                           </label>
-
-                          <span className="text-[0.65rem] text-slate-500">
-                            .csv veya .txt dosyası yükleyebilirsin.
-                          </span>
                         </div>
                         {csvError && (
-                          <p className="mt-2 text-[0.7rem] text-red-500">
+                          <p className="mt-2 text-[0.7rem] text-red-600">
                             {csvError}
                           </p>
                         )}
@@ -2651,6 +2827,58 @@ function SectionTitle({ label }: { label: string }) {
       </div>
     </div>
   );
+}
+// Mevcut token'a göre maxGuests / usedGuests değerlerini backend'den tazeler
+async function refreshLicenseFromServer(
+  currentLicense: LicenseInfo,
+  setLicense: React.Dispatch<React.SetStateAction<LicenseInfo>>,
+  setLicenseError: React.Dispatch<React.SetStateAction<string | null>>
+) {
+  if (!currentLicense.valid || !currentLicense.token) {
+    return;
+  }
+
+  try {
+    // verify_token ya da ayrı bir endpoint kullanabilirsin.
+    const res = await fetch(`${API_BASE}/verify_token.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: currentLicense.token }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("refreshLicenseFromServer http error", res.status, text);
+      setLicenseError("Lisans bilgisi güncellenemedi.");
+      return;
+    }
+
+    const data = await res.json();
+    if (!data.valid) {
+      setLicenseError(data.message || "Lisans geçersiz görünüyor.");
+      setLicense({
+        token: null,
+        maxGuests: 0,
+        usedGuests: 0,
+        eventId: null,
+        valid: false,
+      });
+      return;
+    }
+
+    // DB’deki en güncel maxGuests / usedGuests değerini state'e yaz
+    setLicense((prev) => ({
+      ...prev,
+      maxGuests: Number(data.maxGuests || prev.maxGuests),
+      usedGuests: Number(data.usedGuests || prev.usedGuests),
+      eventId: data.eventId ? Number(data.eventId) : prev.eventId,
+      valid: true,
+      token: prev.token, // token değişmesin
+    }));
+  } catch (e) {
+    console.error("refreshLicenseFromServer error", e);
+    setLicenseError("Lisans bilgisi güncellenirken bir hata oluştu.");
+  }
 }
 
 type FieldProps = {
@@ -3418,105 +3646,6 @@ export function InvitationPreview({
           </p>
         </footer>
       </main>
-    </div>
-  );
-}
-
-/* ---- Guest linkleri ---- */
-
-function GuestLinks({
-  guests,
-  origin,
-  settings,
-}: {
-  guests: Guest[];
-  origin: string;
-  settings: InvitationSettings;
-}) {
-  if (guests.length === 0) {
-    return null;
-  }
-
-  const baseUrl = origin || "";
-
-  return (
-    <div
-      className="w-full max-w-3xl mx-auto rounded-2xl border text-xs text-slate-50"
-      style={{
-        background: "rgba(0,0,0,0.4)",
-        borderColor: "rgba(255,255,255,0.18)",
-      }}
-    >
-      <div className="px-4 pt-3 pb-2 border-b border-white/10">
-        <p className="text-[0.75rem] tracking-[0.16em] uppercase text-slate-200">
-          Davetli Linkleri
-        </p>
-      </div>
-
-      <div className="max-h-40 overflow-y-auto divide-y divide-white/10 px-4 py-2">
-        {guests.map((guest) => {
-          // Linkte gönderilecek minimal payload
-          const payload = {
-            bride: settings.brideName,
-            groom: settings.groomName,
-            date: settings.dateRaw || "",
-            time: settings.time,
-            location: settings.locationText,
-            mapsUrl: settings.mapsUrl,
-            guestName: guest.name,
-            sectionCardBackground:
-              settings.locationBackground || settings.sectionCardBackground,
-            sectionCardBorderColor: settings.sectionCardBorderColor,
-            footerBackground: settings.footerBackground,
-            backgroundColor: settings.backgroundColor,
-            backgroundOverlayOpacity: settings.backgroundOverlayOpacity,
-            fontFamily: settings.fontFamily,
-            heroSubtitle: settings.heroSubtitle,
-            heroSubtitleColor: settings.heroSubtitleColor,
-            heroNamesColor: settings.heroNamesColor,
-            ampersandColor: settings.ampersandColor,
-            dividerColor: settings.dividerColor,
-            donationBackground: settings.donationBackground,
-            showDonationSection: settings.showDonationSection,
-            donationText: settings.donationText,
-            donationImageUrl: settings.donationImageUrl,
-            locationBackground: settings.locationBackground,
-            locationImageUrl: settings.locationImageUrl,
-          };
-
-          // JSON -> base64 (UTF‑8 safe) -> URL encode
-          const encoded = encodeURIComponent(
-            base64EncodeUnicode(JSON.stringify(payload))
-          );
-
-          const href =
-            baseUrl.length > 0
-              ? `${baseUrl}/invite/${guest.slug}?d=${encoded}`
-              : `/invite/${guest.slug}?d=${encoded}`;
-
-          const displayText =
-            (baseUrl.length > 0 ? `${baseUrl}` : "") + `/invite/${guest.slug}`;
-
-          return (
-            <div
-              key={guest.slug}
-              className="flex items-center justify-between gap-3 py-1.5"
-            >
-              <div className="flex flex-col">
-                <span className="text-slate-50 font-medium">{guest.name}</span>
-              </div>
-              <a
-                href={href}
-                className="text-[0.7rem] text-amber-200 hover:text-amber-100 hover:underline break-all"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {displayText}
-              </a>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }

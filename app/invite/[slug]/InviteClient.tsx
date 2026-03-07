@@ -462,30 +462,33 @@ export default function InviteClient({
 
       <main>
         {/* Davet kartı */}
-        <section className="section section-invite" id="invite">
-          <div
-            className="section-inner invite-card"
-            style={{
-              maxWidth: 640,
-              margin: "0 auto",
-              textAlign: "center",
-              background: settings.sectionCardBackground || "rgba(0,0,0,0.75)",
-              borderRadius: 18,
-              border: `1px solid ${
-                settings.sectionCardBorderColor || "rgba(255,255,255,0.12)"
-              }`,
-              boxShadow: "0 14px 40px rgba(0,0,0,0.45)",
-              padding: "2.2rem 2rem",
-            }}
-          >
-            <p className="invite-label">Değerli</p>
-            <p className="invite-name">{displayGuestName}</p>
+        {settings.guestName && (
+          <section className="section section-invite" id="invite">
+            <div
+              className="section-inner invite-card"
+              style={{
+                maxWidth: 640,
+                margin: "0 auto",
+                textAlign: "center",
+                background:
+                  settings.sectionCardBackground || "rgba(0,0,0,0.75)",
+                borderRadius: 18,
+                border: `1px solid ${
+                  settings.sectionCardBorderColor || "rgba(255,255,255,0.12)"
+                }`,
+                boxShadow: "0 14px 40px rgba(0,0,0,0.45)",
+                padding: "2.2rem 2rem",
+              }}
+            >
+              <p className="invite-label">Değerli</p>
+              <p className="invite-name">{settings.guestName}</p>
 
-            <p className="invite-text">
-              Bu özel günümüzde seni de aramızda görmeyi çok isteriz.
-            </p>
-          </div>
-        </section>
+              <p className="invite-text">
+                Bu özel günümüzde seni de aramızda görmeyi çok isteriz.
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* Geri Sayım */}
         <section className="section" id="countdown">
