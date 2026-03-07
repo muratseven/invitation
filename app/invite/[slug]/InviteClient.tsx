@@ -361,10 +361,14 @@ export default function InviteClient({
           position: "fixed",
           inset: 0,
           background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.15))",
+            "radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 55%), \
+       radial-gradient(circle at bottom, rgba(0,0,0,0.65), rgba(0,0,0,0.95))",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
           zIndex: -1,
         }}
       />
+
       {/* Hero */}
       <header className="hero" id="top">
         <div className="hero-inner" style={{ backgroundColor: "transparent" }}>

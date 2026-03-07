@@ -137,8 +137,8 @@ export const DEFAULT_SETTINGS: InvitationSettings = {
   fontFamily: "pacifico",
 
   // yeni alanlar – istersen pacifico temasındaki değerlerle eşleştirdim
-  heroTitleSize: "clamp(1.4rem, 2.4vw, 3.2rem)",
-  heroSubtitleSize: "0.8rem",
+  heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+  heroSubtitleSize: "1.3rem",
 
   family1Mother: "",
   family1Father: "",
@@ -316,8 +316,8 @@ export const THEMES: Theme[] = [
     label: "Soft Romance",
     mood: "Sıcak ve modern, romantik ama sade çiftler için.",
     previewImage: "/themes/soft-romance.jpg",
-    heroTitleSize: "clamp(1.4rem, 2.4vw, 3.2rem)",
-    heroSubtitleSize: "0.8rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "pacifico",
       backgroundColor: "#050608",
@@ -378,8 +378,8 @@ export const THEMES: Theme[] = [
     label: "Romantic Script",
     mood: "El yazısı hissiyle romantik ve gösterişli davetler.",
     previewImage: "/themes/romantic-script.jpg",
-    heroTitleSize: "clamp(3.2rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.1rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "great-vibes",
       backgroundColor: "#05030a",
@@ -409,8 +409,8 @@ export const THEMES: Theme[] = [
     label: "Editorial Chic",
     mood: "Dergi kapağı estetiğinde, sofistike ve modern.",
     previewImage: "/themes/editorial-chic.jpg",
-    heroTitleSize: "clamp(3rem, 5vw, 4.6rem)",
-    heroSubtitleSize: "0.95rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "cormorant",
       backgroundColor: "#050608",
@@ -440,8 +440,8 @@ export const THEMES: Theme[] = [
     label: "Vintage Noir",
     mood: "Siyah-beyaz fotoğraf hissiyle nostaljik ve şık.",
     previewImage: "/themes/vintage-noir.jpg",
-    heroTitleSize: "clamp(3.1rem, 5.5vw, 4.7rem)",
-    heroSubtitleSize: "1.0rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "lugrasimo",
       backgroundColor: "#020304",
@@ -471,8 +471,8 @@ export const THEMES: Theme[] = [
     label: "Pastel Dream",
     mood: "Pastel tonlarda yumuşak ve samimi bir atmosfer.",
     previewImage: "/themes/pastel-dream.jpg",
-    heroTitleSize: "clamp(3rem, 5.4vw, 4.5rem)",
-    heroSubtitleSize: "1.0rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "charm",
       backgroundColor: "#1b1b26",
@@ -502,8 +502,8 @@ export const THEMES: Theme[] = [
     label: "Modern Minimal",
     mood: "Az renk, yüksek kontrast; modern ve net.",
     previewImage: "/themes/modern-minimal.jpg",
-    heroTitleSize: "clamp(3.1rem, 5vw, 4.3rem)",
-    heroSubtitleSize: "0.95rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "sofia",
       backgroundColor: "#050506",
@@ -533,8 +533,8 @@ export const THEMES: Theme[] = [
     label: "Warm Autumn",
     mood: "Sonbahar tonlarında sıcak, ev hissi veren davetler.",
     previewImage: "/themes/warm-autumn.jpg",
-    heroTitleSize: "clamp(3.2rem, 5.5vw, 4.6rem)",
-    heroSubtitleSize: "1.0rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "cookie",
       backgroundColor: "#201411",
@@ -564,8 +564,8 @@ export const THEMES: Theme[] = [
     label: "Golden Hour",
     mood: "Gün batımı tonlarında ışık ve gölge uyumu.",
     previewImage: "/themes/golden-hour.jpg",
-    heroTitleSize: "clamp(3.3rem, 6vw, 4.9rem)",
-    heroSubtitleSize: "1.1rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "dancing-script",
       backgroundColor: "#1b130e",
@@ -595,8 +595,8 @@ export const THEMES: Theme[] = [
     label: "Timeless Classic",
     mood: "Zamana meydan okuyan, derli toplu klasik tarz.",
     previewImage: "/themes/timeless-classic.jpg",
-    heroTitleSize: "clamp(3rem, 5vw, 4.4rem)",
-    heroSubtitleSize: "0.95rem",
+    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
+    heroSubtitleSize: "1.3rem",
     settings: {
       fontFamily: "playfair",
       backgroundColor: "#050609",
@@ -648,9 +648,14 @@ export default function EditorPage() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
     "idle"
   );
-  const handleShareWhatsApp = (guest: Guest, href: string) => {
+  const handleShareWhatsApp = (guest: Guest, fallbackHref: string) => {
+    const linkToShare =
+      (guest.inviteUrl && guest.inviteUrl.trim()) || fallbackHref || "";
+
+    if (!linkToShare) return;
+
     const waUrl = `https://wa.me/?text=${encodeURIComponent(
-      `Davet linkiniz: ${href}`
+      `Davet linkiniz: ${linkToShare}`
     )}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
 
@@ -906,17 +911,17 @@ export default function EditorPage() {
   };
 
   const handleAddManualGuest = async () => {
-    if (!license.valid) {
+    // USER modunda lisans zorunlu, ADMIN modunda serbest
+    if (mode === "user" && !license.valid) {
       setLicenseError("Önce geçerli bir lisans token doğrulamalısınız.");
       return;
     }
 
-    // Bu token için: backend'de kullanılan + henüz kaydedilmemiş draft satırlar
-    const savedGuestsCount = license.usedGuests; // list_guests'ten rows.length ile güncellenecek
+    const savedGuestsCount = license.usedGuests;
     const draftGuestsCount = guests.filter((g) => g.status !== "saved").length;
     const effectiveUsed = savedGuestsCount + draftGuestsCount;
 
-    if (effectiveUsed >= license.maxGuests) {
+    if (mode === "user" && effectiveUsed >= license.maxGuests) {
       setLicenseError(
         `Lisans limitiniz dolu görünüyor. Maksimum ${license.maxGuests} davetli linki oluşturabilirsiniz.`
       );
@@ -986,7 +991,7 @@ export default function EditorPage() {
   }
 
   const handleSaveGuest = async (guest: Guest) => {
-    if (!license.valid || !license.token) {
+    if (mode === "user" && (!license.valid || !license.token)) {
       setLicenseError("Önce geçerli bir lisans token doğrulamalısınız.");
       return;
     }
@@ -1003,6 +1008,16 @@ export default function EditorPage() {
       return;
     }
 
+    const tokenToUse = license.token;
+    if (!tokenToUse) {
+      if (mode === "admin") {
+        setLicenseError(
+          "Admin modundasınız, önce üstteki panelden token üretip kaydetmeniz gerekiyor."
+        );
+      }
+      return;
+    }
+
     // satırı “saving” durumuna al
     setGuests((prev) =>
       prev.map((g) =>
@@ -1015,7 +1030,7 @@ export default function EditorPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token: license.token,
+          token: tokenToUse,
           guest_name: trimmedName,
         }),
       });
@@ -1591,7 +1606,7 @@ export default function EditorPage() {
       {isEditorOpen && (
         <div
           className={[
-            "mt-[88px] w-full bg-white/95 text-slate-900 border-t border-slate-200 z-40 editor-font",
+            "mt-[88px] w-full bg-white/95 text-slate-900 border-t border-slate-200 z-40 editor-font flex flex-col",
             "md:mt-0 md:fixed md:top-[60px] md:right-0 md:h-[calc(100%-60px)] md:max-w-md md:border-l md:border-t-0 md:rounded-l-3xl md:shadow-xl md:shadow-slate-300/60",
           ].join(" ")}
         >
@@ -1672,7 +1687,7 @@ export default function EditorPage() {
               {(!license.valid || isEditingToken) && (
                 <>
                   <label className="block text-[0.7rem] font-medium text-slate-800 mb-1">
-                    Lisans Token
+                    Lisans Bilgisi
                   </label>
                   <div className="flex items-center gap-2">
                     <input
@@ -1707,6 +1722,96 @@ export default function EditorPage() {
             </div>
           )}
 
+          {mode === "admin" && (
+            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/80">
+              <h2 className="text-[0.75rem] font-semibold text-slate-800 mb-1">
+                Token Oluştur (Admin)
+              </h2>
+              <p className="text-[0.7rem] text-slate-500 mb-2">
+                Yeni bir lisans token üretip hemen bu editörde kullanabilirsin.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={license.maxGuests || 50}
+                  onChange={(e) =>
+                    setLicense((prev) => ({
+                      ...prev,
+                      maxGuests: Number(e.target.value || 0),
+                    }))
+                  }
+                  className="w-24 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.7rem] text-slate-900"
+                  placeholder="Max davetli"
+                />
+                <input
+                  type="text"
+                  placeholder="Plan adı (opsiyonel)"
+                  className="flex-1 min-w-[120px] px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.7rem] text-slate-900"
+                  onChange={(e) =>
+                    setLicense((prev) => ({
+                      ...prev,
+                      // plan kolonu FE state'inde yok ama backend'e göndereceğiz
+                      // burada sadece local bir değişkene ihtiyacın varsa ayrı state de açabilirsin
+                    }))
+                  }
+                />
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`${API_BASE}/create_token.php`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          maxGuests: license.maxGuests || 50,
+                          plan: "admin-generated",
+                          validDays: 365,
+                        }),
+                      });
+
+                      const data = await res.json();
+                      if (!data.success) {
+                        setLicenseError(data.error || "Token oluşturulamadı.");
+                        return;
+                      }
+
+                      // Token'ı hemen lisans state'ine yaz ve input'a geçir
+                      setLicense({
+                        token: data.token,
+                        maxGuests: Number(data.maxGuests || 0),
+                        usedGuests: 0,
+                        eventId: null,
+                        valid: true,
+                      });
+                      setTokenInput(data.token);
+
+                      // Panoya kopyala
+                      try {
+                        await navigator.clipboard.writeText(data.token);
+                      } catch {
+                        // sessiz geç
+                      }
+                    } catch (e) {
+                      console.error("create_token error", e);
+                      setLicenseError("Token oluşturulurken bir hata oluştu.");
+                    }
+                  }}
+                >
+                  Yeni Token Üret
+                </button>
+              </div>
+
+              {license.token && (
+                <p className="text-[0.7rem] text-slate-600">
+                  Aktif token:{" "}
+                  <span className="font-mono">{license.token}</span>
+                </p>
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-200 text-[0.7rem] bg-slate-50">
             {steps.map((step) => (
               <button
@@ -1725,7 +1830,7 @@ export default function EditorPage() {
               </button>
             ))}
           </div>
-          <div className="px-4 pb-6 pt-3 bg-white md:h-[calc(100%-80px)] md:overflow-y-auto">
+          <div className="px-4 pb-6 pt-3 bg-white flex-1 overflow-y-auto">
             {activeStep === 1 && (
               <>
                 <SectionTitle label="Davetiye Başlığı" />
@@ -1774,7 +1879,6 @@ export default function EditorPage() {
                 />
               </>
             )}
-
             {activeStep === 2 && (
               <>
                 <SectionTitle label="Tarih & Konum" />
@@ -2055,6 +2159,7 @@ export default function EditorPage() {
                 />
               </>
             )}
+
             {activeStep === 3 && mode === "user" && (
               <>
                 <SectionTitle label="Tema Seçimi" />
@@ -2097,12 +2202,30 @@ export default function EditorPage() {
                             className="w-full h-full object-cover"
                           />
                           {locked && (
-                            <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
-                              <span className="px-2 py-1 rounded-full bg-white/90 text-[0.65rem] text-slate-800 font-medium">
-                                Lisans ile açılır
-                              </span>
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/70 flex items-center justify-center">
+                              <div className="px-3 py-1.5 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center gap-1.5">
+                                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[0.55rem] text-white">
+                                  ★
+                                </span>
+                                <span className="text-[0.65rem] font-semibold text-slate-900 tracking-[0.12em] uppercase">
+                                  Premium Tema
+                                </span>
+                              </div>
                             </div>
                           )}
+                        </div>
+                        <div className="px-3 py-2">
+                          <p className="font-medium text-slate-900 flex items-center gap-1">
+                            {theme.label}
+                            {theme.requiresLicense && (
+                              <span className="px-1.5 py-0.5 rounded-full bg-slate-900/5 text-[0.6rem] text-slate-600 border border-slate-200">
+                                Premium
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-[0.65rem] text-slate-500">
+                            {theme.mood}
+                          </p>
                         </div>
                         <div className="px-3 py-2">
                           <p className="font-medium text-slate-900">
@@ -2118,9 +2241,49 @@ export default function EditorPage() {
                 </div>
               </>
             )}
-
             {activeStep === 3 && mode === "admin" && (
               <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                  {THEMES.map((theme) => {
+                    const isActive = settings.fontFamily === theme.id;
+                    return (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        onClick={() => applyTheme(theme.id)}
+                        className={[
+                          "flex flex-col items-stretch rounded-xl border overflow-hidden text-left text-[0.7rem] transition shadow-sm relative",
+                          isActive
+                            ? "border-slate-900 bg-slate-900/5"
+                            : "border-slate-200 bg-white hover:bg-slate-50",
+                        ].join(" ")}
+                      >
+                        <div className="h-24 w-full overflow-hidden bg-slate-800 relative">
+                          <img
+                            src={theme.previewImage}
+                            alt={theme.label}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="px-3 py-2 flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-slate-900">
+                              {theme.label}
+                            </p>
+                            <p className="text-[0.65rem] text-slate-500 line-clamp-2">
+                              {theme.mood}
+                            </p>
+                          </div>
+                          {isActive && (
+                            <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[0.6rem] font-semibold">
+                              Aktif
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
                 <SectionTitle label="Yazı Tipi" />
                 <div className="mb-3 text-xs text-slate-300">
                   <select
@@ -2284,7 +2447,6 @@ export default function EditorPage() {
                 </div>
               </>
             )}
-
             {activeStep === 4 && (
               <>
                 <SectionTitle label="Aile Bilgileri" />
@@ -2481,15 +2643,42 @@ export default function EditorPage() {
                 </div>
               </>
             )}
-
             {activeStep === 5 && (
               <>
                 {!license.valid ? (
                   // 1) Lisans tamamen yok → token iste
-                  <p className="mb-3 text-[0.75rem] text-slate-500">
-                    Davetli listesi ve tekil linkler için lütfen önce lisans
-                    token’ınızı doğrulayın.
-                  </p>
+                  <>
+                    <p className="mb-3 text-[0.75rem] text-slate-500">
+                      Davetli listesi ve kişiye özel davet linkleri özelliğini
+                      kullanmak için önce lisans satın almanız gerekir. Güvenli
+                      ödeme altyapısıyla Shopier üzerinden hemen lisans satın
+                      alabilirsiniz.
+                    </p>
+                    <a
+                      href="https://www.shopier.com/..." // kendi Shopier ürün/link adresini yaz
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800"
+                    >
+                      Shopier üzerinden lisans satın al
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="inline-block"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </a>
+                  </>
                 ) : license.maxGuests === 0 ? (
                   // 2) Lisans var ama plan sadece davetiye → link özelliği kapalı
                   <p className="mb-3 text-[0.75rem] text-slate-500">
@@ -2548,7 +2737,7 @@ export default function EditorPage() {
                       {/* Davetli tablosu – daha “yumuşak” scroll ve kart görünümü */}
                       <div
                         ref={tableRef}
-                        className="mt-2 max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 scroll-smooth px-1 py-1"
+                        className="mt-2 rounded-2xl border border-slate-200 bg-slate-50/80 px-1 py-1"
                       >
                         {guests.length === 0 ? (
                           <div className="px-3 py-4 text-[0.7rem] text-slate-500">
@@ -2562,7 +2751,9 @@ export default function EditorPage() {
                               const isSaving = status === "saving";
                               const isSaved = status === "saved";
                               const href =
-                                isSaved && license.token
+                                guest.inviteUrl && guest.inviteUrl.trim()
+                                  ? guest.inviteUrl
+                                  : isSaved && license.token
                                   ? `${origin}/invite/${
                                       guest.slug
                                     }?token=${encodeURIComponent(
@@ -2671,64 +2862,76 @@ export default function EditorPage() {
                                       {openGuestMenuId === guest.id && (
                                         <div
                                           className={[
-                                            "absolute z-40 w-48 rounded-2xl border border-slate-200 bg-white shadow-xl py-1 max-h-60 overflow-y-auto",
+                                            "absolute z-40 min-w-[220px] max-w-xs rounded-2xl",
+                                            "border border-slate-200 bg-white/98 shadow-2xl",
+                                            "py-2 max-h-72 overflow-y-auto",
+                                            "backdrop-blur-sm",
                                             isLastRow
-                                              ? "right-0 bottom-9"
-                                              : "right-0 top-9",
+                                              ? "right-0 bottom-11"
+                                              : "right-0 top-11",
                                           ].join(" ")}
-                                          style={{
-                                            transform: "translateY(4px)",
-                                          }}
                                         >
-                                          {/* içerik aynı kalıyor */}
-                                          {isSaved && (
-                                            <>
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  handleShareWhatsApp(
-                                                    guest,
-                                                    href
-                                                  );
-                                                  setOpenGuestMenuId(null);
-                                                }}
-                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-slate-800 hover:bg-slate-50"
-                                              >
-                                                <span className="inline-flex w-4 h-4 items-center justify-center rounded-full bg-[#25D366] text-white text-[0.6rem]">
-                                                  W
-                                                </span>
-                                                WhatsApp ile paylaş
-                                              </button>
+                                          {/* Başlık */}
+                                          <div className="px-3 pb-1 border-b border-slate-100">
+                                            <p className="text-[0.7rem] font-semibold text-slate-800 truncate">
+                                              {guest.name || "İsimsiz davetli"}
+                                            </p>
+                                            <p className="text-[0.65rem] text-slate-400">
+                                              Davet linki için işlemler
+                                            </p>
+                                          </div>
 
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  handleCopyGuestLink(guest);
-                                                  setOpenGuestMenuId(null);
-                                                }}
-                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-slate-800 hover:bg-slate-50"
-                                              >
-                                                <span className="inline-flex w-4 h-4 items-center justify-center rounded-full border border-slate-300 text-[0.6rem]">
-                                                  ⧉
-                                                </span>
-                                                Linki kopyala
-                                              </button>
-                                            </>
-                                          )}
+                                          {/* Aksiyonlar */}
+                                          <div className="py-1">
+                                            {isSaved && (
+                                              <>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    handleShareWhatsApp(
+                                                      guest,
+                                                      href
+                                                    );
+                                                    setOpenGuestMenuId(null);
+                                                  }}
+                                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-slate-800 hover:bg-slate-50"
+                                                >
+                                                  <span className="inline-flex w-4 h-4 items-center justify-center rounded-full bg-[#25D366] text-white text-[0.6rem]">
+                                                    W
+                                                  </span>
+                                                  WhatsApp ile paylaş
+                                                </button>
 
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              handleRemoveGuest(guest);
-                                              setOpenGuestMenuId(null);
-                                            }}
-                                            className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-red-600 hover:bg-red-50"
-                                          >
-                                            <span className="inline-flex w-4 h-4 items-center justify-center rounded-full bg-red-500 text-white text-[0.6rem]">
-                                              🗑
-                                            </span>
-                                            Davetliyi sil
-                                          </button>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    handleCopyGuestLink(guest);
+                                                    setOpenGuestMenuId(null);
+                                                  }}
+                                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-slate-800 hover:bg-slate-50"
+                                                >
+                                                  <span className="inline-flex w-4 h-4 items-center justify-center rounded-full border border-slate-300 text-[0.6rem]">
+                                                    ⧉
+                                                  </span>
+                                                  Linki kopyala
+                                                </button>
+                                              </>
+                                            )}
+
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                handleRemoveGuest(guest);
+                                                setOpenGuestMenuId(null);
+                                              }}
+                                              className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-[0.7rem] text-red-600 hover:bg-red-50 border-t border-slate-100 mt-1"
+                                            >
+                                              <span className="inline-flex w-4 h-4 items-center justify-center rounded-full bg-red-500 text-white text-[0.6rem]">
+                                                🗑
+                                              </span>
+                                              Davetliyi sil
+                                            </button>
+                                          </div>
                                         </div>
                                       )}
                                     </div>
@@ -2793,11 +2996,7 @@ export default function EditorPage() {
               </>
             )}
           </div>
-          <div className="h-[calc(100%-44px)] overflow-y-auto px-4 pb-6 pt-3">
-            {/* Üst başlık + random zar */}
-
-            <SpeedInsights />
-          </div>
+          <SpeedInsights />
         </div>
       )}
       {/* Orta kısım: Davetiye + Davetli Linkleri */}
@@ -3201,6 +3400,30 @@ export function InvitationPreview({
 
       <main>
         {/* Bağış / Vakıf Bölümü */}
+        {settings.guestName && (
+          <section className="section section-invite" id="invite">
+            <div
+              className="section-inner invite-card"
+              style={{
+                maxWidth: 640,
+                margin: "0 auto",
+                textAlign: "center",
+                background: sectionCardBackground,
+                borderRadius: 18,
+                border: `1px solid ${sectionCardBorderColor}`,
+                boxShadow: "0 14px 40px rgba(0,0,0,0.45)",
+                padding: "2.2rem 2rem",
+              }}
+            >
+              <p className="invite-label">Değerli</p>
+              <p className="invite-name">{settings.guestName}</p>
+
+              <p className="invite-text">
+                Bu özel günümüzde seni de aramızda görmeyi çok isteriz.
+              </p>
+            </div>
+          </section>
+        )}
         {settings.showDonationSection && (
           <section className="section">
             <div
