@@ -7,36 +7,50 @@ import "../globals.css";
 export default function MiniWeddingPartyPage() {
   return (
     <div className="mini-wedding-bg">
-      <div className="mini-wedding-bg-inner">
+      {/* 1. ARKA PLAN BÖLÜMÜ – SADECE HERO */}
+      <section className="mini-bg-section mini-bg-section--top">
         <div className="page-overlay invitation-root--mini">
           <main>
-            {/* HERO */}
+            {/* HERO ÖNÜ SPACER – HERO'YU DAHA AŞAĞIDA BAŞLAT */}
+            <div className="mini-hero-spacer" />
+
             <header className="hero">
               <div className="hero-inner">
-                <p
-                  className="hero-subtitle mini-text"
-                  style={{ marginBottom: "0.6rem" }}
+
+
+                <h1
+                  className="hero-title font-beth-ellen"
+                  style={{ color: "#78803F" }}
                 >
-                  BİZİMLE EĞLENMEYE DAVETLİSİNİZ
+                  Mini <br /> Wedding Party
+                </h1>
+
+                <p
+                  className="hero-date mini-text font-special-elite"
+                  style={{ color: "#7E111B" }}
+                >
+                  24 MAYIS 2026
                 </p>
-
-                <h1 className="hero-title">Mini Wedding Party</h1>
-
-                <p className="hero-date mini-text">24 MAYIS 2026</p>
 
                 <div
                   className="location-time-row"
                   style={{ justifyContent: "center", marginBottom: "0.4rem" }}
                 >
-                  <span className="location-time-text">18:00</span>
+                  <span
+                    className="location-time-text font-special-elite"
+                    style={{ color: "#7E111B", fontSize: "1.2rem" }}
+                  >
+                    18:00
+                  </span>
                 </div>
 
                 <p
-                  className="mini-text"
+                  className="mini-text font-special-elite"
                   style={{
                     fontSize: "0.9rem",
                     lineHeight: 1.5,
                     textAlign: "center",
+                    color: "#7E111B",
                   }}
                 >
                   123 Anywhere Street, Any City
@@ -45,33 +59,50 @@ export default function MiniWeddingPartyPage() {
                 </p>
 
                 <p
-                  className="mini-text"
+                  className="mini-text font-special-elite"
                   style={{
                     marginTop: "1.1rem",
                     fontSize: "0.78rem",
                     letterSpacing: "0.18em",
                     textTransform: "uppercase",
                     textAlign: "center",
+                    color: "#7E111B",
                   }}
                 >
                   BİZİMLE EĞLENMEYE DAVETLİSİNİZ
                 </p>
               </div>
             </header>
+          </main>
+        </div>
+      </section>
+
+      {/* 2. ARKA PLAN BÖLÜMÜ – FLOW + DRESS CODE + FOOTER */}
+      <section className="mini-bg-section mini-bg-section--bottom">
+        <div className="page-overlay invitation-root--mini">
+          <main>
+            {/* ÜSTTE BİRAZ BOŞLUK – 2. GÖRSELDE FLOW’U AŞAĞIDAN BAŞLATIR */}
+            <div className="mini-flow-top-spacer" />
 
             {/* FLOW BLOĞU */}
-            <section className="mini-section-card">
-              <h2 className="mini-flow-title">FLOW</h2>
+            <section className="mini-section-card mini-flow-section">
+              <h2
+                className="mini-flow-title font-beth-ellen"
+                style={{ color: "#78803F" }}
+              >
+                FLOW
+              </h2>
 
               <div className="mini-section-card-inner">
                 <div
-                  className="mini-text"
+                  className="mini-text font-special-elite"
                   style={{
                     fontSize: "0.85rem",
                     display: "flex",
                     flexDirection: "column",
                     gap: "0.4rem",
                     alignItems: "flex-start",
+                    color: "#7E111B",
                   }}
                 >
                   <div>
@@ -93,15 +124,8 @@ export default function MiniWeddingPartyPage() {
             </section>
 
             {/* DRESS CODE + FOOTER */}
-            <section>
-              <div
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                <p className="mini-text" style={{ marginBottom: "0.5rem" }}>
-                  Dress Code
-                </p>
+            <section className="mini-extra-section">
+              <div style={{ textAlign: "center" }}>
                 <button
                   type="button"
                   className="mini-dresscode-link"
@@ -116,23 +140,25 @@ export default function MiniWeddingPartyPage() {
                 </button>
               </div>
 
-              <footer>
+              <footer className="mini-footer">
                 <p
-                  className="mini-text"
-                  style={{
-                    fontSize: "0.7rem",
-                    letterSpacing: "0.16em",
-                    textTransform: "uppercase",
-                    opacity: 0.7,
-                  }}
+                  className="mini-footer-dress font-beth-ellen"
+                  style={{ color: "#78803F" }}
                 >
-                  Sevgiyle hazırlandı
+                  Dress Code
+                </p>
+
+                <p
+                  className="mini-footer-title font-special-elite"
+                  style={{ color: "#7E111B" }}
+                >
+                  DECADENT ROMANCE
                 </p>
               </footer>
             </section>
           </main>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
