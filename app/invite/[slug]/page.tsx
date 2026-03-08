@@ -105,9 +105,34 @@ export default function InvitePage() {
         });
 
         const text = await res.text();
-        console.log("get_invite_data raw response:", text); // DEBUG
+        console.log("get_invite_data raw response:", res.status, text);
 
-        const json = JSON.parse(text) as InviteDataResponse;
+        // HTTP hata koduysa, parse etmeye çalışma
+        if (!res.ok) {
+          if (!cancelled) {
+            setError("Davetiye bulunamadı.");
+          }
+          return;
+        }
+
+        // Boş body geldiyse
+        if (!text) {
+          if (!cancelled) {
+            setError("Davetiye bulunamadı.");
+          }
+          return;
+        }
+
+        let json: InviteDataResponse;
+        try {
+          json = JSON.parse(text);
+        } catch (e) {
+          console.error("get_invite_data JSON parse error", e, text);
+          if (!cancelled) {
+            setError("Davetiye bulunamadı.");
+          }
+          return;
+        }
 
         if (!json.success || !json.data) {
           if (!cancelled) {
@@ -132,7 +157,6 @@ export default function InvitePage() {
           time: d.time ?? base.time,
           locationText: d.locationText ?? base.locationText,
           mapsUrl: d.mapsUrl ?? base.mapsUrl,
-          // davetli ismi
           guestName: d.guestName ?? (d.settings?.guestName as any) ?? undefined,
         };
 

@@ -12,7 +12,21 @@ import {
   Italianno,
   Charm,
   Playfair_Display,
+  Beth_Ellen,
+  Special_Elite
 } from "next/font/google";
+
+const bethEllen = Beth_Ellen({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-beth-ellen",
+});
+
+const specialElite = Special_Elite({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-special-elite",
+});
 
 const greatVibes = Great_Vibes({
   subsets: ["latin"],
@@ -107,6 +121,8 @@ export default function RootLayout({
           lugrasimo.variable,
           italianno.variable,
           charm.variable,
+          bethEllen.variable,
+          specialElite.variable,
         ].join(" ")}
       >
         {children}

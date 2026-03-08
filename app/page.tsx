@@ -106,6 +106,25 @@ export type InvitationSettings = {
   showScheduleSection?: boolean;
   scheduleItems?: { time: string; title: string; description: string }[];
 };
+const SCHEDULE_PRESETS = {
+  classic: [
+    { time: "18:00", title: "Karşılama", description: "" },
+    { time: "19:00", title: "Nikah Töreni", description: "" },
+    { time: "19:30", title: "Pasta Kesimi", description: "" },
+    { time: "20:00", title: "Yemek", description: "" },
+    { time: "21:30", title: "İlk Dans", description: "" },
+    { time: "22:00", title: "Eğlence", description: "" },
+  ],
+  longCocktail: [
+    { time: "17:30", title: "Konukların Karşılanması", description: "" },
+    { time: "18:00", title: "Kokteyl & Fotoğraf Çekimi", description: "" },
+    { time: "19:30", title: "Nikah Töreni", description: "" },
+    { time: "20:00", title: "Yemek", description: "" },
+    { time: "21:00", title: "Aile ile Fotoğraflar", description: "" },
+    { time: "21:30", title: "İlk Dans", description: "" },
+    { time: "22:00", title: "DJ & Eğlence", description: "" },
+  ],
+};
 
 export const DEFAULT_SETTINGS: InvitationSettings = {
   brideName: "Sine",
@@ -166,8 +185,15 @@ export const DEFAULT_SETTINGS: InvitationSettings = {
   footerBackground: "rgba(0,0,0,0.58)",
   mapLat: null,
   mapLng: null,
-  showScheduleSection: false,
-  scheduleItems: [],
+  showScheduleSection: true,
+  scheduleItems: [
+    { time: "18:00", title: "Karşılama", description: "" },
+    { time: "18:30", title: "Kokteyl & Fotoğraf Çekimi", description: "" },
+    { time: "19:30", title: "Nikah Töreni", description: "" },
+    { time: "20:00", title: "Yemek Servisi", description: "" },
+    { time: "21:00", title: "Pasta Kesimi", description: "" },
+    { time: "21:30", title: "İlk Dans & Eğlence", description: "" },
+  ],
 };
 
 type GuestStatus = "draft" | "saving" | "saved" | "error";
@@ -275,6 +301,7 @@ function slugifyName(name: string): string {
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 }
+
 type ThemeId = FontFamily;
 
 type Theme = {
@@ -723,8 +750,8 @@ export default function EditorPage() {
   // app/page.tsx içinde, settingsLoaded && license.valid koşuluyla
   useEffect(() => {
     if (!settingsLoaded) return;
-    if (!license.valid || !license.token) return;
-    if (!isDirty) return; // kaydedilmemiş değişiklik yoksa çağırma
+    // if (!license.valid || !license.token) return;  // BUNU SİL
+    if (!isDirty) return;
 
     const controller = new AbortController();
 
@@ -738,19 +765,28 @@ export default function EditorPage() {
           headers: { "Content-Type": "application/json" },
           signal: controller.signal,
           body: JSON.stringify({
-            token: license.token,
+            token: license.token, // null da olabilir
             settings,
           }),
         });
 
+        const text = await res.text();
+        console.log("save_event raw response:", res.status, text);
+
         if (!res.ok) {
-          const text = await res.text();
           console.warn("save_event http error", res.status, text);
           setSaveError("Değişiklikler kaydedilemedi.");
           return;
         }
 
-        const data = await res.json();
+        let data: any;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("save_event JSON parse error", e, text);
+          setSaveError("Sunucudan geçersiz yanıt alındı.");
+          return;
+        }
 
         if (!data.success) {
           console.warn("save_event error", data);
@@ -758,9 +794,15 @@ export default function EditorPage() {
           return;
         }
 
-        // başarılı
         setIsDirty(false);
         setLastSavedAt(new Date());
+
+        if (typeof data.eventId === "number") {
+          setLicense((prev) => ({
+            ...prev,
+            eventId: data.eventId,
+          }));
+        }
       } catch (e) {
         console.error("save_event error", e);
         setSaveError("Sunucuya ulaşılamadı.");
@@ -769,12 +811,12 @@ export default function EditorPage() {
       }
     };
 
-    const t = setTimeout(save, 2500); // 2.5s debounce
+    const t = setTimeout(save, 2500);
     return () => {
       clearTimeout(t);
       controller.abort();
     };
-  }, [settings, settingsLoaded, license.valid, license.token, isDirty]);
+  }, [settings, settingsLoaded, license.token, isDirty]);
 
   useEffect(() => {
     if (!license.valid || !license.token) return;
@@ -1470,21 +1512,18 @@ export default function EditorPage() {
   };
   const handleVerifyToken = async () => {
     setLicenseError(null);
-
     const trimmed = tokenInput.trim();
     if (!trimmed) {
       setLicenseError("Lütfen token girin.");
       return;
     }
 
-    console.log("API_BASE:", API_BASE); // BURASI ÖNEMLİ
+    console.log("API_BASE:", API_BASE);
 
     try {
       const res = await fetch(`${API_BASE}/verify_token.php`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: trimmed }),
       });
 
@@ -1993,8 +2032,8 @@ export default function EditorPage() {
                   {(settings.showScheduleSection ?? false) && (
                     <div className="space-y-2">
                       <p className="text-[0.7rem] text-slate-500">
-                        Hazırlık, nikah, kokteyl gibi adımları sırayla ekleyin.
-                        Tasarım otomatik hizalanır.
+                        Hazırlık, nikah, kokteyl gibi adımları sırayla
+                        ekleyin...
                       </p>
 
                       <div className="space-y-2">
