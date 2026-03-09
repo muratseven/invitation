@@ -11,13 +11,9 @@ export default function MiniWeddingPartyPage() {
       <section className="mini-bg-section mini-bg-section--top">
         <div className="page-overlay invitation-root--mini">
           <main>
-            {/* HERO ÖNÜ SPACER – HERO'YU DAHA AŞAĞIDA BAŞLAT */}
-            <div className="mini-hero-spacer" />
 
             <header className="hero">
               <div className="hero-inner">
-
-
                 <h1
                   className="hero-title font-beth-ellen"
                   style={{ color: "#78803F" }}
@@ -81,80 +77,38 @@ export default function MiniWeddingPartyPage() {
       <section className="mini-bg-section mini-bg-section--bottom">
         <div className="page-overlay invitation-root--mini">
           <main>
-            {/* ÜSTTE BİRAZ BOŞLUK – 2. GÖRSELDE FLOW’U AŞAĞIDAN BAŞLATIR */}
-            <div className="mini-flow-top-spacer" />
-
-            {/* FLOW BLOĞU */}
+            {/* DRESS CODE + FOOTER */}
             <section className="mini-section-card mini-flow-section">
               <h2
                 className="mini-flow-title font-beth-ellen"
-                style={{ color: "#78803F" }}
+                style={{
+                  color: "#78803F",
+                  textAlign: "center",
+                  fontSize: "2.2rem",
+                  marginBottom: "1.2rem",
+                }}
               >
                 FLOW
               </h2>
 
               <div className="mini-section-card-inner">
-                <div
-                  className="mini-text font-special-elite"
-                  style={{
-                    fontSize: "0.85rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.4rem",
-                    alignItems: "flex-start",
-                    color: "#7E111B",
-                  }}
-                >
-                  <div>
-                    <span style={{ fontWeight: 600 }}>
+                <div className="mini-text font-special-elite mini-flow-list">
+                  <div className="mini-flow-item">
+                    <span className="mini-flow-label">
                       STARTING&nbsp;•&nbsp;
                     </span>
                     <span>18:00 – BİZİMLE EĞLENMEYE DAVETLİSİNİZ</span>
                   </div>
-                  <div>
-                    <span style={{ fontWeight: 600 }}>FLOW&nbsp;•&nbsp;</span>
+                  <div className="mini-flow-item">
+                    <span className="mini-flow-label">FLOW&nbsp;•&nbsp;</span>
                     <span>DJ, kokteyl ve bol kahkaha</span>
                   </div>
-                  <div>
-                    <span style={{ fontWeight: 600 }}>CAKE&nbsp;•&nbsp;</span>
+                  <div className="mini-flow-item">
+                    <span className="mini-flow-label">CAKE&nbsp;•&nbsp;</span>
                     <span>DECADENT ROMANCE</span>
                   </div>
                 </div>
               </div>
-            </section>
-
-            {/* DRESS CODE + FOOTER */}
-            <section className="mini-extra-section">
-              <div style={{ textAlign: "center" }}>
-                <button
-                  type="button"
-                  className="mini-dresscode-link"
-                  onClick={() => {
-                    window.open(
-                      "https://www.pinterest.com/search/pins/?q=semi%20formal%20wedding",
-                      "_blank"
-                    );
-                  }}
-                >
-                  Fikir için tıklayınız...
-                </button>
-              </div>
-
-              <footer className="mini-footer">
-                <p
-                  className="mini-footer-dress font-beth-ellen"
-                  style={{ color: "#78803F" }}
-                >
-                  Dress Code
-                </p>
-
-                <p
-                  className="mini-footer-title font-special-elite"
-                  style={{ color: "#7E111B" }}
-                >
-                  DECADENT ROMANCE
-                </p>
-              </footer>
             </section>
           </main>
         </div>

@@ -10,6 +10,7 @@ import {
   type InvitationSettings,
   type Countdown,
 } from "../../page";
+import { EnvelopeHero } from "../../components/EnvelopeHero";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API ?? "http://localhost:8888/backend/api";
@@ -70,6 +71,7 @@ function computeCountdown(eventDate: Date | null): Countdown {
 export default function InvitePage() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [showIntro, setShowIntro] = useState(true);
 
   const slug = (() => {
     const parts = pathname.split("/").filter(Boolean);
@@ -217,31 +219,47 @@ export default function InvitePage() {
       className="relative min-h-screen text-slate-900 bg-slate-950"
       style={{ background: overlayColor }}
     >
-      <header className="fixed top-0 left-0 right-0 z-20 bg-black/40 backdrop-blur border-b border-white/10">
-        <div className="mx-auto max-w-5xl px-4 py-2 flex items-center justify-between text-[0.7rem] text-slate-100">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs">
-              💌
-            </span>
-            <span className="tracking-[0.16em] uppercase text-[0.65rem] text-slate-200">
-              Davetly.co
-            </span>
-          </div>
-          <div className="text-[0.65rem] text-slate-300">
-            {settings.brideName} &amp; {settings.groomName} için davetiye
-          </div>
-        </div>
-      </header>
+      {/* Intro overlay – ilk açılışta zarf sahnesi */}
+      {showIntro && (
+        <EnvelopeHero
+          onOpen={() => {
+            setShowIntro(false);
+          }}
+          brideName={settings.brideName}
+          groomName={settings.groomName}
+        />
+      )}
 
-      <main className="pt-14 pb-10">
-        <div className="max-w-5xl mx-auto px-4">
-          <InvitationPreview
-            settings={settings}
-            countdown={countdown}
-            overlayColor={overlayColor}
-          />
-        </div>
-      </main>
+      {/* intro açıkken davetiyeyi altta hazır tut ama tıklanamaz / görünmez yap */}
+      <div
+        className={showIntro ? "opacity-0 pointer-events-none" : "opacity-100"}
+      >
+        <header className="fixed top-0 left-0 right-0 z-20 bg-black/40 backdrop-blur border-b border-white/10">
+          <div className="mx-auto max-w-5xl px-4 py-2 flex items-center justify-between text-[0.7rem] text-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs">
+                💌
+              </span>
+              <span className="tracking-[0.16em] uppercase text-[0.65rem] text-slate-200">
+                Davetly.co
+              </span>
+            </div>
+            <div className="text-[0.65rem] text-slate-300">
+              {settings.brideName} &amp; {settings.groomName} için davetiye
+            </div>
+          </div>
+        </header>
+
+        <main className="pt-14 pb-10">
+          <div className="max-w-5xl mx-auto px-4">
+            <InvitationPreview
+              settings={settings}
+              countdown={countdown}
+              overlayColor={overlayColor}
+            />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

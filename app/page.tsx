@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import { parseMapInput } from "./lib/mapUtils"; // relative path’i dosya yapına göre düzelt
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { EnvelopeHero } from "./components/EnvelopeHero";
 const API_BASE =
   process.env.NEXT_PUBLIC_API ?? "http://localhost:8888/backend/api";
 
@@ -124,6 +125,19 @@ const SCHEDULE_PRESETS = {
     { time: "21:30", title: "İlk Dans", description: "" },
     { time: "22:00", title: "DJ & Eğlence", description: "" },
   ],
+};
+const DONATION_MESSAGES: Record<
+  InvitationSettings["donationOrganization"],
+  string
+> = {
+  tema: "Sizin adınıza TEMA Vakfı'na bir fidan bağışında bulunduk.",
+  cydd: "Sizin adınıza Çağdaş Yaşamı Destekleme Derneği'ne eğitim bursu desteğinde bulunduk.",
+  "kiz-cocuklari":
+    "Sizin adınıza kız çocuklarının eğitimine destek sağlayan bir bursa katkıda bulunduk.",
+  losev:
+    "Sizin adınıza LÖSEV'e bağışta bulunarak lösemili çocukların tedavisine destek olduk.",
+  custom:
+    "Bu özel günümüzde, sizin adınıza seçtiğimiz bir kuruluşa bağışta bulunduk.",
 };
 
 export const DEFAULT_SETTINGS: InvitationSettings = {
@@ -246,16 +260,6 @@ function hexToRgba(hex: string, alpha: number): string {
   const b = bigint & 255;
 
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-// UTF-8 güvenli base64 encode/decode helper'ları
-
-function base64EncodeUnicode(str: string): string {
-  // UTF-8 string'i Latin1'e çevirip btoa ile encode eder
-  return btoa(
-    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
-      String.fromCharCode(Number("0x" + p1))
-    )
-  );
 }
 
 function computeCountdown(eventDate: Date | null): Countdown {
@@ -659,6 +663,8 @@ export default function EditorPage() {
   const [licenseError, setLicenseError] = useState<string | null>(null);
   const [tokenInput, setTokenInput] = useState<string>("");
   const [isEditingToken, setIsEditingToken] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+
   const emptyCountdown: Countdown = {
     days: 0,
     hours: 0,
@@ -987,50 +993,6 @@ export default function EditorPage() {
       }
     });
   };
-
-  function buildGuestPayload(guest: Guest, settings: InvitationSettings) {
-    return {
-      bride: settings.brideName,
-      groom: settings.groomName,
-      date: settings.dateRaw || "",
-      time: settings.time,
-      location: settings.locationText,
-      mapsUrl: settings.mapsUrl,
-      guestName: guest.name,
-
-      sectionCardBackground:
-        settings.locationBackground || settings.sectionCardBackground,
-      sectionCardBorderColor: settings.sectionCardBorderColor,
-      footerBackground: settings.footerBackground,
-      backgroundColor: settings.backgroundColor,
-      backgroundOverlayOpacity: settings.backgroundOverlayOpacity,
-
-      fontFamily: settings.fontFamily,
-      heroSubtitle: settings.heroSubtitle,
-      heroSubtitleColor: settings.heroSubtitleColor,
-      heroNamesColor: settings.heroNamesColor,
-      ampersandColor: settings.ampersandColor,
-      dividerColor: settings.dividerColor,
-
-      donationBackground: settings.donationBackground,
-      showDonationSection: settings.showDonationSection,
-      donationText: settings.donationText,
-      donationImageUrl: settings.donationImageUrl,
-
-      locationBackground: settings.locationBackground,
-      locationImageUrl: settings.locationImageUrl,
-
-      showFamilySection: settings.showFamilySection,
-      family1Mother: settings.family1Mother,
-      family1Father: settings.family1Father,
-      family1Surname: settings.family1Surname,
-      family2Mother: settings.family2Mother,
-      family2Father: settings.family2Father,
-      family2Surname: settings.family2Surname,
-      mapLat: settings.mapLat,
-      mapLng: settings.mapLng,
-    };
-  }
 
   const handleSaveGuest = async (guest: Guest) => {
     if (mode === "user" && (!license.valid || !license.token)) {
@@ -1562,6 +1524,14 @@ export default function EditorPage() {
       className="relative min-h-screen text-slate-900 bg-gradient-to-b from-slate-900 via-slate-950 to-[#1a1012]"
       style={{ background: overlayColor }}
     >
+      {showIntro && (
+        <EnvelopeHero
+          onOpen={() => {
+            setShowIntro(false);
+          }}
+        />
+      )}
+
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
         <div className="mx-auto max-w-6xl px-4 py-2.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-[0.75rem]">
           {/* Sol: logo + açıklama */}
@@ -2602,13 +2572,19 @@ export default function EditorPage() {
                         </label>
                         <select
                           value={settings.donationOrganization}
-                          onChange={(e) =>
-                            handleChange(
-                              "donationOrganization",
-                              e.target
-                                .value as InvitationSettings["donationOrganization"]
-                            )
-                          }
+                          onChange={(e) => {
+                            const org = e.target
+                              .value as InvitationSettings["donationOrganization"];
+
+                            // Önce organizasyonu güncelle
+                            handleChange("donationOrganization", org);
+
+                            // Sonra hazır metni donationText'e yaz
+                            setSettings((prev) => ({
+                              ...prev,
+                              donationText: DONATION_MESSAGES[org],
+                            }));
+                          }}
                           className="w-full px-2.5 py-2 rounded-md border border-slate-700 bg-slate-950/60 text-xs"
                         >
                           <option value="tema">TEMA Vakfı</option>
@@ -3065,58 +3041,6 @@ function SectionTitle({ label }: { label: string }) {
       </div>
     </div>
   );
-}
-// Mevcut token'a göre maxGuests / usedGuests değerlerini backend'den tazeler
-async function refreshLicenseFromServer(
-  currentLicense: LicenseInfo,
-  setLicense: React.Dispatch<React.SetStateAction<LicenseInfo>>,
-  setLicenseError: React.Dispatch<React.SetStateAction<string | null>>
-) {
-  if (!currentLicense.valid || !currentLicense.token) {
-    return;
-  }
-
-  try {
-    // verify_token ya da ayrı bir endpoint kullanabilirsin.
-    const res = await fetch(`${API_BASE}/verify_token.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: currentLicense.token }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("refreshLicenseFromServer http error", res.status, text);
-      setLicenseError("Lisans bilgisi güncellenemedi.");
-      return;
-    }
-
-    const data = await res.json();
-    if (!data.valid) {
-      setLicenseError(data.message || "Lisans geçersiz görünüyor.");
-      setLicense({
-        token: null,
-        maxGuests: 0,
-        usedGuests: 0,
-        eventId: null,
-        valid: false,
-      });
-      return;
-    }
-
-    // DB’deki en güncel maxGuests / usedGuests değerini state'e yaz
-    setLicense((prev) => ({
-      ...prev,
-      maxGuests: Number(data.maxGuests || prev.maxGuests),
-      usedGuests: Number(data.usedGuests || prev.usedGuests),
-      eventId: data.eventId ? Number(data.eventId) : prev.eventId,
-      valid: true,
-      token: prev.token, // token değişmesin
-    }));
-  } catch (e) {
-    console.error("refreshLicenseFromServer error", e);
-    setLicenseError("Lisans bilgisi güncellenirken bir hata oluştu.");
-  }
 }
 
 type FieldProps = {
