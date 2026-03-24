@@ -295,11 +295,11 @@ export default function InviteClient({
 
   const dateText = settings.eventDate
     ? settings.eventDate.toLocaleDateString("tr-TR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "long",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    })
     : "Tarih seçilmedi";
 
   const countdownFinished = countdown.finished;
@@ -310,11 +310,9 @@ export default function InviteClient({
   if (settings.mapLat != null && settings.mapLng != null) {
     const { mapLat, mapLng } = settings;
     const delta = 0.0015; // daha da yakın zoom
-    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
-      mapLng - delta
-    }%2C${mapLat - delta}%2C${mapLng + delta}%2C${
-      mapLat + delta
-    }&layer=mapnik&marker=${mapLat}%2C${mapLng}`;
+    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapLng - delta
+      }%2C${mapLat - delta}%2C${mapLng + delta}%2C${mapLat + delta
+      }&layer=mapnik&marker=${mapLat}%2C${mapLng}`;
     buttonHref = `https://www.google.com/maps/search/?api=1&query=${mapLat},${mapLng}`;
   } else {
     // HATA BURADAYDI: mapsUrl yerine settings.mapsUrl kullanmalıyız
@@ -352,7 +350,8 @@ export default function InviteClient({
       style={{ background: overlayColor }}
     >
       <video className="bg-video" autoPlay muted loop playsInline>
-        <source src="/bg.webm" type="video/webm" />
+        {/* <source src="/bg.webm" type="video/webm" /> */}
+        <source src="/bg.mp4" type="video/webm" />
         Tarayıcınız video desteklemiyor.
       </video>
 
@@ -477,9 +476,8 @@ export default function InviteClient({
                 background:
                   settings.sectionCardBackground || "rgba(0,0,0,0.75)",
                 borderRadius: 18,
-                border: `1px solid ${
-                  settings.sectionCardBorderColor || "rgba(255,255,255,0.12)"
-                }`,
+                border: `1px solid ${settings.sectionCardBorderColor || "rgba(255,255,255,0.12)"
+                  }`,
                 boxShadow: "0 14px 40px rgba(0,0,0,0.45)",
                 padding: "2.2rem 2rem",
               }}

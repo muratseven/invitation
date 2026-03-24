@@ -3,7 +3,7 @@
 "use client";
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { parseMapInput } from "./lib/mapUtils"; // relative path’i dosya yapına göre düzelt
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -107,7 +107,7 @@ export type InvitationSettings = {
   showScheduleSection?: boolean;
   scheduleItems?: { time: string; title: string; description: string }[];
 };
-const SCHEDULE_PRESETS = {
+export const SCHEDULE_PRESETS = {
   classic: [
     { time: "18:00", title: "Karşılama", description: "" },
     { time: "19:00", title: "Nikah Töreni", description: "" },
@@ -140,12 +140,19 @@ const DONATION_MESSAGES: Record<
     "Bu özel günümüzde, sizin adınıza seçtiğimiz bir kuruluşa bağışta bulunduk.",
 };
 
+// 6 ay sonrası default tarih
+function getDefault6MonthsDate(): string {
+  const now = new Date();
+  now.setMonth(now.getMonth() + 6);
+  return now.toISOString().split("T")[0];
+}
+
 export const DEFAULT_SETTINGS: InvitationSettings = {
   brideName: "Sine",
   groomName: "Murat",
   title: "Nişanımıza davetlisiniz!",
   heroSubtitle: "Biz evleniyoruz",
-  dateRaw: "",
+  dateRaw: getDefault6MonthsDate(),
   eventDate: null,
   time: "18:30 - 22:00",
   locationText:
@@ -235,12 +242,27 @@ export type Countdown = {
   finished: boolean;
 };
 
-const HERO_SUBTITLE_OPTIONS = [
+export const HERO_SUBTITLE_OPTIONS = [
   "Biz evleniyoruz",
   "Hayatımızın en özel günü",
   "Bu mutlu günümüzde yanımızda olun",
   "Bir ömür boyu mutluluğa evet",
   "Sevgiyle başlayan yolculuğumuzda bize katılın",
+  "İki kalp, tek hikâye",
+  "Aşkımızı sizinle kutlamak istiyoruz",
+  "Yeni bir başlangıcın eşiğindeyiz",
+  "Sizi bu özel güne davet ediyoruz",
+  "Birlikte yazmaya başladığımız hikâye",
+  "Nişanımıza hoş geldiniz",
+  "Düğünümüzde bize eşlik edin",
+  "Bir ömür, bir söz, bir gün",
+  "Aşkımızın kutlamasına davetlisiniz",
+  "En güzel günü seninle paylaşmak istiyoruz",
+  "Hayatımızın ilk büyük adımı",
+  "Sizi aramızda görmekten mutluluk duyarız",
+  "Sevginin en güzel hali başlıyor",
+  "Mutluluğumuzu sizinle paylaşmak istiyoruz",
+  "Kalbimizin sesine uyarak buluştuk",
 ];
 
 // HEX → rgba string
@@ -306,7 +328,17 @@ function slugifyName(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-type ThemeId = FontFamily;
+export type ThemeId =
+  | "Romantik Şeker"
+  | "Klasik Zarafet"
+  | "Aşk Yazısı"
+  | "Dergi Şıklığı"
+  | "Film Noir"
+  | "Pastel Rüya"
+  | "Sade Şıklık"
+  | "Sonbahar Sıcaklığı"
+  | "Altın Saat"
+  | "Zamansız Klasik";
 
 type Theme = {
   id: ThemeId;
@@ -343,312 +375,312 @@ type Theme = {
 
 export const THEMES: Theme[] = [
   {
-    id: "pacifico",
-    label: "Soft Romance",
-    mood: "Sıcak ve modern, romantik ama sade çiftler için.",
+    id: "Romantik Şeker",
+    label: "Romantik Şeker",
+    mood: "Sıcak pembe tonlar, modern ve şeker gibi tatlı bir romantizm.",
     previewImage: "/themes/soft-romance.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.2rem, 6vw, 4.8rem)",
+    heroSubtitleSize: "1.2rem",
     settings: {
       fontFamily: "pacifico",
-      backgroundColor: "#050608",
-      backgroundOverlayOpacity: 0.6,
-      heroSubtitleColor: "#ffffff",
-      heroNamesColor: "#ffffff",
-      ampersandColor: "#ffffff",
-      dividerColor: "rgba(255,255,255,0.55)",
-      backgroundBaseColor: "#111111",
-      headingColor: "#ffffff",
-      personNameColor: "#ffffff",
-      familyRowColor: "#ffffff",
-      parentRowColor: "#ffffff",
-      photoBorderColor: "#ffffff",
-      lowerMessageColor: "#ffffff",
-      lowerCoupleNameColor: "#ffffff",
-      sectionCardBackground: "rgba(0,0,0,0.62)",
-      sectionCardBorderColor: "rgba(255,255,255,0.20)",
-      donationBackground: "rgba(0,0,0,0.62)",
-      locationBackground: "rgba(0,0,0,0.62)",
-      footerBackground: "rgba(0,0,0,0.62)",
+      backgroundColor: "#0d0508",
+      backgroundOverlayOpacity: 0.62,
+      heroSubtitleColor: "#ffd6e8",
+      heroNamesColor: "#fff0f7",
+      ampersandColor: "#ffadd2",
+      dividerColor: "rgba(255,173,210,0.60)",
+      backgroundBaseColor: "#12060a",
+      headingColor: "#fff0f7",
+      personNameColor: "#ffd6e8",
+      familyRowColor: "#ffd6e8",
+      parentRowColor: "#ffd6e8",
+      photoBorderColor: "#ffadd2",
+      lowerMessageColor: "#ffd6e8",
+      lowerCoupleNameColor: "#fff0f7",
+      sectionCardBackground: "rgba(20,5,12,0.72)",
+      sectionCardBorderColor: "rgba(255,150,200,0.22)",
+      donationBackground: "rgba(20,5,12,0.72)",
+      locationBackground: "rgba(20,5,12,0.72)",
+      footerBackground: "rgba(20,5,12,0.72)",
     },
     requiresLicense: false,
   },
   {
-    id: "italianno",
-    label: "Classic Elegance",
-    mood: "Zarif ve klasik düğünler için ince çizgiler ve akıcı fontlar.",
+    id: "Klasik Zarafet",
+    label: "Klasik Zarafet",
+    mood: "Altın ve siyah; asırlık zarafet, akıcı el yazısı, kalıcı şıklık.",
     previewImage: "/themes/classic-elegance.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.8rem, 7vw, 5.8rem)",
+    heroSubtitleSize: "1.25rem",
     settings: {
       fontFamily: "italianno",
-      backgroundColor: "#030203",
+      backgroundColor: "#050400",
       backgroundOverlayOpacity: 0.55,
-      heroSubtitleColor: "#f5f5f5",
-      heroNamesColor: "#ffffff",
-      ampersandColor: "#f5d9b0",
-      dividerColor: "rgba(245,217,176,0.85)",
-      backgroundBaseColor: "#101010",
-      headingColor: "#f5f5f5",
-      personNameColor: "#f5f5f5",
-      familyRowColor: "#f5f5f5",
-      parentRowColor: "#f5f5f5",
-      photoBorderColor: "#f5d9b0",
-      lowerMessageColor: "#f5f5f5",
-      lowerCoupleNameColor: "#f5f5f5",
-      sectionCardBackground: "rgba(0,0,0,0.70)",
-      sectionCardBorderColor: "rgba(245,217,176,0.35)",
-      donationBackground: "rgba(0,0,0,0.70)",
-      locationBackground: "rgba(0,0,0,0.70)",
-      footerBackground: "rgba(0,0,0,0.70)",
+      heroSubtitleColor: "#f0e6c8",
+      heroNamesColor: "#fff8e8",
+      ampersandColor: "#d4a017",
+      dividerColor: "rgba(212,160,23,0.75)",
+      backgroundBaseColor: "#0c0a02",
+      headingColor: "#fff8e8",
+      personNameColor: "#f0e6c8",
+      familyRowColor: "#f0e6c8",
+      parentRowColor: "#f0e6c8",
+      photoBorderColor: "#d4a017",
+      lowerMessageColor: "#f0e6c8",
+      lowerCoupleNameColor: "#fff8e8",
+      sectionCardBackground: "rgba(5,4,0,0.78)",
+      sectionCardBorderColor: "rgba(212,160,23,0.32)",
+      donationBackground: "rgba(5,4,0,0.78)",
+      locationBackground: "rgba(5,4,0,0.78)",
+      footerBackground: "rgba(5,4,0,0.78)",
     },
     requiresLicense: false,
   },
   {
-    id: "great-vibes",
-    label: "Romantic Script",
-    mood: "El yazısı hissiyle romantik ve gösterişli davetler.",
+    id: "Aşk Yazısı",
+    label: "Aşk Yazısı",
+    mood: "El yazısının romantizmi; derin mor tonlarda büyülü bir davetiye.",
     previewImage: "/themes/romantic-script.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.6rem, 7vw, 5.5rem)",
+    heroSubtitleSize: "1.2rem",
     settings: {
       fontFamily: "great-vibes",
-      backgroundColor: "#05030a",
-      backgroundOverlayOpacity: 0.58,
-      heroSubtitleColor: "#fdf6e9",
-      heroNamesColor: "#fdf6e9",
-      ampersandColor: "#f5d0a0",
-      dividerColor: "rgba(253,246,233,0.7)",
-      backgroundBaseColor: "#151015",
-      headingColor: "#fdf6e9",
-      personNameColor: "#fdf6e9",
-      familyRowColor: "#fdf6e9",
-      parentRowColor: "#fdf6e9",
-      photoBorderColor: "#f5d0a0",
-      lowerMessageColor: "#fdf6e9",
-      lowerCoupleNameColor: "#fdf6e9",
-      sectionCardBackground: "rgba(5,3,10,0.76)",
-      sectionCardBorderColor: "rgba(245,208,160,0.42)",
-      donationBackground: "rgba(5,3,10,0.76)",
-      locationBackground: "rgba(5,3,10,0.76)",
-      footerBackground: "rgba(5,3,10,0.76)",
+      backgroundColor: "#07030f",
+      backgroundOverlayOpacity: 0.60,
+      heroSubtitleColor: "#e8d8ff",
+      heroNamesColor: "#f5ecff",
+      ampersandColor: "#c084fc",
+      dividerColor: "rgba(192,132,252,0.60)",
+      backgroundBaseColor: "#0f0818",
+      headingColor: "#f5ecff",
+      personNameColor: "#e8d8ff",
+      familyRowColor: "#e8d8ff",
+      parentRowColor: "#e8d8ff",
+      photoBorderColor: "#c084fc",
+      lowerMessageColor: "#e8d8ff",
+      lowerCoupleNameColor: "#f5ecff",
+      sectionCardBackground: "rgba(7,3,15,0.80)",
+      sectionCardBorderColor: "rgba(192,132,252,0.30)",
+      donationBackground: "rgba(7,3,15,0.80)",
+      locationBackground: "rgba(7,3,15,0.80)",
+      footerBackground: "rgba(7,3,15,0.80)",
     },
     requiresLicense: false,
   },
   {
-    id: "cormorant",
-    label: "Editorial Chic",
-    mood: "Dergi kapağı estetiğinde, sofistike ve modern.",
+    id: "Dergi Şıklığı",
+    label: "Dergi Şıklığı",
+    mood: "Dergi kapağı estetiği; soğuk gri tonlar, güçlü kontrast, sofistike duruş.",
     previewImage: "/themes/editorial-chic.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.0rem, 5.5vw, 4.6rem)",
+    heroSubtitleSize: "1.0rem",
     settings: {
       fontFamily: "cormorant",
-      backgroundColor: "#050608",
-      backgroundOverlayOpacity: 0.62,
-      heroSubtitleColor: "#e5e5e5",
-      heroNamesColor: "#ffffff",
-      ampersandColor: "#ffffff",
-      dividerColor: "rgba(229,229,229,0.7)",
-      backgroundBaseColor: "#090909",
-      headingColor: "#ffffff",
-      personNameColor: "#ffffff",
-      familyRowColor: "#e5e5e5",
-      parentRowColor: "#e5e5e5",
-      photoBorderColor: "#e5e5e5",
-      lowerMessageColor: "#e5e5e5",
-      lowerCoupleNameColor: "#ffffff",
-      sectionCardBackground: "rgba(0,0,0,0.78)",
-      sectionCardBorderColor: "rgba(229,229,229,0.32)",
-      donationBackground: "rgba(0,0,0,0.78)",
-      locationBackground: "rgba(0,0,0,0.78)",
-      footerBackground: "rgba(0,0,0,0.78)",
+      backgroundColor: "#060608",
+      backgroundOverlayOpacity: 0.65,
+      heroSubtitleColor: "#c8c8d4",
+      heroNamesColor: "#f0f0f8",
+      ampersandColor: "#8888aa",
+      dividerColor: "rgba(200,200,212,0.50)",
+      backgroundBaseColor: "#08080c",
+      headingColor: "#f0f0f8",
+      personNameColor: "#c8c8d4",
+      familyRowColor: "#c8c8d4",
+      parentRowColor: "#c8c8d4",
+      photoBorderColor: "#8888aa",
+      lowerMessageColor: "#c8c8d4",
+      lowerCoupleNameColor: "#f0f0f8",
+      sectionCardBackground: "rgba(0,0,4,0.82)",
+      sectionCardBorderColor: "rgba(140,140,170,0.24)",
+      donationBackground: "rgba(0,0,4,0.82)",
+      locationBackground: "rgba(0,0,4,0.82)",
+      footerBackground: "rgba(0,0,4,0.82)",
     },
     requiresLicense: false,
   },
   {
-    id: "lugrasimo",
-    label: "Vintage Noir",
-    mood: "Siyah-beyaz fotoğraf hissiyle nostaljik ve şık.",
+    id: "Film Noir",
+    label: "Film Noir",
+    mood: "Siyah-beyaz fotoğraf ruhu; nostaljik, dramatik ve zamansız.",
     previewImage: "/themes/vintage-noir.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.2rem, 6vw, 4.8rem)",
+    heroSubtitleSize: "1.1rem",
     settings: {
       fontFamily: "lugrasimo",
-      backgroundColor: "#020304",
-      backgroundOverlayOpacity: 0.65,
-      heroSubtitleColor: "#f0f0f0",
-      heroNamesColor: "#f0f0f0",
-      ampersandColor: "#f0f0f0",
-      dividerColor: "rgba(240,240,240,0.7)",
-      backgroundBaseColor: "#111111",
-      headingColor: "#f0f0f0",
-      personNameColor: "#f0f0f0",
-      familyRowColor: "#f0f0f0",
-      parentRowColor: "#f0f0f0",
-      photoBorderColor: "#f0f0f0",
-      lowerMessageColor: "#f0f0f0",
-      lowerCoupleNameColor: "#f0f0f0",
-      sectionCardBackground: "rgba(0,0,0,0.80)",
-      sectionCardBorderColor: "rgba(240,240,240,0.28)",
-      donationBackground: "rgba(0,0,0,0.80)",
-      locationBackground: "rgba(0,0,0,0.80)",
-      footerBackground: "rgba(0,0,0,0.80)",
+      backgroundColor: "#020202",
+      backgroundOverlayOpacity: 0.68,
+      heroSubtitleColor: "#d8d8d8",
+      heroNamesColor: "#f5f5f5",
+      ampersandColor: "#a0a0a0",
+      dividerColor: "rgba(200,200,200,0.55)",
+      backgroundBaseColor: "#0a0a0a",
+      headingColor: "#f5f5f5",
+      personNameColor: "#d8d8d8",
+      familyRowColor: "#d8d8d8",
+      parentRowColor: "#d8d8d8",
+      photoBorderColor: "#a0a0a0",
+      lowerMessageColor: "#d8d8d8",
+      lowerCoupleNameColor: "#f5f5f5",
+      sectionCardBackground: "rgba(0,0,0,0.84)",
+      sectionCardBorderColor: "rgba(200,200,200,0.22)",
+      donationBackground: "rgba(0,0,0,0.84)",
+      locationBackground: "rgba(0,0,0,0.84)",
+      footerBackground: "rgba(0,0,0,0.84)",
     },
     requiresLicense: false,
   },
   {
-    id: "charm",
-    label: "Pastel Dream",
-    mood: "Pastel tonlarda yumuşak ve samimi bir atmosfer.",
+    id: "Pastel Rüya",
+    label: "Pastel Rüya",
+    mood: "Lavanta ve şeftali tonları; yumuşak, samimi ve masal gibi.",
     previewImage: "/themes/pastel-dream.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.0rem, 5.8vw, 4.5rem)",
+    heroSubtitleSize: "1.15rem",
     settings: {
       fontFamily: "charm",
-      backgroundColor: "#1b1b26",
-      backgroundOverlayOpacity: 0.62,
-      heroSubtitleColor: "#ffe6f2",
-      heroNamesColor: "#ffffff",
-      ampersandColor: "#ffd1dc",
-      dividerColor: "rgba(255,209,220,0.7)",
-      backgroundBaseColor: "#151524",
-      headingColor: "#ffe6f2",
-      personNameColor: "#ffe6f2",
-      familyRowColor: "#ffe6f2",
-      parentRowColor: "#ffe6f2",
-      photoBorderColor: "#ffd1dc",
-      lowerMessageColor: "#ffe6f2",
-      lowerCoupleNameColor: "#ffe6f2",
-      sectionCardBackground: "rgba(10,10,25,0.80)",
-      sectionCardBorderColor: "rgba(255,209,220,0.35)",
-      donationBackground: "rgba(10,10,25,0.80)",
-      locationBackground: "rgba(10,10,25,0.80)",
-      footerBackground: "rgba(10,10,25,0.80)",
+      backgroundColor: "#100d1c",
+      backgroundOverlayOpacity: 0.64,
+      heroSubtitleColor: "#f8d7ea",
+      heroNamesColor: "#fff0f8",
+      ampersandColor: "#f0abcc",
+      dividerColor: "rgba(240,171,204,0.60)",
+      backgroundBaseColor: "#0e0b18",
+      headingColor: "#fff0f8",
+      personNameColor: "#f8d7ea",
+      familyRowColor: "#f8d7ea",
+      parentRowColor: "#f8d7ea",
+      photoBorderColor: "#f0abcc",
+      lowerMessageColor: "#f8d7ea",
+      lowerCoupleNameColor: "#fff0f8",
+      sectionCardBackground: "rgba(8,5,18,0.82)",
+      sectionCardBorderColor: "rgba(240,171,204,0.28)",
+      donationBackground: "rgba(8,5,18,0.82)",
+      locationBackground: "rgba(8,5,18,0.82)",
+      footerBackground: "rgba(8,5,18,0.82)",
     },
     requiresLicense: false,
   },
   {
-    id: "sofia",
-    label: "Modern Minimal",
-    mood: "Az renk, yüksek kontrast; modern ve net.",
+    id: "Sade Şıklık",
+    label: "Sade Şıklık",
+    mood: "Az renk, maksimum etki; modern minimalist çiftler için.",
     previewImage: "/themes/modern-minimal.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(2.8rem, 5vw, 4.2rem)",
+    heroSubtitleSize: "0.95rem",
     settings: {
       fontFamily: "sofia",
-      backgroundColor: "#050506",
-      backgroundOverlayOpacity: 0.58,
-      heroSubtitleColor: "#f5f5f5",
-      heroNamesColor: "#ffffff",
-      ampersandColor: "#ffffff",
-      dividerColor: "rgba(245,245,245,0.6)",
-      backgroundBaseColor: "#111111",
-      headingColor: "#ffffff",
-      personNameColor: "#ffffff",
-      familyRowColor: "#f5f5f5",
-      parentRowColor: "#f5f5f5",
-      photoBorderColor: "#f5f5f5",
-      lowerMessageColor: "#f5f5f5",
-      lowerCoupleNameColor: "#ffffff",
-      sectionCardBackground: "rgba(0,0,0,0.76)",
-      sectionCardBorderColor: "rgba(245,245,245,0.24)",
-      donationBackground: "rgba(0,0,0,0.76)",
-      locationBackground: "rgba(0,0,0,0.76)",
-      footerBackground: "rgba(0,0,0,0.76)",
+      backgroundColor: "#040405",
+      backgroundOverlayOpacity: 0.60,
+      heroSubtitleColor: "#e0e0e8",
+      heroNamesColor: "#f8f8fc",
+      ampersandColor: "#6080ff",
+      dividerColor: "rgba(96,128,255,0.45)",
+      backgroundBaseColor: "#080810",
+      headingColor: "#f8f8fc",
+      personNameColor: "#e0e0e8",
+      familyRowColor: "#e0e0e8",
+      parentRowColor: "#e0e0e8",
+      photoBorderColor: "#6080ff",
+      lowerMessageColor: "#e0e0e8",
+      lowerCoupleNameColor: "#f8f8fc",
+      sectionCardBackground: "rgba(0,0,6,0.82)",
+      sectionCardBorderColor: "rgba(96,128,255,0.22)",
+      donationBackground: "rgba(0,0,6,0.82)",
+      locationBackground: "rgba(0,0,6,0.82)",
+      footerBackground: "rgba(0,0,6,0.82)",
     },
     requiresLicense: true,
   },
   {
-    id: "cookie",
-    label: "Warm Autumn",
-    mood: "Sonbahar tonlarında sıcak, ev hissi veren davetler.",
+    id: "Sonbahar Sıcaklığı",
+    label: "Sonbahar Sıcaklığı",
+    mood: "Amber ve terra cotta tonları; sıcak, samimi, orman hisli.",
     previewImage: "/themes/warm-autumn.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.4rem, 6.5vw, 5.2rem)",
+    heroSubtitleSize: "1.2rem",
     settings: {
       fontFamily: "cookie",
-      backgroundColor: "#201411",
-      backgroundOverlayOpacity: 0.64,
-      heroSubtitleColor: "#ffe5cf",
-      heroNamesColor: "#fff1e2",
-      ampersandColor: "#ffbe88",
-      dividerColor: "rgba(255,190,136,0.75)",
-      backgroundBaseColor: "#140d0b",
-      headingColor: "#fff1e2",
-      personNameColor: "#fff1e2",
-      familyRowColor: "#ffe5cf",
-      parentRowColor: "#ffe5cf",
-      photoBorderColor: "#ffbe88",
-      lowerMessageColor: "#ffe5cf",
-      lowerCoupleNameColor: "#fff1e2",
-      sectionCardBackground: "rgba(18,8,4,0.82)",
-      sectionCardBorderColor: "rgba(255,190,136,0.38)",
-      donationBackground: "rgba(18,8,4,0.82)",
-      locationBackground: "rgba(18,8,4,0.82)",
-      footerBackground: "rgba(18,8,4,0.82)",
+      backgroundColor: "#160d06",
+      backgroundOverlayOpacity: 0.66,
+      heroSubtitleColor: "#ffe0c0",
+      heroNamesColor: "#fff4e6",
+      ampersandColor: "#e8943a",
+      dividerColor: "rgba(232,148,58,0.65)",
+      backgroundBaseColor: "#100804",
+      headingColor: "#fff4e6",
+      personNameColor: "#ffe0c0",
+      familyRowColor: "#ffe0c0",
+      parentRowColor: "#ffe0c0",
+      photoBorderColor: "#e8943a",
+      lowerMessageColor: "#ffe0c0",
+      lowerCoupleNameColor: "#fff4e6",
+      sectionCardBackground: "rgba(14,6,2,0.85)",
+      sectionCardBorderColor: "rgba(232,148,58,0.32)",
+      donationBackground: "rgba(14,6,2,0.85)",
+      locationBackground: "rgba(14,6,2,0.85)",
+      footerBackground: "rgba(14,6,2,0.85)",
     },
     requiresLicense: true,
   },
   {
-    id: "dancing-script",
-    label: "Golden Hour",
-    mood: "Gün batımı tonlarında ışık ve gölge uyumu.",
+    id: "Altın Saat",
+    label: "Altın Saat",
+    mood: "Gün batımı altını; ışıltılı, sıcak ve unutulmaz bir akşam.",
     previewImage: "/themes/golden-hour.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(3.5rem, 6.5vw, 5.4rem)",
+    heroSubtitleSize: "1.2rem",
     settings: {
       fontFamily: "dancing-script",
-      backgroundColor: "#1b130e",
-      backgroundOverlayOpacity: 0.66,
-      heroSubtitleColor: "#ffeacd",
-      heroNamesColor: "#fff5e6",
-      ampersandColor: "#ffd08a",
-      dividerColor: "rgba(255,234,205,0.78)",
-      backgroundBaseColor: "#120c08",
-      headingColor: "#fff5e6",
-      personNameColor: "#fff5e6",
-      familyRowColor: "#ffeacd",
-      parentRowColor: "#ffeacd",
-      photoBorderColor: "#ffd08a",
-      lowerMessageColor: "#ffeacd",
-      lowerCoupleNameColor: "#fff5e6",
-      sectionCardBackground: "rgba(19,9,4,0.84)",
-      sectionCardBorderColor: "rgba(255,234,205,0.36)",
-      donationBackground: "rgba(19,9,4,0.84)",
-      locationBackground: "rgba(19,9,4,0.84)",
-      footerBackground: "rgba(19,9,4,0.84)",
+      backgroundColor: "#120e04",
+      backgroundOverlayOpacity: 0.68,
+      heroSubtitleColor: "#ffe8b0",
+      heroNamesColor: "#fff8e6",
+      ampersandColor: "#f5c842",
+      dividerColor: "rgba(245,200,66,0.65)",
+      backgroundBaseColor: "#0e0a02",
+      headingColor: "#fff8e6",
+      personNameColor: "#ffe8b0",
+      familyRowColor: "#ffe8b0",
+      parentRowColor: "#ffe8b0",
+      photoBorderColor: "#f5c842",
+      lowerMessageColor: "#ffe8b0",
+      lowerCoupleNameColor: "#fff8e6",
+      sectionCardBackground: "rgba(12,8,0,0.86)",
+      sectionCardBorderColor: "rgba(245,200,66,0.30)",
+      donationBackground: "rgba(12,8,0,0.86)",
+      locationBackground: "rgba(12,8,0,0.86)",
+      footerBackground: "rgba(12,8,0,0.86)",
     },
     requiresLicense: true,
   },
   {
-    id: "playfair",
-    label: "Timeless Classic",
-    mood: "Zamana meydan okuyan, derli toplu klasik tarz.",
+    id: "Zamansız Klasik",
+    label: "Zamansız Klasik",
+    mood: "Antika krem ve altın; zamanın üstünde duran, kalıcı zarafet.",
     previewImage: "/themes/timeless-classic.jpg",
-    heroTitleSize: "clamp(3.4rem, 6vw, 5rem)",
-    heroSubtitleSize: "1.3rem",
+    heroTitleSize: "clamp(2.8rem, 5vw, 4.4rem)",
+    heroSubtitleSize: "1.05rem",
     settings: {
       fontFamily: "playfair",
-      backgroundColor: "#050609",
-      backgroundOverlayOpacity: 0.6,
-      heroSubtitleColor: "#eaeaea",
-      heroNamesColor: "#ffffff",
-      ampersandColor: "#ffffff",
-      dividerColor: "rgba(234,234,234,0.7)",
-      backgroundBaseColor: "#101010",
-      headingColor: "#ffffff",
-      personNameColor: "#ffffff",
-      familyRowColor: "#eaeaea",
-      parentRowColor: "#eaeaea",
-      photoBorderColor: "#eaeaea",
-      lowerMessageColor: "#eaeaea",
-      lowerCoupleNameColor: "#ffffff",
-      sectionCardBackground: "rgba(0,0,0,0.78)",
-      sectionCardBorderColor: "rgba(234,234,234,0.26)",
-      donationBackground: "rgba(0,0,0,0.78)",
-      locationBackground: "rgba(0,0,0,0.78)",
-      footerBackground: "rgba(0,0,0,0.78)",
+      backgroundColor: "#060508",
+      backgroundOverlayOpacity: 0.62,
+      heroSubtitleColor: "#ece4d0",
+      heroNamesColor: "#faf6ee",
+      ampersandColor: "#c8a96e",
+      dividerColor: "rgba(200,169,110,0.60)",
+      backgroundBaseColor: "#0c0a0e",
+      headingColor: "#faf6ee",
+      personNameColor: "#ece4d0",
+      familyRowColor: "#ece4d0",
+      parentRowColor: "#ece4d0",
+      photoBorderColor: "#c8a96e",
+      lowerMessageColor: "#ece4d0",
+      lowerCoupleNameColor: "#faf6ee",
+      sectionCardBackground: "rgba(4,2,6,0.82)",
+      sectionCardBorderColor: "rgba(200,169,110,0.28)",
+      donationBackground: "rgba(4,2,6,0.82)",
+      locationBackground: "rgba(4,2,6,0.82)",
+      footerBackground: "rgba(4,2,6,0.82)",
     },
     requiresLicense: true,
   },
@@ -656,6 +688,9 @@ export const THEMES: Theme[] = [
 
 export default function EditorPage() {
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  // İlk localStorage yüklemesi tamamlandıktan sonra true — save'i yanlışlıkla tetiklemez
+  const readyToSave = useRef(false);
+  const licenseRef = useRef<LicenseInfo>(DEFAULT_LICENSE);
   const [settings, setSettings] =
     useState<InvitationSettings>(DEFAULT_SETTINGS);
   const [isMac, setIsMac] = useState(false);
@@ -713,6 +748,7 @@ export default function EditorPage() {
   }, []);
 
   useEffect(() => {
+    licenseRef.current = license;
     if (typeof window === "undefined") return;
     window.localStorage.setItem("invitationLicense", JSON.stringify(license));
   }, [license]);
@@ -753,11 +789,9 @@ export default function EditorPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-  // app/page.tsx içinde, settingsLoaded && license.valid koşuluyla
   useEffect(() => {
-    if (!settingsLoaded) return;
-    // if (!license.valid || !license.token) return;  // BUNU SİL
-    if (!isDirty) return;
+    // İlk yükleme tamamlanmadan save'i engelle
+    if (!readyToSave.current) return;
 
     const controller = new AbortController();
 
@@ -766,21 +800,22 @@ export default function EditorPage() {
         setIsSavingEvent(true);
         setSaveError(null);
 
+        const currentLicense = licenseRef.current;
         const res = await fetch(`${API_BASE}/save_event.php`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           signal: controller.signal,
           body: JSON.stringify({
-            token: license.token, // null da olabilir
+            token: currentLicense.token ?? null,
+            eventId: currentLicense.eventId ?? null,
             settings,
           }),
         });
 
         const text = await res.text();
-        console.log("save_event raw response:", res.status, text);
+        console.log("[save_event]", { status: res.status, token: currentLicense.token, eventId: currentLicense.eventId, response: text });
 
         if (!res.ok) {
-          console.warn("save_event http error", res.status, text);
           setSaveError("Değişiklikler kaydedilemedi.");
           return;
         }
@@ -788,41 +823,39 @@ export default function EditorPage() {
         let data: any;
         try {
           data = JSON.parse(text);
-        } catch (e) {
-          console.error("save_event JSON parse error", e, text);
+        } catch {
           setSaveError("Sunucudan geçersiz yanıt alındı.");
           return;
         }
 
         if (!data.success) {
-          console.warn("save_event error", data);
           setSaveError(data.error || "Değişiklikler kaydedilemedi.");
           return;
         }
 
         setIsDirty(false);
         setLastSavedAt(new Date());
+        setSaveError(null);
 
         if (typeof data.eventId === "number") {
-          setLicense((prev) => ({
-            ...prev,
-            eventId: data.eventId,
-          }));
+          setLicense((prev) => ({ ...prev, eventId: data.eventId }));
         }
-      } catch (e) {
-        console.error("save_event error", e);
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name === "AbortError") return;
         setSaveError("Sunucuya ulaşılamadı.");
       } finally {
         setIsSavingEvent(false);
       }
     };
 
-    const t = setTimeout(save, 2500);
+    setIsDirty(true);
+    const t = setTimeout(save, 1500);
     return () => {
       clearTimeout(t);
       controller.abort();
     };
-  }, [settings, settingsLoaded, license.token, isDirty]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
 
   useEffect(() => {
     if (!license.valid || !license.token) return;
@@ -1046,10 +1079,10 @@ export default function EditorPage() {
           prev.map((g) =>
             g.id === guest.id
               ? {
-                  ...g,
-                  status: "error",
-                  error: "Sunucuya ulaşılamadı. Lütfen tekrar deneyin.",
-                }
+                ...g,
+                status: "error",
+                error: "Sunucuya ulaşılamadı. Lütfen tekrar deneyin.",
+              }
               : g
           )
         );
@@ -1063,10 +1096,10 @@ export default function EditorPage() {
           prev.map((g) =>
             g.id === guest.id
               ? {
-                  ...g,
-                  status: "error",
-                  error: data.error || "Davetli kaydedilirken bir hata oluştu.",
-                }
+                ...g,
+                status: "error",
+                error: data.error || "Davetli kaydedilirken bir hata oluştu.",
+              }
               : g
           )
         );
@@ -1085,14 +1118,14 @@ export default function EditorPage() {
         prev.map((g) =>
           g.id === guest.id
             ? {
-                ...g,
-                backendId: data.guestId,
-                name: data.guestName ?? trimmedName,
-                slug: data.slug ?? g.slug,
-                inviteUrl: data.link, // add_guest.php’den gönder
-                status: "saved",
-                error: undefined,
-              }
+              ...g,
+              backendId: data.guestId,
+              name: data.guestName ?? trimmedName,
+              slug: data.slug ?? g.slug,
+              inviteUrl: data.link, // add_guest.php’den gönder
+              status: "saved",
+              error: undefined,
+            }
             : g
         )
       );
@@ -1102,10 +1135,10 @@ export default function EditorPage() {
         prev.map((g) =>
           g.id === guest.id
             ? {
-                ...g,
-                status: "error",
-                error: "Sunucuya ulaşılamadı. Lütfen tekrar deneyin.",
-              }
+              ...g,
+              status: "error",
+              error: "Sunucuya ulaşılamadı. Lütfen tekrar deneyin.",
+            }
             : g
         )
       );
@@ -1232,6 +1265,8 @@ export default function EditorPage() {
     }
 
     setSettingsLoaded(true);
+    // Kısa bir gecikme sonrası save'e izin ver — ilk render'ı atla
+    setTimeout(() => { readyToSave.current = true; }, 300);
   }, []);
 
   useEffect(() => {
@@ -1438,11 +1473,11 @@ export default function EditorPage() {
 
   const datePreviewText = settings.eventDate
     ? settings.eventDate.toLocaleDateString("tr-TR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "long",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    })
     : null;
 
   const overlayColor = hexToRgba(
@@ -1526,9 +1561,9 @@ export default function EditorPage() {
     >
       {showIntro && (
         <EnvelopeHero
-          onOpen={() => {
-            setShowIntro(false);
-          }}
+          onOpen={() => setShowIntro(false)}
+          brideName={settings.brideName}
+          groomName={settings.groomName}
         />
       )}
 
@@ -1568,45 +1603,27 @@ export default function EditorPage() {
       </div>
 
       {!isEditorOpen && (
-        <div className="fixed bottom-5 right-5 z-30 flex flex-col gap-2">
+        <div className="fixed bottom-6 right-5 z-30 flex flex-col items-end gap-2">
           <button
-            onClick={() => {
-              setMode("user");
-              setIsEditorOpen(true);
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/30 text-[0.7rem] font-medium text-white shadow-lg hover:bg-white/20 hover:border-white/60 transition"
+            onClick={() => { setMode("user"); setIsEditorOpen(true); }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900/90 backdrop-blur-sm border border-white/10 text-[0.72rem] font-medium text-white shadow-xl shadow-black/30 hover:bg-slate-800 transition"
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-[0.6rem]">
-              ✏️
-            </span>
-            <span className="flex items-center gap-2">
-              <span>Düzenle</span>
-              <span
-                className="hidden sm:inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/10 px-2 py-0.5 text-[0.6rem] text-slate-50/90"
-                aria-hidden="true"
-              >
-                <span>{isMac ? "⌘" : "Ctrl"}</span>
-                <span className="tracking-[0.16em] uppercase">B</span>
-              </span>
+            <span className="text-sm">✏️</span>
+            <span>Düzenle</span>
+            <span
+              className="hidden sm:inline-flex items-center gap-0.5 rounded-md border border-white/20 bg-white/10 px-1.5 py-0.5 text-[0.58rem] text-slate-300"
+              aria-hidden="true"
+            >
+              {isMac ? "⌘" : "Ctrl"} B
             </span>
           </button>
 
-          {/* İstersen alttaki açıklamayı tamamen kaldırabilirsin; sade görünüm için gerek yok */}
-          {/* <p className="text-[0.65rem] text-slate-400">
-            {isMac ? "⌘" : "Ctrl"} + B
-          </p> */}
-
           <button
-            onClick={() => {
-              setMode("admin");
-              setIsEditorOpen(true);
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/80 backdrop-blur border border-red-300/80 text-[0.7rem] font-medium text-white shadow-lg hover:bg-red-500"
+            onClick={() => { setMode("admin"); setIsEditorOpen(true); }}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-red-600/85 backdrop-blur-sm border border-red-400/40 text-[0.68rem] font-medium text-white shadow-lg hover:bg-red-600 transition"
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-400/60 text-[0.6rem]">
-              ⚙
-            </span>
-            Admin düzenle
+            <span className="text-xs">⚙</span>
+            Admin
           </button>
         </div>
       )}
@@ -1615,242 +1632,290 @@ export default function EditorPage() {
       {isEditorOpen && (
         <div
           className={[
-            "mt-[88px] w-full bg-white/95 text-slate-900 border-t border-slate-200 z-40 editor-font flex flex-col",
-            "md:mt-0 md:fixed md:top-[60px] md:right-0 md:h-[calc(100%-60px)] md:max-w-md md:border-l md:border-t-0 md:rounded-l-3xl md:shadow-xl md:shadow-slate-300/60",
+            "mt-[88px] w-full bg-white text-slate-900 border-t border-slate-200 z-40 editor-font flex flex-col",
+            "md:mt-0 md:fixed md:top-[60px] md:right-0 md:h-[calc(100%-60px)] md:max-w-[400px] md:border-l md:border-t-0 md:rounded-l-2xl md:shadow-2xl md:shadow-slate-900/20",
           ].join(" ")}
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-            <div>
-              <h1 className="text-sm font-semibold text-slate-900">
-                Davetiye Editörü
-              </h1>
+          {/* ── Header ── */}
+          <div className="flex items-center justify-between px-4 py-3 bg-slate-900 rounded-tl-2xl">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl bg-white/10 text-sm select-none">
+                ✏️
+              </span>
+              <div>
+                <h1 className="text-[0.8rem] font-semibold text-white tracking-tight leading-none">
+                  Davetiye Stüdyosu
+                </h1>
+                <p className="text-[0.62rem] text-slate-400 mt-0.5 leading-none">
+                  {mode === "admin" ? "Admin modu" : "Canlı önizleme ile düzenle"}
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-col items-end gap-1">
-              {/* Status satırı */}
+            <div className="flex items-center gap-2">
+              {/* Save status pill */}
               {saveError ? (
-                <span className="text-[0.65rem] text-red-600">{saveError}</span>
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 text-[0.6rem] text-red-300 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                  Hata
+                </span>
               ) : isSavingEvent ? (
-                <span className="text-[0.65rem] text-slate-500">
-                  Kaydediliyor…
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-[0.6rem] text-amber-300 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
+                  Kaydediliyor
                 </span>
               ) : isDirty ? (
-                <span className="text-[0.65rem] text-slate-400">
-                  Değişiklikler kaydedilecek
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-[0.6rem] text-slate-400 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-500 flex-shrink-0" />
+                  Kaydedilecek
                 </span>
               ) : lastSavedAt ? (
-                <span className="text-[0.65rem] text-slate-400">
-                  Kaydedildi •{" "}
-                  {lastSavedAt.toLocaleTimeString("tr-TR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-[0.6rem] text-emerald-400 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                  Kaydedildi
                 </span>
               ) : null}
 
               <button
                 onClick={() => setIsEditorOpen(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200"
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white text-xs transition"
+                aria-label="Editörü kapat"
               >
                 ✕
               </button>
             </div>
           </div>
 
-          {/* Lisans barı – sadece user modunda göster */}
+          {/* ── Lisans barı ── sadece user modunda göster */}
           {mode === "user" && (
-            <div
-              className={
-                "px-4 py-2 border-b border-slate-200 " +
-                (license.valid ? "bg-emerald-50" : "bg-amber-50")
-              }
-            >
-              {license.valid && !isEditingToken && (
-                // DOĞRULANMIŞ LISANS – sadece bilgi
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-[0.7rem] font-medium text-emerald-800">
-                      Lisans doğrulandı
-                    </span>
-                    <span className="text-[0.7rem] text-emerald-700">
-                      Plan:{" "}
-                      {license.maxGuests === 0
-                        ? "Sadece davetiye"
-                        : `${license.maxGuests}, davetli linki`}
-                      : {license.usedGuests}
-                    </span>
+            <div className="px-3 py-2.5 border-b border-slate-100 bg-slate-950/[0.03]">
+              {license.valid && !isEditingToken ? (
+                /* ── AKTİF LİSANS KARTI ── */
+                <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 px-3.5 py-2.5 flex items-center gap-3 shadow-lg shadow-slate-900/20">
+                  {/* İkon */}
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center flex-shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
+                      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </div>
+                  {/* Bilgi */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                      <p className="text-[0.68rem] font-semibold text-emerald-400 leading-none">Lisans Aktif</p>
+                    </div>
+                    <p className="text-[0.62rem] text-slate-400 font-mono truncate">
+                      {license.token ? `${license.token.slice(0, 16)}…` : "—"}
+                    </p>
+                    {license.maxGuests > 0 && (
+                      <div className="mt-1.5">
+                        <div className="flex justify-between mb-0.5">
+                          <span className="text-[0.58rem] text-slate-500">Davetli kullanımı</span>
+                          <span className="text-[0.58rem] text-slate-400 font-medium">
+                            {license.usedGuests} / {license.maxGuests}
+                          </span>
+                        </div>
+                        <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-emerald-500 rounded-full transition-all"
+                            style={{ width: `${Math.min(100, (license.usedGuests / license.maxGuests) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Değiştir butonu */}
                   <button
                     type="button"
-                    onClick={() => {
-                      setTokenInput(license.token ?? "");
-                      setIsEditingToken(true);
-                    }}
-                    className="px-3 py-1.5 rounded-full border border-emerald-300 bg-white text-[0.7rem] text-emerald-800 hover:bg-emerald-50"
+                    onClick={() => { setTokenInput(license.token ?? ""); setIsEditingToken(true); }}
+                    className="flex-shrink-0 px-2 py-1 rounded-lg bg-white/8 hover:bg-white/14 border border-white/10 text-[0.6rem] text-slate-400 hover:text-white transition"
                   >
                     Değiştir
                   </button>
                 </div>
-              )}
-
-              {(!license.valid || isEditingToken) && (
-                <>
-                  <label className="block text-[0.7rem] font-medium text-slate-800 mb-1">
-                    Lisans Bilgisi
-                  </label>
+              ) : (
+                /* ── TOKEN GİRİŞ FORMU ── */
+                <div className="rounded-2xl border border-amber-200/60 bg-amber-50/40 px-3.5 py-3">
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="text-amber-600">
+                        <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[0.7rem] font-semibold text-slate-800 leading-none">Lisans Kodu Gir</p>
+                      <p className="text-[0.6rem] text-slate-500 mt-0.5">Premium özellikleri ve davetli yönetimini açar</p>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
                     <input
                       value={tokenInput}
                       onChange={(e) => setTokenInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { handleVerifyToken().then(() => { if (!licenseError) setIsEditingToken(false); }); } }}
                       placeholder="INV-50-ABC123"
-                      className="flex-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
+                      className="flex-1 px-3 py-2 rounded-xl border border-amber-200 bg-white text-[0.75rem] text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition shadow-sm font-mono"
                     />
                     <button
                       type="button"
-                      onClick={async () => {
-                        await handleVerifyToken();
-                        // doğrulama başarılıysa handleVerifyToken içinde license.valid true olacak
-                        // burada başarıyı anlamak için licenseError yoksa edit moddan çıkabiliriz:
-                        if (!licenseError) {
-                          setIsEditingToken(false);
-                        }
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-[0.75rem] font-semibold text-slate-900 hover:bg-amber-400"
+                      onClick={async () => { await handleVerifyToken(); if (!licenseError) setIsEditingToken(false); }}
+                      className="px-3.5 py-2 rounded-xl bg-slate-900 text-[0.72rem] font-semibold text-white hover:bg-slate-700 active:scale-95 transition shadow-sm"
                     >
                       Doğrula
                     </button>
                   </div>
-                </>
+                  {licenseError && (
+                    <div className="mt-2 flex items-start gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-50 border border-red-100">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-red-500 flex-shrink-0 mt-0.5">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                        <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                      <p className="text-[0.66rem] text-red-600">{licenseError}</p>
+                    </div>
+                  )}
+                </div>
               )}
-
-              {licenseError && (
-                <p className="mt-1 text-[0.7rem] text-red-600">
-                  {licenseError}
-                </p>
+              {license.valid && !isEditingToken && licenseError && (
+                <p className="mt-1.5 text-[0.66rem] text-red-600">{licenseError}</p>
               )}
             </div>
           )}
 
           {mode === "admin" && (
-            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/80">
-              <h2 className="text-[0.75rem] font-semibold text-slate-800 mb-1">
-                Token Oluştur (Admin)
-              </h2>
-              <p className="text-[0.7rem] text-slate-500 mb-2">
-                Yeni bir lisans token üretip hemen bu editörde kullanabilirsin.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                <input
-                  type="number"
-                  min={0}
-                  value={license.maxGuests || 50}
-                  onChange={(e) =>
-                    setLicense((prev) => ({
-                      ...prev,
-                      maxGuests: Number(e.target.value || 0),
-                    }))
-                  }
-                  className="w-24 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.7rem] text-slate-900"
-                  placeholder="Max davetli"
-                />
-                <input
-                  type="text"
-                  placeholder="Plan adı (opsiyonel)"
-                  className="flex-1 min-w-[120px] px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.7rem] text-slate-900"
-                  onChange={(e) =>
-                    setLicense((prev) => ({
-                      ...prev,
-                      // plan kolonu FE state'inde yok ama backend'e göndereceğiz
-                      // burada sadece local bir değişkene ihtiyacın varsa ayrı state de açabilirsin
-                    }))
-                  }
-                />
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800"
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(`${API_BASE}/create_token.php`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          maxGuests: license.maxGuests || 50,
-                          plan: "admin-generated",
-                          validDays: 365,
-                        }),
-                      });
-
-                      const data = await res.json();
-                      if (!data.success) {
-                        setLicenseError(data.error || "Token oluşturulamadı.");
-                        return;
+            <div className="px-3 py-2.5 border-b border-slate-200">
+              <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 px-3.5 py-3 shadow-lg shadow-slate-900/15">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-red-500/20 border border-red-400/30 flex items-center justify-center flex-shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-red-400">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-[0.7rem] font-semibold text-white leading-none">Lisans Token Üret</p>
+                    <p className="text-[0.6rem] text-slate-400 mt-0.5">Yeni token oluştur ve panoya kopyala</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex-1">
+                    <label className="block text-[0.6rem] text-slate-500 mb-1">Max Davetli</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={license.maxGuests || 50}
+                      onChange={(e) =>
+                        setLicense((prev) => ({
+                          ...prev,
+                          maxGuests: Number(e.target.value || 0),
+                        }))
                       }
+                      className="w-full px-2.5 py-1.5 rounded-xl border border-white/10 bg-white/8 text-[0.72rem] text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-white/20 transition font-mono"
+                      placeholder="50"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      className="px-3 py-1.5 rounded-xl bg-white text-slate-900 text-[0.7rem] font-semibold hover:bg-slate-100 active:scale-95 transition shadow-sm"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`${API_BASE}/create_token.php`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              maxGuests: license.maxGuests || 50,
+                              plan: "admin-generated",
+                              validDays: 365,
+                            }),
+                          });
 
-                      // Token'ı hemen lisans state'ine yaz ve input'a geçir
-                      setLicense({
-                        token: data.token,
-                        maxGuests: Number(data.maxGuests || 0),
-                        usedGuests: 0,
-                        eventId: null,
-                        valid: true,
-                      });
-                      setTokenInput(data.token);
+                          const data = await res.json();
+                          if (!data.success) {
+                            setLicenseError(data.error || "Token oluşturulamadı.");
+                            return;
+                          }
 
-                      // Panoya kopyala
-                      try {
-                        await navigator.clipboard.writeText(data.token);
-                      } catch {
-                        // sessiz geç
-                      }
-                    } catch (e) {
-                      console.error("create_token error", e);
-                      setLicenseError("Token oluşturulurken bir hata oluştu.");
-                    }
-                  }}
-                >
-                  Yeni Token Üret
-                </button>
+                          setLicense({
+                            token: data.token,
+                            maxGuests: Number(data.maxGuests || 0),
+                            usedGuests: 0,
+                            eventId: null,
+                            valid: true,
+                          });
+                          setTokenInput(data.token);
+
+                          try {
+                            await navigator.clipboard.writeText(data.token);
+                          } catch {
+                            // sessiz geç
+                          }
+                        } catch (e) {
+                          console.error("create_token error", e);
+                          setLicenseError("Token oluşturulurken bir hata oluştu.");
+                        }
+                      }}
+                    >
+                      Üret
+                    </button>
+                  </div>
+                </div>
+                {license.token && (
+                  <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-white/6 border border-white/10">
+                    <span className="text-[0.58rem] text-slate-500 flex-shrink-0">Token</span>
+                    <span className="flex-1 text-[0.65rem] text-emerald-400 font-mono truncate">{license.token}</span>
+                    <button
+                      type="button"
+                      onClick={() => { try { navigator.clipboard.writeText(license.token!); } catch { } }}
+                      className="flex-shrink-0 text-slate-500 hover:text-white transition"
+                      title="Kopyala"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                {licenseError && (
+                  <p className="mt-2 text-[0.65rem] text-red-400">{licenseError}</p>
+                )}
               </div>
-
-              {license.token && (
-                <p className="text-[0.7rem] text-slate-600">
-                  Aktif token:{" "}
-                  <span className="font-mono">{license.token}</span>
-                </p>
-              )}
             </div>
           )}
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-200 text-[0.7rem] bg-slate-50">
+          {/* ── Step navigation ── */}
+          <div className="flex border-b border-slate-100 bg-white">
             {steps.map((step) => (
               <button
                 key={step.id}
                 type="button"
                 onClick={() => setActiveStep(step.id as any)}
                 className={[
-                  "px-2.5 py-1 rounded-full border text-xs font-medium transition-colors",
+                  "flex-1 flex flex-col items-center gap-0.5 py-2.5 text-center transition-colors relative",
                   activeStep === step.id
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100",
+                    ? "text-slate-900"
+                    : "text-slate-400 hover:text-slate-600",
                 ].join(" ")}
               >
-                {step.id}. {step.label}
-                <span> {step.icon}</span>
+                <span className="text-[1.05rem] leading-none select-none">{step.icon}</span>
+                <span className="text-[0.58rem] font-medium leading-none">{step.label}</span>
+                {activeStep === step.id && (
+                  <span className="absolute bottom-0 inset-x-0 h-0.5 bg-slate-900 rounded-t-full" />
+                )}
               </button>
             ))}
           </div>
-          <div className="px-4 pb-6 pt-3 bg-white flex-1 overflow-y-auto">
+          <div className="px-4 pb-8 pt-4 bg-white flex-1 overflow-y-auto">
             {activeStep === 1 && (
               <>
                 <SectionTitle label="Davetiye Başlığı" />
-                <div className="mb-3">
-                  <div className="flex items-center gap-2">
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <input
                       value={settings.heroSubtitle}
                       onChange={(e) =>
                         handleChange("heroSubtitle", e.target.value)
                       }
-                      className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+                      className="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-[0.8rem] placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition shadow-sm"
+                      placeholder="Davetiye başlık metnini girin"
                     />
                     <button
                       type="button"
@@ -1867,11 +1932,32 @@ export default function EditorPage() {
                           heroSubtitle: next,
                         }));
                       }}
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs"
-                      title="Rastgele başlık"
+                      className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-700 text-white transition active:scale-95"
+                      title="Rastgele öner"
                     >
-                      🎲
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                        <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                      </svg>
                     </button>
+                  </div>
+                  {/* Hazır başlık seçenekleri */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {HERO_SUBTITLE_OPTIONS.slice(0, 8).map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => handleChange("heroSubtitle", opt)}
+                        className={[
+                          "px-2.5 py-1 rounded-full text-[0.62rem] border transition",
+                          settings.heroSubtitle === opt
+                            ? "bg-slate-900 text-white border-slate-900"
+                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:text-slate-900",
+                        ].join(" ")}
+                      >
+                        {opt}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -1981,114 +2067,124 @@ export default function EditorPage() {
 
                 <SectionTitle label="Etkinlik Akışı" />
 
-                <div className="mb-3 text-xs text-slate-700">
-                  <label className="inline-flex items-center gap-2 mb-3">
-                    <input
-                      type="checkbox"
-                      checked={settings.showScheduleSection ?? false}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          showScheduleSection: e.target.checked,
-                        }))
-                      }
-                      className="h-3.5 w-3.5 rounded border-slate-300"
-                    />
-                    <span className="text-[0.8rem]">
-                      Etkinlik akışını davetiyede göster
+                <div className="mb-4">
+                  {/* Toggle */}
+                  <label className="flex items-center justify-between mb-3 cursor-pointer group">
+                    <span className="text-[0.78rem] text-slate-700 group-hover:text-slate-900 transition">
+                      Akışı davetiyede göster
                     </span>
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={settings.showScheduleSection ?? false}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            showScheduleSection: e.target.checked,
+                          }))
+                        }
+                        className="sr-only"
+                      />
+                      <div className={[
+                        "w-10 h-5.5 rounded-full transition-colors",
+                        (settings.showScheduleSection ?? false) ? "bg-slate-900" : "bg-slate-200",
+                      ].join(" ")} style={{ height: "22px", width: "40px" }}>
+                        <div className={[
+                          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
+                          (settings.showScheduleSection ?? false) ? "translate-x-5" : "translate-x-0.5",
+                        ].join(" ")} />
+                      </div>
+                    </div>
                   </label>
 
                   {(settings.showScheduleSection ?? false) && (
-                    <div className="space-y-2">
-                      <p className="text-[0.7rem] text-slate-500">
-                        Hazırlık, nikah, kokteyl gibi adımları sırayla
-                        ekleyin...
-                      </p>
+                    <div>
+                      {/* Hızlı preset butonları */}
+                      <div className="flex gap-2 mb-3">
+                        <button
+                          type="button"
+                          onClick={() => setSettings((prev) => ({ ...prev, scheduleItems: SCHEDULE_PRESETS.classic }))}
+                          className="flex-1 px-2 py-1.5 rounded-xl border border-slate-200 bg-white text-[0.65rem] text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition text-center"
+                        >
+                          Klasik Düğün
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSettings((prev) => ({ ...prev, scheduleItems: SCHEDULE_PRESETS.longCocktail }))}
+                          className="flex-1 px-2 py-1.5 rounded-xl border border-slate-200 bg-white text-[0.65rem] text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition text-center"
+                        >
+                          Kokteyl & Düğün
+                        </button>
+                      </div>
 
-                      <div className="space-y-2">
+                      {/* Akış listesi */}
+                      <div className="space-y-2 mb-3">
                         {(settings.scheduleItems ?? []).map((item, index) => (
                           <div
                             key={index}
-                            className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 flex flex-col gap-1.5"
+                            className="group rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden"
                           >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0 border-b border-slate-100">
+                              {/* Sıra numarası */}
+                              <div className="w-9 flex items-center justify-center py-2.5 flex-shrink-0">
+                                <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-[0.58rem] font-semibold flex items-center justify-center">
+                                  {index + 1}
+                                </span>
+                              </div>
+                              {/* Saat input */}
                               <input
                                 value={item.time}
                                 onChange={(e) => {
-                                  const next = [
-                                    ...(settings.scheduleItems ?? []),
-                                  ];
-                                  next[index] = {
-                                    ...next[index],
-                                    time: e.target.value,
-                                  };
-                                  setSettings((prev) => ({
-                                    ...prev,
-                                    scheduleItems: next,
-                                  }));
+                                  const next = [...(settings.scheduleItems ?? [])];
+                                  next[index] = { ...next[index], time: e.target.value };
+                                  setSettings((prev) => ({ ...prev, scheduleItems: next }));
                                 }}
                                 placeholder="18:00"
-                                className="w-20 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                                className="w-16 py-2 bg-transparent text-[0.72rem] text-slate-500 placeholder:text-slate-300 focus:outline-none font-mono border-r border-slate-100"
                               />
+                              {/* Başlık input */}
                               <input
                                 value={item.title}
                                 onChange={(e) => {
-                                  const next = [
-                                    ...(settings.scheduleItems ?? []),
-                                  ];
-                                  next[index] = {
-                                    ...next[index],
-                                    title: e.target.value,
-                                  };
-                                  setSettings((prev) => ({
-                                    ...prev,
-                                    scheduleItems: next,
-                                  }));
+                                  const next = [...(settings.scheduleItems ?? [])];
+                                  next[index] = { ...next[index], title: e.target.value };
+                                  setSettings((prev) => ({ ...prev, scheduleItems: next }));
                                 }}
-                                placeholder="Nikah Töreni"
-                                className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                                placeholder="Etkinlik adı"
+                                className="flex-1 px-2.5 py-2 bg-transparent text-[0.78rem] text-slate-900 font-medium placeholder:text-slate-300 focus:outline-none"
                               />
+                              {/* Sil butonu */}
                               <button
                                 type="button"
                                 onClick={() => {
-                                  const next = (
-                                    settings.scheduleItems ?? []
-                                  ).filter((_, i) => i !== index);
-                                  setSettings((prev) => ({
-                                    ...prev,
-                                    scheduleItems: next,
-                                  }));
+                                  const next = (settings.scheduleItems ?? []).filter((_, i) => i !== index);
+                                  setSettings((prev) => ({ ...prev, scheduleItems: next }));
                                 }}
-                                className="w-7 h-7 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[0.7rem] hover:bg-red-400"
+                                className="w-9 flex items-center justify-center py-2.5 flex-shrink-0 text-slate-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100"
                                 title="Adımı sil"
                               >
-                                🗑
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
                               </button>
                             </div>
+                            {/* Açıklama */}
                             <textarea
                               value={item.description}
                               onChange={(e) => {
-                                const next = [
-                                  ...(settings.scheduleItems ?? []),
-                                ];
-                                next[index] = {
-                                  ...next[index],
-                                  description: e.target.value,
-                                };
-                                setSettings((prev) => ({
-                                  ...prev,
-                                  scheduleItems: next,
-                                }));
+                                const next = [...(settings.scheduleItems ?? [])];
+                                next[index] = { ...next[index], description: e.target.value };
+                                setSettings((prev) => ({ ...prev, scheduleItems: next }));
                               }}
                               rows={2}
-                              placeholder="Kısa bir açıklama ekleyebilirsiniz (isteğe bağlı)."
-                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[0.75rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 resize-none"
+                              placeholder="Kısa açıklama (isteğe bağlı)"
+                              className="w-full px-3 pt-2 pb-2.5 bg-slate-50 text-[0.72rem] text-slate-600 placeholder:text-slate-300 focus:outline-none resize-none"
                             />
                           </div>
                         ))}
                       </div>
 
+                      {/* Ekle butonu */}
                       <button
                         type="button"
                         onClick={() => {
@@ -2096,14 +2192,14 @@ export default function EditorPage() {
                             ...(settings.scheduleItems ?? []),
                             { time: "", title: "", description: "" },
                           ];
-                          setSettings((prev) => ({
-                            ...prev,
-                            scheduleItems: next,
-                          }));
+                          setSettings((prev) => ({ ...prev, scheduleItems: next }));
                         }}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[0.7rem] font-medium hover:bg-slate-800"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl border border-dashed border-slate-300 text-slate-400 text-[0.72rem] hover:border-slate-400 hover:text-slate-700 hover:bg-slate-50 transition"
                       >
-                        + Akış Ekle
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                        Yeni Adım Ekle
                       </button>
                     </div>
                   )}
@@ -2179,7 +2275,7 @@ export default function EditorPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                   {THEMES.map((theme) => {
-                    const isActive = settings.fontFamily === theme.id;
+                    const isActive = settings.fontFamily === theme.settings.fontFamily;
                     const locked = theme.requiresLicense && !license.valid;
 
                     return (
@@ -2205,14 +2301,14 @@ export default function EditorPage() {
                         ].join(" ")}
                       >
                         <div className="h-28 w-full overflow-hidden bg-slate-800 relative">
-                          <img
-                            src={theme.previewImage}
-                            alt={theme.label}
-                            className="w-full h-full object-cover"
+                          <ThemePreviewArt
+                            themeId={theme.id}
+                            brideName={settings.brideName}
+                            groomName={settings.groomName}
                           />
                           {locked && (
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/70 flex items-center justify-center">
-                              <div className="px-3 py-1.5 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center gap-1.5">
+                            <div className="absolute inset-0 top-auto h-28 bg-gradient-to-b from-black/50 via-black/70 to-black/90 flex items-center justify-center z-10">
+                              <div className="px-3 py-1.5 rounded-full bg-white/95 border border-slate-300 shadow-lg flex items-center gap-1.5">
                                 <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[0.55rem] text-white">
                                   ★
                                 </span>
@@ -2223,24 +2319,21 @@ export default function EditorPage() {
                             </div>
                           )}
                         </div>
-                        <div className="px-3 py-2">
-                          <p className="font-medium text-slate-900 flex items-center gap-1">
+                        <div className="px-3 py-2.5">
+                          <p className="font-semibold text-[0.78rem] text-slate-900 flex items-center gap-1.5">
                             {theme.label}
                             {theme.requiresLicense && (
-                              <span className="px-1.5 py-0.5 rounded-full bg-slate-900/5 text-[0.6rem] text-slate-600 border border-slate-200">
+                              <span className="px-1.5 py-0.5 rounded-full bg-amber-50 text-[0.58rem] text-amber-700 border border-amber-200 font-medium">
                                 Premium
                               </span>
                             )}
+                            {isActive && (
+                              <span className="ml-auto px-1.5 py-0.5 rounded-full bg-emerald-50 text-[0.58rem] text-emerald-700 border border-emerald-200 font-medium">
+                                Aktif
+                              </span>
+                            )}
                           </p>
-                          <p className="text-[0.65rem] text-slate-500">
-                            {theme.mood}
-                          </p>
-                        </div>
-                        <div className="px-3 py-2">
-                          <p className="font-medium text-slate-900">
-                            {theme.label}
-                          </p>
-                          <p className="text-[0.65rem] text-slate-500">
+                          <p className="text-[0.65rem] text-slate-500 mt-0.5 line-clamp-2">
                             {theme.mood}
                           </p>
                         </div>
@@ -2254,7 +2347,7 @@ export default function EditorPage() {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                   {THEMES.map((theme) => {
-                    const isActive = settings.fontFamily === theme.id;
+                    const isActive = settings.fontFamily === theme.settings.fontFamily;
                     return (
                       <button
                         key={theme.id}
@@ -2268,10 +2361,10 @@ export default function EditorPage() {
                         ].join(" ")}
                       >
                         <div className="h-24 w-full overflow-hidden bg-slate-800 relative">
-                          <img
-                            src={theme.previewImage}
-                            alt={theme.label}
-                            className="w-full h-full object-cover"
+                          <ThemePreviewArt
+                            themeId={theme.id}
+                            brideName={settings.brideName}
+                            groomName={settings.groomName}
                           />
                         </div>
                         <div className="px-3 py-2 flex items-center justify-between">
@@ -2484,22 +2577,20 @@ export default function EditorPage() {
                     <button
                       type="button"
                       onClick={() => setFamilyTab("family1")}
-                      className={`px-3 py-1.5 rounded-full transition ${
-                        familyTab === "family1"
-                          ? "bg-slate-100 text-slate-900"
-                          : "text-slate-300 hover:text-white"
-                      }`}
+                      className={`px-3 py-1.5 rounded-full transition ${familyTab === "family1"
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-300 hover:text-white"
+                        }`}
                     >
                       Birinci Aile
                     </button>
                     <button
                       type="button"
                       onClick={() => setFamilyTab("family2")}
-                      className={`px-3 py-1.5 rounded-full transition ${
-                        familyTab === "family2"
-                          ? "bg-slate-100 text-slate-900"
-                          : "text-slate-300 hover:text-white"
-                      }`}
+                      className={`px-3 py-1.5 rounded-full transition ${familyTab === "family2"
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-300 hover:text-white"
+                        }`}
                     >
                       İkinci Aile
                     </button>
@@ -2769,12 +2860,11 @@ export default function EditorPage() {
                                 guest.inviteUrl && guest.inviteUrl.trim()
                                   ? guest.inviteUrl
                                   : isSaved && license.token
-                                  ? `${origin}/invite/${
-                                      guest.slug
+                                    ? `${origin}/invite/${guest.slug
                                     }?token=${encodeURIComponent(
                                       license.token
                                     )}`
-                                  : "#";
+                                    : "#";
 
                               const isShared = !!guest.lastSharedAt;
                               const isLastRow = index === guests.length - 1;
@@ -3030,15 +3120,12 @@ export default function EditorPage() {
 
 function SectionTitle({ label }: { label: string }) {
   return (
-    <div className="mt-6 mb-3">
-      <div className="flex items-center gap-2">
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200">
-          <span className="text-[0.65rem] font-semibold tracking-[0.14em] text-slate-600 uppercase">
-            {label}
-          </span>
-        </div>
-        <div className="h-px flex-1 bg-slate-200" />
-      </div>
+    <div className="mt-5 mb-3 flex items-center gap-2.5">
+      <span className="block w-[3px] h-4 rounded-full bg-slate-800 flex-shrink-0" />
+      <span className="text-[0.68rem] font-semibold tracking-[0.13em] text-slate-700 uppercase">
+        {label}
+      </span>
+      <div className="h-px flex-1 bg-slate-100" />
     </div>
   );
 }
@@ -3060,17 +3147,17 @@ function TextField({
 }: FieldProps) {
   return (
     <div className="mb-3">
-      <label className="block mb-1 text-xs font-medium text-slate-700">
+      <label className="block mb-1.5 text-[0.7rem] font-medium text-slate-600">
         {label}
       </label>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-[0.8rem] placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/8 focus:border-slate-400 transition shadow-sm"
       />
       {helperText && (
-        <p className="mt-1 text-[0.65rem] text-slate-500">{helperText}</p>
+        <p className="mt-1 text-[0.65rem] text-slate-400">{helperText}</p>
       )}
     </div>
   );
@@ -3085,7 +3172,7 @@ function TextAreaField({
 }: FieldProps) {
   return (
     <div className="mb-3">
-      <label className="block mb-1 text-xs font-medium text-slate-700">
+      <label className="block mb-1.5 text-[0.7rem] font-medium text-slate-600">
         {label}
       </label>
       <textarea
@@ -3093,36 +3180,361 @@ function TextAreaField({
         onChange={(e) => onChange(e.target.value)}
         rows={3}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs resize-y placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-[0.8rem] resize-y placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/8 focus:border-slate-400 transition shadow-sm"
       />
       {helperText && (
-        <p className="mt-1 text-[0.65rem] text-slate-500">{helperText}</p>
+        <p className="mt-1 text-[0.65rem] text-slate-400">{helperText}</p>
       )}
     </div>
   );
 }
 
 function ColorField({ label, value, onChange }: FieldProps) {
+  const safeHex = /^#[0-9a-fA-F]{3,6}$/.test(value) ? value : "#ffffff";
   return (
-    <div className="mb-3">
-      <label className="block mb-1 text-xs font-medium text-slate-700">
+    <div className="mb-2.5">
+      <label className="block mb-1.5 text-[0.7rem] font-medium text-slate-600">
         {label}
       </label>
       <div className="flex items-center gap-2">
+        <div className="relative flex-shrink-0">
+          <div
+            className="w-8 h-8 rounded-lg border border-slate-200 shadow-sm cursor-pointer"
+            style={{ backgroundColor: safeHex }}
+          />
+          <input
+            type="color"
+            value={safeHex}
+            onChange={(e) => onChange(e.target.value)}
+            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+            aria-label={label}
+          />
+        </div>
         <input
-          type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-10 h-8 p-0 border border-slate-200 rounded-md bg-white"
-        />
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition"
+          className="flex-1 px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-[0.72rem] font-mono focus:outline-none focus:ring-2 focus:ring-slate-900/8 focus:border-slate-400 transition shadow-sm"
+          spellCheck={false}
         />
       </div>
     </div>
   );
+}
+
+/* ---- Theme Preview Art ---- */
+
+const THEME_ART: Record<
+  ThemeId,
+  {
+    bg: string;
+    glow: string;
+    textColor: string;
+    accentColor: string;
+    fontFamily: string;
+    deco: "dots" | "lines" | "grid" | "film" | "petals" | "border" | "leaves" | "rays";
+  }
+> = {
+  "Romantik Şeker": {
+    bg: "linear-gradient(145deg, #1a0810 0%, #2e1020 50%, #1a0810 100%)",
+    glow: "radial-gradient(ellipse at 50% 58%, rgba(255,100,160,0.40) 0%, transparent 65%)",
+    textColor: "#ffd6e8",
+    accentColor: "rgba(255,120,170,0.55)",
+    fontFamily: "'Pacifico', cursive",
+    deco: "dots",
+  },
+  "Klasik Zarafet": {
+    bg: "linear-gradient(160deg, #0a0800 0%, #18130a 50%, #0a0800 100%)",
+    glow: "radial-gradient(ellipse at 50% 40%, rgba(212,160,23,0.38) 0%, transparent 65%)",
+    textColor: "#fff0c0",
+    accentColor: "rgba(212,160,23,0.55)",
+    fontFamily: "'Italianno', cursive",
+    deco: "lines",
+  },
+  "Aşk Yazısı": {
+    bg: "linear-gradient(140deg, #0e0518 0%, #1e0c30 50%, #0e0518 100%)",
+    glow: "radial-gradient(ellipse at 50% 55%, rgba(192,100,255,0.35) 0%, transparent 65%)",
+    textColor: "#f0e0ff",
+    accentColor: "rgba(192,100,255,0.50)",
+    fontFamily: "'Great Vibes', cursive",
+    deco: "dots",
+  },
+  "Dergi Şıklığı": {
+    bg: "linear-gradient(160deg, #080810 0%, #10101e 50%, #080810 100%)",
+    glow: "radial-gradient(ellipse at 50% 40%, rgba(120,120,200,0.22) 0%, transparent 58%)",
+    textColor: "#c8c8e8",
+    accentColor: "rgba(120,120,200,0.38)",
+    fontFamily: "'Cormorant Garamond', serif",
+    deco: "grid",
+  },
+  "Film Noir": {
+    bg: "linear-gradient(180deg, #060606 0%, #101010 100%)",
+    glow: "radial-gradient(ellipse at 50% 50%, rgba(220,220,220,0.10) 0%, transparent 58%)",
+    textColor: "#d0d0d0",
+    accentColor: "rgba(200,200,200,0.28)",
+    fontFamily: "'Lugrasimo', cursive",
+    deco: "film",
+  },
+  "Pastel Rüya": {
+    bg: "linear-gradient(140deg, #0e0b1c 0%, #1c1530 50%, #0e0b1c 100%)",
+    glow: "radial-gradient(ellipse at 50% 55%, rgba(240,150,200,0.32) 0%, transparent 65%)",
+    textColor: "#f8d8ec",
+    accentColor: "rgba(240,150,200,0.50)",
+    fontFamily: "'Charm', cursive",
+    deco: "petals",
+  },
+  "Sade Şıklık": {
+    bg: "linear-gradient(160deg, #060610 0%, #0e0e20 50%, #060610 100%)",
+    glow: "radial-gradient(ellipse at 50% 40%, rgba(80,120,255,0.22) 0%, transparent 60%)",
+    textColor: "#d0d8ff",
+    accentColor: "rgba(80,120,255,0.40)",
+    fontFamily: "'Sofia', cursive",
+    deco: "border",
+  },
+  "Sonbahar Sıcaklığı": {
+    bg: "linear-gradient(145deg, #160a02 0%, #2c1408 50%, #160a02 100%)",
+    glow: "radial-gradient(ellipse at 50% 55%, rgba(232,148,58,0.38) 0%, transparent 65%)",
+    textColor: "#ffe0b0",
+    accentColor: "rgba(232,148,58,0.55)",
+    fontFamily: "'Cookie', cursive",
+    deco: "leaves",
+  },
+  "Altın Saat": {
+    bg: "linear-gradient(145deg, #140e00 0%, #281a02 50%, #140e00 100%)",
+    glow: "radial-gradient(ellipse at 50% 50%, rgba(245,200,66,0.35) 0%, transparent 62%)",
+    textColor: "#fff0b0",
+    accentColor: "rgba(245,200,66,0.55)",
+    fontFamily: "'Dancing Script', cursive",
+    deco: "rays",
+  },
+  "Zamansız Klasik": {
+    bg: "linear-gradient(160deg, #080608 0%, #12100e 50%, #080608 100%)",
+    glow: "radial-gradient(ellipse at 50% 45%, rgba(200,169,110,0.24) 0%, transparent 60%)",
+    textColor: "#f0e8d4",
+    accentColor: "rgba(200,169,110,0.42)",
+    fontFamily: "'Playfair Display', serif",
+    deco: "border",
+  },
+};
+
+function ThemePreviewArt({
+  themeId,
+  brideName,
+  groomName,
+}: {
+  themeId: ThemeId;
+  brideName?: string;
+  groomName?: string;
+}) {
+  const art = THEME_ART[themeId];
+  if (!art) return <div className="w-full h-full bg-slate-800" />;
+
+  const b = (brideName ?? "").trim();
+  const g = (groomName ?? "").trim();
+  const initials =
+    b && g
+      ? `${b[0].toUpperCase()} & ${g[0].toUpperCase()}`
+      : b
+        ? b[0].toUpperCase()
+        : g
+          ? g[0].toUpperCase()
+          : "S & M";
+
+  return (
+    <div
+      className="w-full h-full relative overflow-hidden"
+      style={{ background: art.bg }}
+      aria-hidden="true"
+    >
+      {/* Glow layer */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: art.glow }}
+      />
+
+      {/* Decoration layer */}
+      <DecoLayer type={art.deco} accentColor={art.accentColor} />
+
+      {/* Initials */}
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ zIndex: 2 }}
+      >
+        <span
+          style={{
+            fontFamily: art.fontFamily,
+            color: art.textColor,
+            fontSize: "1.55rem",
+            lineHeight: 1,
+            textShadow: `0 2px 16px ${art.accentColor}`,
+            letterSpacing: "0.06em",
+            userSelect: "none",
+          }}
+        >
+          {initials}
+        </span>
+      </div>
+
+      {/* Vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.45) 100%)",
+          zIndex: 3,
+        }}
+      />
+    </div>
+  );
+}
+
+function DecoLayer({
+  type,
+  accentColor,
+}: {
+  type: string;
+  accentColor: string;
+}) {
+  if (type === "dots") {
+    const dots = Array.from({ length: 18 });
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.45 }}
+      >
+        {dots.map((_, i) => (
+          <circle
+            key={i}
+            cx={`${8 + (i % 6) * 17}%`}
+            cy={`${12 + Math.floor(i / 6) * 35}%`}
+            r="1.5"
+            fill={accentColor}
+          />
+        ))}
+      </svg>
+    );
+  }
+  if (type === "lines") {
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.4 }}
+      >
+        {[20, 50, 80].map((y, i) => (
+          <line
+            key={i}
+            x1="10%"
+            y1={`${y}%`}
+            x2="90%"
+            y2={`${y}%`}
+            stroke={accentColor}
+            strokeWidth="0.8"
+          />
+        ))}
+        <line x1="50%" y1="10%" x2="50%" y2="90%" stroke={accentColor} strokeWidth="0.5" strokeDasharray="3 5" />
+      </svg>
+    );
+  }
+  if (type === "grid") {
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.25 }}
+      >
+        {[20, 40, 60, 80].map((v, i) => (
+          <React.Fragment key={i}>
+            <line x1={`${v}%`} y1="0" x2={`${v}%`} y2="100%" stroke={accentColor} strokeWidth="0.5" />
+            <line x1="0" y1={`${v}%`} x2="100%" y2={`${v}%`} stroke={accentColor} strokeWidth="0.5" />
+          </React.Fragment>
+        ))}
+      </svg>
+    );
+  }
+  if (type === "film") {
+    const holes = Array.from({ length: 6 });
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.35 }}
+      >
+        {holes.map((_, i) => (
+          <React.Fragment key={i}>
+            <rect x={`${8 + i * 15}%`} y="8%" width="7%" height="12%" rx="2" fill="none" stroke={accentColor} strokeWidth="0.8" />
+            <rect x={`${8 + i * 15}%`} y="78%" width="7%" height="12%" rx="2" fill="none" stroke={accentColor} strokeWidth="0.8" />
+          </React.Fragment>
+        ))}
+      </svg>
+    );
+  }
+  if (type === "petals") {
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.38 }}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        {[
+          [15, 20], [80, 15], [10, 75], [85, 80], [50, 10], [50, 88],
+        ].map(([cx, cy], i) => (
+          <ellipse key={i} cx={cx} cy={cy} rx="6" ry="10" fill={accentColor} transform={`rotate(${i * 60} ${cx} ${cy})`} />
+        ))}
+      </svg>
+    );
+  }
+  if (type === "border") {
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.45 }}
+      >
+        <rect x="6%" y="8%" width="88%" height="84%" rx="4" fill="none" stroke={accentColor} strokeWidth="0.8" />
+        <rect x="10%" y="13%" width="80%" height="74%" rx="3" fill="none" stroke={accentColor} strokeWidth="0.5" strokeDasharray="4 4" />
+      </svg>
+    );
+  }
+  if (type === "leaves") {
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.40 }}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        {[
+          [12, 18, 0], [82, 22, 45], [8, 78, -20], [88, 76, 30],
+          [25, 8, 10], [70, 90, -15],
+        ].map(([cx, cy, rot], i) => (
+          <path
+            key={i}
+            d={`M ${cx} ${cy} Q ${cx + 8} ${cy - 10} ${cx + 16} ${cy} Q ${cx + 8} ${cy + 4} ${cx} ${cy} Z`}
+            fill={accentColor}
+            transform={`rotate(${rot} ${cx + 8} ${cy})`}
+          />
+        ))}
+      </svg>
+    );
+  }
+  if (type === "rays") {
+    const rays = Array.from({ length: 12 });
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1, opacity: 0.30 }}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        {rays.map((_, i) => {
+          const angle = (i * 30 * Math.PI) / 180;
+          const x2 = 50 + Math.cos(angle) * 55;
+          const y2 = 50 + Math.sin(angle) * 55;
+          return (
+            <line key={i} x1="50" y1="50" x2={x2} y2={y2} stroke={accentColor} strokeWidth="0.6" />
+          );
+        })}
+      </svg>
+    );
+  }
+  return null;
 }
 
 /* ---- Davetiye önizleme ---- */
@@ -3182,13 +3594,31 @@ export function InvitationPreview({
 
   const [openDonation, setOpenDonation] = useState(false);
 
+  useEffect(() => {
+    const els = document.querySelectorAll<Element>(".section-reveal");
+    if (!els.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            observer.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [showScheduleSection, settings.showFamilySection, settings.showDonationSection]);
+
   const dateText = eventDate
     ? eventDate.toLocaleDateString("tr-TR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "long",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    })
     : "Tarih seçilmedi";
 
   const weddingDateForHero = dateText;
@@ -3202,11 +3632,9 @@ export function InvitationPreview({
   if (settings.mapLat != null && settings.mapLng != null) {
     const { mapLat, mapLng } = settings;
     const delta = 0.0001; // daha da yakın zoom
-    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
-      mapLng - delta
-    }%2C${mapLat - delta}%2C${mapLng + delta}%2C${
-      mapLat + delta
-    }&layer=mapnik&marker=${mapLat}%2C${mapLng}`;
+    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapLng - delta
+      }%2C${mapLat - delta}%2C${mapLng + delta}%2C${mapLat + delta
+      }&layer=mapnik&marker=${mapLat}%2C${mapLng}`;
 
     // BUTON: enlem/boylam yerine adres metniyle açılsın
     const encodedAddress = encodeURIComponent(locationText || "");
@@ -3246,7 +3674,8 @@ export function InvitationPreview({
   return (
     <div className={`page-overlay invitation-root ${currentFontClass}`}>
       <video className="bg-video" autoPlay muted loop playsInline>
-        <source src="/bg.webm" type="video/webm" />
+        {/* <source src="/bg.webm" type="video/webm" /> */}
+        <source src="/bg.mp4" type="video/webm" />
         Tarayıcınız video desteklemiyor.
       </video>
       <div
@@ -3364,7 +3793,7 @@ export function InvitationPreview({
       <main>
         {/* Bağış / Vakıf Bölümü */}
         {settings.guestName && (
-          <section className="section section-invite" id="invite">
+          <section className="section section-invite section-reveal" id="invite">
             <div
               className="section-inner invite-card"
               style={{
@@ -3388,7 +3817,7 @@ export function InvitationPreview({
           </section>
         )}
         {settings.showDonationSection && (
-          <section className="section">
+          <section className="section section-reveal">
             <div
               className="section-inner"
               style={{
@@ -3455,7 +3884,7 @@ export function InvitationPreview({
 
         {/* Ailelerimiz - ayrı UI bölümü */}
         {(hasFamily1 || hasFamily2) && settings.showFamilySection && (
-          <section className="section">
+          <section className="section section-reveal">
             <div className="section-inner" style={{ textAlign: "center" }}>
               <h2>Ailelerimiz</h2>
               <p className="section-subtitle">
@@ -3533,7 +3962,7 @@ export function InvitationPreview({
         {showScheduleSection &&
           Array.isArray(scheduleItems) &&
           scheduleItems.length > 0 && (
-            <section className="section">
+            <section className="section section-reveal">
               <div
                 className="section-inner"
                 style={{ maxWidth: 640, margin: "0 auto" }}
@@ -3610,7 +4039,7 @@ export function InvitationPreview({
           )}
 
         {/* Geri Sayım */}
-        <section className="section" id="countdown">
+        <section className="section section-reveal" id="countdown">
           <div className="section-inner">
             <h2>Geri Sayım</h2>
             <p className="section-subtitle">Hayatımızın en özel günü için</p>
@@ -3711,7 +4140,7 @@ export function InvitationPreview({
         </section>
 
         {/* Konum */}
-        <section className="section section-location" id="location">
+        <section className="section section-location section-reveal" id="location">
           <div
             className="section-inner location-card"
             style={{

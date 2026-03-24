@@ -1,0 +1,24 @@
+{
+  "env": {
+    "PORT": "3000"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Read(//Users/muratseven/Desktop/invitation/davetiye/**)",
+      "Bash(xargs -r kill -9)",
+      "Bash(curl -s http://localhost:3000/form-fields)",
+      "Bash(xargs -r kill -9 sleep 2 npm run dev)",
+      "Bash(xargs kill:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(npx next:*)",
+      "WebSearch",
+      "Bash(curl -s http://localhost:8888/backend/api/list_guests.php -X POST -H \"Content-Type: application/json\" -d '{\"\"\"\"token\"\"\"\":\"\"\"\"test\"\"\"\"}')",
+      "Bash(mysql -u root -proot --socket=/Applications/MAMP/tmp/mysql/mysql.sock davetiye_db -e \"SHOW COLUMNS FROM events; SHOW COLUMNS FROM tokens; SHOW COLUMNS FROM guests;\")",
+      "Bash(/Applications/MAMP/Library/bin/mysql -u root -proot --socket=/Applications/MAMP/tmp/mysql/mysql.sock davetiye_db -e \"SHOW COLUMNS FROM events; SHOW COLUMNS FROM tokens; SHOW COLUMNS FROM guests;\")",
+      "Bash(ls /Applications/MAMP/bin/mysql*)",
+      "Bash(/Applications/MAMP/Library/bin/mysql80/bin/mysql -u root -proot --socket=/Applications/MAMP/tmp/mysql/mysql.sock davetiye_db -e \"SHOW COLUMNS FROM events; SHOW COLUMNS FROM tokens; SHOW COLUMNS FROM guests;\")",
+      "WebFetch(domain:developer.atlassian.com)"
+    ]
+  }
+}

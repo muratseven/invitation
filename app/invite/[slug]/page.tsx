@@ -2,7 +2,7 @@
 
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   InvitationPreview,
@@ -70,15 +70,13 @@ function computeCountdown(eventDate: Date | null): Countdown {
 
 export default function InvitePage() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [showIntro, setShowIntro] = useState(true);
 
-  const slug = (() => {
+  // URL: /invite/{invite_token}
+  const inviteToken = (() => {
     const parts = pathname.split("/").filter(Boolean);
     return parts[parts.length - 1] || "";
   })();
-
-  const token = searchParams.get("token")?.trim() || "";
 
   const [settings, setSettings] = useState<InvitationSettings | null>(null);
   const [countdown, setCountdown] = useState<Countdown>({
@@ -91,7 +89,7 @@ export default function InvitePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!slug || !token) {
+    if (!inviteToken) {
       setError("Geçersiz davetiye linki.");
       return;
     }
@@ -103,7 +101,7 @@ export default function InvitePage() {
         const res = await fetch(`${API_BASE}/get_invite_data.php`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, slug }),
+          body: JSON.stringify({ invite_token: inviteToken }),
         });
 
         const text = await res.text();
@@ -177,7 +175,7 @@ export default function InvitePage() {
     return () => {
       cancelled = true;
     };
-  }, [slug, token]);
+  }, [inviteToken]);
 
   useEffect(() => {
     if (!settings?.eventDate) return;
