@@ -36,7 +36,7 @@ const SCHEDULE = [
 ];
 
 // Ana renk: koyu kahve
-const C = "#493930";
+const C = "#973a47";
 
 // ─── Sayfa ────────────────────────────────────────────────────────────────────
 
@@ -81,7 +81,7 @@ export default function SineMuratPage() {
         .sm-root {
           position: relative;
           min-height: 100vh;
-          color: #493930;
+          color: #973a47;
           font-family: var(--font-great-vibes), cursive;
         }
 
@@ -105,7 +105,7 @@ export default function SineMuratPage() {
           font-size: clamp(1.8rem, 4vw, 1.9rem);
           letter-spacing: 0.22em;
           text-transform: uppercase;
-          color: #493930;
+          color: #973a47;
           opacity: 0.82;
           margin-bottom: 1.4rem;
         }
@@ -114,13 +114,13 @@ export default function SineMuratPage() {
           line-height: 1.05;
           letter-spacing: 0.06em;
           margin-bottom: 0.5rem;
-          color: #493930;
+          color: #973a47;
         }
         .sm-title-line { display: block; }
         .sm-ampersand {
           display: block;
           font-size: clamp(1.8rem, 4.5vw, 2.6rem);
-          color: #7a4a38;
+          color: #9e1825;
           margin: 0.2rem 0 0.25rem;
           opacity: 0.9;
         }
@@ -135,14 +135,14 @@ export default function SineMuratPage() {
         .sm-divider-line {
           height: 1px;
           width: 3rem;
-          background: linear-gradient(90deg, transparent, rgba(73,57,48,0.4) 40%, rgba(73,57,48,0.4) 60%, transparent);
+          background: linear-gradient(90deg, transparent, rgba(126,17,27,0.4) 40%, rgba(126,17,27,0.4) 60%, transparent);
         }
-        .sm-divider-icon { font-size: 0.9rem; color: #7a4a38; opacity: 0.85; }
+        .sm-divider-icon { font-size: 0.9rem; color: #9e1825; opacity: 0.85; }
 
         .sm-date {
           font-size: clamp(1.8rem, 3vw, 1.35rem);
           letter-spacing: 0.08em;
-          color: #493930;
+          color: #973a47;
           opacity: 0.82;
           margin-bottom: 0.5rem;
         }
@@ -153,8 +153,8 @@ export default function SineMuratPage() {
           gap: 0.4rem;
           margin-top: 0.3rem;
         }
-        .sm-time-icon { width: 1rem; height: 1rem; opacity: 0.7; color: #493930; }
-        .sm-time-text { font-size: 1.7rem; opacity: 0.82; color: #493930; }
+        .sm-time-icon { width: 1rem; height: 1rem; opacity: 0.7; color: #973a47; }
+        .sm-time-text { font-size: 1.7rem; opacity: 0.82; color: #973a47; }
 
         /* Scroll butonu */
         .sm-scroll { margin-top: 1.6rem; display: flex; justify-content: center; }
@@ -165,7 +165,7 @@ export default function SineMuratPage() {
           background: none;
           border: none;
           cursor: pointer;
-          color: #493930;
+          color: #973a47;
           opacity: 0.65;
           padding: 0;
           animation: sm-bounce 2.2s ease-in-out infinite;
@@ -184,14 +184,14 @@ export default function SineMuratPage() {
           text-align: center;
           margin-bottom: 0.4rem;
           letter-spacing: 0.06em;
-          color: #493930;
+          color: #973a47;
         }
         .sm-section-subtitle {
           text-align: center;
           font-family: var(--font-italianno), serif;
           font-size: 1.6rem;
           letter-spacing: 0.1em;
-          color: #493930;
+          color: #973a47;
           opacity: 0.72;
           margin-bottom: 2.2rem;
         }
@@ -201,9 +201,9 @@ export default function SineMuratPage() {
           background: rgba(255, 250, 242, 0.48);
           backdrop-filter: blur(22px);
           -webkit-backdrop-filter: blur(22px);
-          border: 1px solid rgba(73, 57, 48, 0.16);
+          border: 1px solid rgba(126, 17, 27, 0.16);
           border-radius: 22px;
-          box-shadow: 0 12px 48px rgba(73,57,48,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+          box-shadow: 0 12px 48px rgba(126,17,27,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
         }
 
         /* ── Countdown ── */
@@ -216,19 +216,19 @@ export default function SineMuratPage() {
           background: rgba(255, 250, 242, 0.52);
           backdrop-filter: blur(18px);
           -webkit-backdrop-filter: blur(18px);
-          border: 1px solid rgba(73, 57, 48, 0.15);
+          border: 1px solid rgba(126, 17, 27, 0.15);
           border-radius: 18px;
           padding: 1.5rem 0.75rem;
           text-align: center;
           position: relative;
           overflow: hidden;
-          box-shadow: 0 6px 24px rgba(73,57,48,0.1), inset 0 1px 0 rgba(255,255,255,0.7);
+          box-shadow: 0 6px 24px rgba(126,17,27,0.1), inset 0 1px 0 rgba(255,255,255,0.7);
         }
         .sm-countdown-item::before {
           content: "";
           position: absolute;
           top: 0; left: 15%; right: 15%; height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(73,57,48,0.18), transparent);
+          background: linear-gradient(90deg, transparent, rgba(126,17,27,0.18), transparent);
         }
         .sm-count-number {
           display: block;
@@ -236,7 +236,7 @@ export default function SineMuratPage() {
           font-size: 2rem;
           font-weight: 600;
           letter-spacing: 0.04em;
-          color: #493930;
+          color: #973a47;
         }
         .sm-count-label {
           display: block;
@@ -244,7 +244,7 @@ export default function SineMuratPage() {
           font-size: 0.78rem;
           text-transform: uppercase;
           letter-spacing: 0.13em;
-          color: #493930;
+          color: #973a47;
           opacity: 0.65;
           margin-top: 0.25rem;
         }
@@ -257,7 +257,7 @@ export default function SineMuratPage() {
           gap: 0.85rem;
           margin-bottom: 1.3rem;
           padding-bottom: 1rem;
-          border-bottom: 1px solid rgba(73,57,48,0.14);
+          border-bottom: 1px solid rgba(126,17,27,0.14);
         }
         .sm-schedule-icon {
           width: 34px; height: 34px;
@@ -265,18 +265,18 @@ export default function SineMuratPage() {
           background: linear-gradient(135deg, #f9f0e8 0%, #ecddd2 100%);
           display: flex; align-items: center; justify-content: center;
           flex-shrink: 0;
-          box-shadow: 0 4px 14px rgba(73,57,48,0.18);
-          border: 1px solid rgba(73,57,48,0.12);
+          box-shadow: 0 4px 14px rgba(126,17,27,0.18);
+          border: 1px solid rgba(126,17,27,0.12);
         }
-        .sm-schedule-icon svg { width: 17px; height: 17px; stroke: #493930; fill: none; stroke-width: 1.6; }
+        .sm-schedule-icon svg { width: 17px; height: 17px; stroke: #973a47; fill: none; stroke-width: 1.6; }
         .sm-schedule-title {
           font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.85rem; font-weight: 600; letter-spacing: 0.14em;
-          text-transform: uppercase; color: #493930;
+          text-transform: uppercase; color: #973a47;
         }
         .sm-schedule-sub {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.74rem; color: #7a5c52; margin-top: 0.1rem;
+          font-size: 0.74rem; color: #a03040; margin-top: 0.1rem;
         }
         .sm-schedule-list {
           display: flex; flex-direction: column;
@@ -286,14 +286,14 @@ export default function SineMuratPage() {
           content: "";
           position: absolute;
           left: 0.5rem; top: 0.8rem; bottom: 0.8rem; width: 1px;
-          background: linear-gradient(to bottom, transparent, rgba(73,57,48,0.22) 15%, rgba(73,57,48,0.22) 85%, transparent);
+          background: linear-gradient(to bottom, transparent, rgba(126,17,27,0.22) 15%, rgba(126,17,27,0.22) 85%, transparent);
         }
         .sm-schedule-row {
           display: grid;
           grid-template-columns: 72px 1fr;
           column-gap: 1rem;
           padding: 0.7rem 0;
-          border-bottom: 1px solid rgba(73,57,48,0.1);
+          border-bottom: 1px solid rgba(126,17,27,0.1);
           position: relative;
           align-items: center;
         }
@@ -303,23 +303,23 @@ export default function SineMuratPage() {
           position: absolute;
           left: -1.22rem; top: 50%; transform: translateY(-50%);
           width: 7px; height: 7px; border-radius: 50%;
-          background: #c4865a;
+          background: #b84060;
           box-shadow: 0 0 7px rgba(196,134,90,0.55);
           border: 1.5px solid rgba(255,250,242,0.8);
         }
         .sm-schedule-time {
           font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.78rem; font-weight: 600;
-          color: #7a5c52; letter-spacing: 0.08em; text-transform: uppercase;
+          color: #a03040; letter-spacing: 0.08em; text-transform: uppercase;
         }
         .sm-schedule-content { display: flex; flex-direction: column; gap: 0.12rem; }
         .sm-schedule-label {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.88rem; font-weight: 500; color: #493930;
+          font-size: 0.88rem; font-weight: 500; color: #973a47;
         }
         .sm-schedule-desc {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.75rem; color: #7a5c52; line-height: 1.4;
+          font-size: 0.75rem; color: #a03040; line-height: 1.4;
         }
 
         /* ── Konum ── */
@@ -327,21 +327,21 @@ export default function SineMuratPage() {
         .sm-location-pin {
           width: 3.5rem; height: 3.5rem;
           margin: 0 auto 1.2rem;
-          background: rgba(73,57,48,0.08);
-          border: 1px solid rgba(73,57,48,0.15);
+          background: rgba(126,17,27,0.08);
+          border: 1px solid rgba(126,17,27,0.15);
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
         }
-        .sm-location-pin svg { width: 1.6rem; height: 1.6rem; color: #493930; }
-        .sm-location-title { font-size: clamp(2rem, 5vw, 2.6rem); margin-bottom: 1rem; letter-spacing: 0.08em; color: #493930; }
+        .sm-location-pin svg { width: 1.6rem; height: 1.6rem; color: #973a47; }
+        .sm-location-title { font-size: clamp(2rem, 5vw, 2.6rem); margin-bottom: 1rem; letter-spacing: 0.08em; color: #973a47; }
         .sm-location-name {
           font-family: var(--font-charm), cursive;
           font-size: clamp(1.3rem, 3.2vw, 1.8rem);
           margin-bottom: 0.5rem; display: block;
-          color: #493930; opacity: 0.82;
+          color: #973a47; opacity: 0.82;
         }
         .sm-location-time-row {
-          display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.75rem; color: #493930;
+          display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.75rem; color: #973a47;
         }
         .sm-location-time-row svg { width: 1rem; height: 1rem; opacity: 0.75; }
         .sm-location-time-row span { font-size: 1.3rem; opacity: 0.82; }
@@ -350,7 +350,7 @@ export default function SineMuratPage() {
         .sm-location-img:hover img { transform: scale(1.02); }
         .sm-location-img-overlay {
           position: absolute; inset: 0;
-          background: linear-gradient(to bottom, transparent 55%, rgba(73,57,48,0.25));
+          background: linear-gradient(to bottom, transparent 55%, rgba(126,17,27,0.25));
           border-radius: 14px; pointer-events: none;
         }
         .sm-map-wrap { border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
@@ -359,14 +359,14 @@ export default function SineMuratPage() {
           display: inline-flex; align-items: center; gap: 0.45rem;
           padding: 0.7rem 1.6rem;
           border-radius: 999px;
-          border: 1px solid rgba(73,57,48,0.45);
-          background: rgba(73,57,48,0.06);
+          border: 1px solid rgba(126,17,27,0.45);
+          background: rgba(126,17,27,0.06);
           font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
-          text-decoration: none; color: #493930;
+          text-decoration: none; color: #973a47;
           transition: background 0.2s ease, border-color 0.2s ease;
         }
-        .sm-map-btn:hover { background: rgba(73,57,48,0.12); border-color: rgba(73,57,48,0.7); }
+        .sm-map-btn:hover { background: rgba(126,17,27,0.12); border-color: rgba(126,17,27,0.7); }
 
         /* ── Footer: açık krem glassmorphism ── */
         .sm-footer {
@@ -375,24 +375,24 @@ export default function SineMuratPage() {
           position: relative;
           width: 100vw;
           margin-left: calc(50% - 50vw);
-          color: #493930;
+          color: #973a47;
           background: rgba(255, 250, 242, 0.6);
           backdrop-filter: blur(22px);
           -webkit-backdrop-filter: blur(22px);
-          border-top: 1px solid rgba(73, 57, 48, 0.14);
+          border-top: 1px solid rgba(126, 17, 27, 0.14);
         }
         .sm-footer::before {
           content: "";
           display: block;
           width: 50%;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(73,57,48,0.22) 30%, rgba(73,57,48,0.22) 70%, transparent);
+          background: linear-gradient(90deg, transparent, rgba(126,17,27,0.22) 30%, rgba(126,17,27,0.22) 70%, transparent);
           margin: 0 auto 2.5rem;
         }
         .sm-footer-heart {
           width: 1.7rem; height: 1.7rem;
           margin: 0 auto 1rem;
-          color: #7a4a38;
+          color: #9e1825;
           animation: sm-heart 2.2s ease-in-out infinite;
         }
         @keyframes sm-heart {
@@ -404,17 +404,17 @@ export default function SineMuratPage() {
           letter-spacing: 0.08em;
           margin-bottom: 1rem;
           line-height: 1.1;
-          color: #493930;
+          color: #973a47;
         }
         .sm-footer-date {
           font-family: var(--font-italianno), serif;
           font-size: 1.25rem; letter-spacing: 0.08em;
-          color: #493930; opacity: 0.78; margin-bottom: 0.4rem;
+          color: #973a47; opacity: 0.78; margin-bottom: 0.4rem;
         }
         .sm-footer-credit {
           font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
-          color: #493930; opacity: 0.38; margin-top: 0.5rem;
+          color: #973a47; opacity: 0.38; margin-top: 0.5rem;
         }
 
         /* ── Responsive ── */
@@ -431,7 +431,7 @@ export default function SineMuratPage() {
       `}</style>
 
       {/* ── Video arka plan ── */}
-      <video className="sm-bg-video" autoPlay muted loop playsInline>
+      <video className="sm-bg-video" autoPlay muted playsInline>
         <source src="/bg.mp4" type="video/mp4" />
       </video>
 
