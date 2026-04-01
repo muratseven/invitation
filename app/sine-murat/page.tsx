@@ -63,12 +63,24 @@ export default function SineMuratPage() {
   return (
     <>
       <style>{`
-        /* ── Video ── */
+        /*
+          Renk paleti:
+          #4a1525  — koyu şarap (başlıklar, vurgular)
+          #7a3045  — orta gül (gövde metni)
+          #a06070  — soluk gül (ikincil, etiketler)
+          #c4849a  — açık pudra (süslemeler, ayırıcılar)
+
+          Fontlar:
+          Great Vibes    → sadece büyük isim başlıkları (Sine & Murat)
+          Cormorant Garamond → tarih, altyazı, konum etiketi, aile başlıkları
+          Charm          → tarih/saat hero, geri sayım alt yazısı, aile isimleri
+          Roboto         → adres, küçük etiket, teknik metin
+        */
+
+        /* ── Video arka plan ── */
         .sm-bg-video {
           position: fixed;
-          inset: 0;
-          width: 100%;
-          height: 100%;
+          inset: 0; width: 100%; height: 100%;
           object-fit: cover;
           object-position: center center;
           z-index: -1;
@@ -77,52 +89,50 @@ export default function SineMuratPage() {
           .sm-bg-video { object-position: center 70%; }
         }
 
-        /* ── Kök: koyu kahve metin, arka plan yok ── */
+        /* ── Kök ── */
         .sm-root {
           position: relative;
           min-height: 100vh;
-          color: #973a47;
-          font-family: var(--font-great-vibes), cursive;
+          color: #7a3045;
+          font-family: var(--font-cormorant-garamond), Georgia, serif;
         }
 
-        /* ── HERO: sectionless, sadece metin ── */
+        /* ── HERO ── */
         .sm-hero {
           min-height: 92vh;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: center;
-          padding: 2rem 1.25rem;
+          padding: 6rem 1.25rem 2rem;
           text-align: center;
         }
-        .sm-hero-inner {
-          max-width: 560px;
-          width: 100%;
-          /* arka plan yok — video doğrudan görünüyor */
-        }
+        .sm-hero-inner { max-width: 560px; width: 100%; }
 
         .sm-subtitle {
-          font-family: var(--font-italianno), serif;
-          font-size: clamp(1.8rem, 4vw, 1.9rem);
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1.3rem, 3.8vw, 1.6rem);
           letter-spacing: 0.22em;
           text-transform: uppercase;
-          color: #973a47;
-          opacity: 0.82;
+          color: #a06070;
           margin-bottom: 1.4rem;
+          font-weight: 600;
         }
         .sm-title {
-          font-size: clamp(3rem, 11vw, 6rem);
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(3.8rem, 13vw, 7.5rem);
           line-height: 1.05;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.04em;
           margin-bottom: 0.5rem;
-          color: #973a47;
+          color: #4a1525;
         }
         .sm-title-line { display: block; }
         .sm-ampersand {
+          font-family: var(--font-cormorant-garamond), serif;
           display: block;
-          font-size: clamp(1.8rem, 4.5vw, 2.6rem);
-          color: #9e1825;
-          margin: 0.2rem 0 0.25rem;
-          opacity: 0.9;
+          font-size: clamp(1.3rem, 3vw, 1.7rem);
+          color: #a06070;
+          margin: 0.3rem 0;
+          font-style: italic;
         }
 
         .sm-divider {
@@ -135,16 +145,17 @@ export default function SineMuratPage() {
         .sm-divider-line {
           height: 1px;
           width: 3rem;
-          background: linear-gradient(90deg, transparent, rgba(126,17,27,0.4) 40%, rgba(126,17,27,0.4) 60%, transparent);
+          background: linear-gradient(90deg, transparent, rgba(196,132,154,0.5) 40%, rgba(196,132,154,0.5) 60%, transparent);
         }
-        .sm-divider-icon { font-size: 0.9rem; color: #9e1825; opacity: 0.85; }
+        .sm-divider-icon { font-size: 0.75rem; color: #c4849a; }
 
         .sm-date {
-          font-size: clamp(1.8rem, 3vw, 1.35rem);
-          letter-spacing: 0.08em;
-          color: #973a47;
-          opacity: 0.82;
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1.2rem, 3vw, 1.5rem);
+          letter-spacing: 0.06em;
+          color: #4a1525;
           margin-bottom: 0.5rem;
+          font-weight: 700;
         }
         .sm-time-row {
           display: inline-flex;
@@ -153,130 +164,134 @@ export default function SineMuratPage() {
           gap: 0.4rem;
           margin-top: 0.3rem;
         }
-        .sm-time-icon { width: 1rem; height: 1rem; opacity: 0.7; color: #973a47; }
-        .sm-time-text { font-size: 1.7rem; opacity: 0.82; color: #973a47; }
+        .sm-time-icon { width: 1rem; height: 1rem; opacity: 0.55; color: #a06070; }
+        .sm-time-text {
+          font-family: var(--font-charm), cursive;
+          font-size: 1.5rem;
+          color: #7a3045;
+          font-weight: 700;
+        }
 
         /* Scroll butonu */
         .sm-scroll { margin-top: 1.6rem; display: flex; justify-content: center; }
         .sm-scroll-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #973a47;
-          opacity: 0.65;
-          padding: 0;
+          display: inline-flex; align-items: center; justify-content: center;
+          background: none; border: none; cursor: pointer;
+          color: #c4849a; opacity: 0.7; padding: 0;
           animation: sm-bounce 2.2s ease-in-out infinite;
         }
         .sm-scroll-btn:hover { opacity: 1; animation: none; transform: translateY(6px); }
         @keyframes sm-bounce {
-          0%, 100% { transform: translateY(0);   opacity: 0.65; }
-          50%       { transform: translateY(8px); opacity: 0.95; }
+          0%, 100% { transform: translateY(0);   opacity: 0.7; }
+          50%       { transform: translateY(8px); opacity: 1;   }
         }
 
         /* ── Bölümler ── */
         .sm-section { padding: 4rem 1.5rem; }
         .sm-section-inner { max-width: 960px; margin: 0 auto; }
         .sm-section h2 {
-          font-size: clamp(2.4rem, 5vw, 2.6rem);
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(2.2rem, 5vw, 2.8rem);
           text-align: center;
           margin-bottom: 0.4rem;
-          letter-spacing: 0.06em;
-          color: #973a47;
+          letter-spacing: 0.04em;
+          color: #4a1525;
         }
         .sm-section-subtitle {
           text-align: center;
-          font-family: var(--font-italianno), serif;
-          font-size: 1.6rem;
-          letter-spacing: 0.1em;
-          color: #973a47;
-          opacity: 0.72;
+          font-family: var(--font-charm), cursive;
+          font-size: 1.25rem;
+          letter-spacing: 0.06em;
+          color: #a06070;
           margin-bottom: 2.2rem;
         }
 
-        /* ── Açık glassmorphism kart (krem/fildişi) ── */
+        .sm-title-row {
+          display: flex; align-items: center; justify-content: center;
+          gap: 0.6rem; margin-bottom: 0.4rem;
+        }
+        .sm-title-icon { font-size: 1.6rem; line-height: 1; }
+
+        /* ── Glassmorphism kart ── */
         .sm-glass {
-          background: rgba(255, 250, 242, 0.48);
+          background: rgba(255, 248, 244, 0.55);
           backdrop-filter: blur(22px);
           -webkit-backdrop-filter: blur(22px);
-          border: 1px solid rgba(126, 17, 27, 0.16);
+          border: 1px solid rgba(122, 48, 69, 0.13);
           border-radius: 22px;
-          box-shadow: 0 12px 48px rgba(126,17,27,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+          box-shadow: 0 12px 48px rgba(74, 21, 37, 0.09), inset 0 1px 0 rgba(255,255,255,0.65);
         }
 
         /* ── Countdown ── */
+        .sm-countdown-card {
+          max-width: 640px; margin: 0 auto;
+          padding: 2.5rem 2rem; text-align: center;
+        }
         .sm-countdown-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 1rem;
         }
         .sm-countdown-item {
-          background: rgba(255, 250, 242, 0.52);
+          background: rgba(255, 248, 244, 0.58);
           backdrop-filter: blur(18px);
           -webkit-backdrop-filter: blur(18px);
-          border: 1px solid rgba(126, 17, 27, 0.15);
+          border: 1px solid rgba(122, 48, 69, 0.12);
           border-radius: 18px;
           padding: 1.5rem 0.75rem;
           text-align: center;
           position: relative;
           overflow: hidden;
-          box-shadow: 0 6px 24px rgba(126,17,27,0.1), inset 0 1px 0 rgba(255,255,255,0.7);
+          box-shadow: 0 6px 24px rgba(74, 21, 37, 0.08), inset 0 1px 0 rgba(255,255,255,0.7);
         }
         .sm-countdown-item::before {
           content: "";
           position: absolute;
           top: 0; left: 15%; right: 15%; height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(126,17,27,0.18), transparent);
+          background: linear-gradient(90deg, transparent, rgba(196,132,154,0.25), transparent);
         }
         .sm-count-number {
           display: block;
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 2rem;
-          font-weight: 600;
-          letter-spacing: 0.04em;
-          color: #973a47;
+          font-size: 2.1rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          color: #4a1525;
         }
         .sm-count-label {
           display: block;
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.78rem;
+          font-size: 0.72rem;
           text-transform: uppercase;
-          letter-spacing: 0.13em;
-          color: #973a47;
-          opacity: 0.65;
+          letter-spacing: 0.14em;
+          color: #a06070;
           margin-top: 0.25rem;
         }
 
         /* ── Etkinlik Akışı ── */
         .sm-schedule-card { max-width: 640px; margin: 0 auto; padding: 1.8rem 1.8rem 1.5rem; }
         .sm-schedule-header {
-          display: flex;
-          align-items: center;
-          gap: 0.85rem;
-          margin-bottom: 1.3rem;
-          padding-bottom: 1rem;
-          border-bottom: 1px solid rgba(126,17,27,0.14);
+          display: flex; align-items: center; gap: 0.85rem;
+          margin-bottom: 1.3rem; padding-bottom: 1rem;
+          border-bottom: 1px solid rgba(122,48,69,0.12);
         }
         .sm-schedule-icon {
-          width: 34px; height: 34px;
-          border-radius: 50%;
+          width: 34px; height: 34px; border-radius: 50%;
           background: linear-gradient(135deg, #f9f0e8 0%, #ecddd2 100%);
           display: flex; align-items: center; justify-content: center;
           flex-shrink: 0;
-          box-shadow: 0 4px 14px rgba(126,17,27,0.18);
-          border: 1px solid rgba(126,17,27,0.12);
+          box-shadow: 0 4px 14px rgba(74,21,37,0.12);
+          border: 1px solid rgba(122,48,69,0.1);
         }
-        .sm-schedule-icon svg { width: 17px; height: 17px; stroke: #973a47; fill: none; stroke-width: 1.6; }
+        .sm-schedule-icon svg { width: 17px; height: 17px; stroke: #7a3045; fill: none; stroke-width: 1.6; }
         .sm-schedule-title {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.85rem; font-weight: 600; letter-spacing: 0.14em;
-          text-transform: uppercase; color: #973a47;
+          font-size: 0.82rem; font-weight: 600; letter-spacing: 0.14em;
+          text-transform: uppercase; color: #4a1525;
         }
         .sm-schedule-sub {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.74rem; color: #a03040; margin-top: 0.1rem;
+          font-size: 0.74rem; color: #a06070; margin-top: 0.1rem;
         }
         .sm-schedule-list {
           display: flex; flex-direction: column;
@@ -286,16 +301,13 @@ export default function SineMuratPage() {
           content: "";
           position: absolute;
           left: 0.5rem; top: 0.8rem; bottom: 0.8rem; width: 1px;
-          background: linear-gradient(to bottom, transparent, rgba(126,17,27,0.22) 15%, rgba(126,17,27,0.22) 85%, transparent);
+          background: linear-gradient(to bottom, transparent, rgba(196,132,154,0.3) 15%, rgba(196,132,154,0.3) 85%, transparent);
         }
         .sm-schedule-row {
-          display: grid;
-          grid-template-columns: 72px 1fr;
-          column-gap: 1rem;
-          padding: 0.7rem 0;
-          border-bottom: 1px solid rgba(126,17,27,0.1);
-          position: relative;
-          align-items: center;
+          display: grid; grid-template-columns: 72px 1fr;
+          column-gap: 1rem; padding: 0.7rem 0;
+          border-bottom: 1px solid rgba(122,48,69,0.08);
+          position: relative; align-items: center;
         }
         .sm-schedule-row:last-child { border-bottom: none; }
         .sm-schedule-row::before {
@@ -303,119 +315,249 @@ export default function SineMuratPage() {
           position: absolute;
           left: -1.22rem; top: 50%; transform: translateY(-50%);
           width: 7px; height: 7px; border-radius: 50%;
-          background: #b84060;
-          box-shadow: 0 0 7px rgba(196,134,90,0.55);
-          border: 1.5px solid rgba(255,250,242,0.8);
+          background: #c4849a;
+          box-shadow: 0 0 6px rgba(196,132,154,0.5);
+          border: 1.5px solid rgba(255,248,244,0.9);
         }
         .sm-schedule-time {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.78rem; font-weight: 600;
-          color: #a03040; letter-spacing: 0.08em; text-transform: uppercase;
+          font-size: 0.75rem; font-weight: 600;
+          color: #7a3045; letter-spacing: 0.08em; text-transform: uppercase;
         }
         .sm-schedule-content { display: flex; flex-direction: column; gap: 0.12rem; }
         .sm-schedule-label {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.88rem; font-weight: 500; color: #973a47;
+          font-size: 0.88rem; font-weight: 500; color: #4a1525;
         }
         .sm-schedule-desc {
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.75rem; color: #a03040; line-height: 1.4;
+          font-size: 0.75rem; color: #a06070; line-height: 1.4;
         }
 
         /* ── Konum ── */
         .sm-location-card { max-width: 720px; margin: 0 auto; padding: 2.5rem 2rem; text-align: center; }
         .sm-location-pin {
-          width: 3.5rem; height: 3.5rem;
-          margin: 0 auto 1.2rem;
-          background: rgba(126,17,27,0.08);
-          border: 1px solid rgba(126,17,27,0.15);
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
+          width: 3.5rem; height: 3.5rem; margin: 0 auto 1.2rem;
+          background: rgba(122,48,69,0.07); border: 1px solid rgba(122,48,69,0.12);
+          border-radius: 50%; display: flex; align-items: center; justify-content: center;
         }
-        .sm-location-pin svg { width: 1.6rem; height: 1.6rem; color: #973a47; }
-        .sm-location-title { font-size: clamp(2rem, 5vw, 2.6rem); margin-bottom: 1rem; letter-spacing: 0.08em; color: #973a47; }
-        .sm-location-name {
+        .sm-location-pin svg { width: 1.6rem; height: 1.6rem; color: #7a3045; }
+        .sm-location-label {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1.3rem, 3.2vw, 1.8rem);
-          margin-bottom: 0.5rem; display: block;
-          color: #973a47; opacity: 0.82;
+          font-size: clamp(1.4rem, 3.5vw, 1.7rem);
+          letter-spacing: 0.26em;
+          text-transform: uppercase;
+          color: #7a3045;
+          margin-bottom: 0.6rem;
+          font-weight: 700;
+        }
+        .sm-location-title {
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(2rem, 5vw, 2.8rem);
+          margin-bottom: 0.75rem;
+          letter-spacing: 0.04em;
+          color: #4a1525;
+        }
+        .sm-location-name {
+          font-family: var(--font-roboto), system-ui, sans-serif;
+          font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+          margin-bottom: 0.75rem; display: block;
+          color: #a06070; line-height: 1.6;
         }
         .sm-location-time-row {
-          display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.75rem; color: #973a47;
+          display: inline-flex; align-items: center; gap: 0.4rem;
+          margin-bottom: 1.75rem; color: #7a3045;
         }
-        .sm-location-time-row svg { width: 1rem; height: 1rem; opacity: 0.75; }
-        .sm-location-time-row span { font-size: 1.3rem; opacity: 0.82; }
+        .sm-location-time-row svg { width: 1rem; height: 1rem; opacity: 0.55; }
+        .sm-location-time-row span {
+          font-family: var(--font-cormorant-garamond), serif;
+          font-size: 1.2rem; color: #7a3045; font-style: italic;
+        }
         .sm-location-img { position: relative; overflow: hidden; border-radius: 14px; margin-bottom: 0.75rem; }
         .sm-location-img img { width: 100%; height: 22rem; object-fit: cover; border-radius: 14px; transition: transform 0.6s ease; }
         .sm-location-img:hover img { transform: scale(1.02); }
         .sm-location-img-overlay {
           position: absolute; inset: 0;
-          background: linear-gradient(to bottom, transparent 55%, rgba(126,17,27,0.25));
+          background: linear-gradient(to bottom, transparent 55%, rgba(74,21,37,0.2));
           border-radius: 14px; pointer-events: none;
         }
         .sm-map-wrap { border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
         .sm-map-wrap iframe { width: 100%; height: 220px; border: 0; display: block; }
         .sm-map-btn {
           display: inline-flex; align-items: center; gap: 0.45rem;
-          padding: 0.7rem 1.6rem;
-          border-radius: 999px;
-          border: 1px solid rgba(126,17,27,0.45);
-          background: rgba(126,17,27,0.06);
+          padding: 0.65rem 1.5rem; border-radius: 999px;
+          border: 1px solid rgba(122,48,69,0.38);
+          background: rgba(122,48,69,0.05);
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
-          text-decoration: none; color: #973a47;
+          font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+          text-decoration: none; color: #7a3045;
           transition: background 0.2s ease, border-color 0.2s ease;
         }
-        .sm-map-btn:hover { background: rgba(126,17,27,0.12); border-color: rgba(126,17,27,0.7); }
+        .sm-map-btn:hover { background: rgba(122,48,69,0.1); border-color: rgba(122,48,69,0.6); }
 
-        /* ── Footer: açık krem glassmorphism ── */
+        /* ── Footer ── */
         .sm-footer {
           text-align: center;
           padding: 3rem 1.5rem 3.5rem;
           position: relative;
           width: 100vw;
           margin-left: calc(50% - 50vw);
-          color: #973a47;
-          background: rgba(255, 250, 242, 0.6);
+          color: #7a3045;
+          background: rgba(255, 248, 244, 0.65);
           backdrop-filter: blur(22px);
           -webkit-backdrop-filter: blur(22px);
-          border-top: 1px solid rgba(126, 17, 27, 0.14);
+          border-top: 1px solid rgba(122, 48, 69, 0.12);
         }
         .sm-footer::before {
           content: "";
-          display: block;
-          width: 50%;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(126,17,27,0.22) 30%, rgba(126,17,27,0.22) 70%, transparent);
+          display: block; width: 50%; height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(196,132,154,0.35) 30%, rgba(196,132,154,0.35) 70%, transparent);
           margin: 0 auto 2.5rem;
         }
         .sm-footer-heart {
           width: 1.7rem; height: 1.7rem;
           margin: 0 auto 1rem;
-          color: #9e1825;
+          color: #c4849a;
           animation: sm-heart 2.2s ease-in-out infinite;
         }
         @keyframes sm-heart {
-          0%, 100% { transform: scale(1);    opacity: 0.75; }
-          50%       { transform: scale(1.2); opacity: 1;    }
+          0%, 100% { transform: scale(1);    opacity: 0.8; }
+          50%       { transform: scale(1.2); opacity: 1;   }
         }
         .sm-footer-names {
-          font-size: clamp(1.8rem, 5vw, 2.4rem);
-          letter-spacing: 0.08em;
-          margin-bottom: 1rem;
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(2.2rem, 6vw, 3rem);
+          letter-spacing: 0.04em;
+          margin-bottom: 0.75rem;
           line-height: 1.1;
-          color: #973a47;
+          color: #4a1525;
         }
         .sm-footer-date {
-          font-family: var(--font-italianno), serif;
-          font-size: 1.25rem; letter-spacing: 0.08em;
-          color: #973a47; opacity: 0.78; margin-bottom: 0.4rem;
+          font-family: var(--font-charm), cursive;
+          font-size: 1.15rem; letter-spacing: 0.1em;
+          color: #7a3045; margin-bottom: 0.4rem;
+          font-weight: 600;
         }
         .sm-footer-credit {
-          font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
-          color: #973a47; opacity: 0.38; margin-top: 0.5rem;
+          font-family: var(--font-charm), cursive;
+          font-size: 0.95rem; letter-spacing: 0.18em;
+          color: #a06070; margin-top: 0.5rem;
         }
+
+        /* ── Aile ── */
+        .sm-family-card {
+          max-width: 640px; margin: 0 auto;
+          padding: 2.5rem 2rem; text-align: center;
+        }
+        .sm-section .sm-family-title {
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(2.2rem, 5.5vw, 3rem);
+          letter-spacing: 0.04em; color: #4a1525;
+          margin-bottom: 0.3rem;
+        }
+        .sm-family-subtitle {
+          font-family: var(--font-charm), cursive;
+          font-size: 1.1rem; color: #a06070;
+          margin-bottom: 2rem;
+        }
+        .sm-family-layout {
+          display: flex; align-items: stretch;
+          justify-content: center; gap: 1rem;
+          margin-top: 0.5rem;
+        }
+        .sm-family-side {
+          flex: 1; min-width: 0; padding: 1.5rem 1rem 1.75rem;
+          text-align: center;
+          display: flex; flex-direction: column; align-items: center;
+          background: rgba(255, 248, 244, 0.5);
+          border: 1px solid rgba(196,132,154,0.2);
+          border-radius: 18px;
+          box-shadow: 0 4px 20px rgba(74,21,37,0.06), inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+        .sm-family-divider-dot { font-size: 0.75rem; color: #c4849a; }
+        .sm-family-role {
+          font-family: var(--font-charm), cursive;
+          font-size: 0.75rem; letter-spacing: 0.24em;
+          color: #a06070; margin-bottom: 1rem;
+          text-transform: uppercase; font-weight: 600;
+          display: block;
+        }
+        .sm-family-ornament {
+          font-size: 0.75rem; color: #c4849a;
+          margin-bottom: 0.9rem; display: block;
+        }
+        .sm-family-name {
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1.15rem, 3vw, 1.4rem);
+          color: #4a1525; line-height: 1.5;
+          display: block; font-weight: 700;
+        }
+        .sm-family-sep {
+          display: block;
+          font-family: var(--font-cormorant-garamond), serif;
+          font-size: 1rem; color: #c4849a;
+          font-style: italic; margin: 0.2rem 0;
+        }
+        @media (max-width: 600px) {
+          .sm-family-layout { gap: 0.6rem; }
+          .sm-family-side { padding: 1.2rem 0.7rem 1.4rem; }
+          .sm-family-name { font-size: 1rem; }
+          .sm-family-role { font-size: 0.68rem; letter-spacing: 0.16em; }
+        }
+
+        /* ── Bağış ── */
+        .sm-donation-card {
+          max-width: 560px; margin: 0 auto;
+          padding: 2.5rem 2rem; text-align: center;
+        }
+        .sm-donation-header {
+          display: flex; align-items: center; justify-content: center;
+          gap: 0.6rem; margin-bottom: 0.5rem;
+        }
+        .sm-donation-icon {
+          font-size: 1.5rem; line-height: 1;
+        }
+        .sm-donation-title {
+          font-family: var(--font-cormorant-garamond), serif;
+          font-size: clamp(1.8rem, 4.5vw, 2.2rem);
+          letter-spacing: 0.06em; color: #4a1525;
+          margin: 0; font-weight: 700;
+        }
+        .sm-donation-divider {
+          display: flex; align-items: center;
+          justify-content: center; gap: 0.75rem;
+          margin: 1rem 0 1.5rem;
+        }
+        .sm-donation-divider-line {
+          height: 1px; width: 2.5rem;
+          background: linear-gradient(90deg, transparent, rgba(196,132,154,0.5), transparent);
+        }
+        .sm-donation-divider-dot { font-size: 0.7rem; color: #c4849a; }
+        .sm-donation-text {
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1rem, 2.5vw, 1.15rem);
+          color: #7a3045; line-height: 1.85;
+          margin-bottom: 1rem;
+        }
+        .sm-donation-quote {
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1.1rem, 2.8vw, 1.3rem);
+          color: #a06070; font-style: normal;
+          display: block; margin: 1rem 0 1.75rem;
+          padding: 0 1rem;
+        }
+        .sm-donation-btn {
+          display: inline-flex; align-items: center; gap: 0.5rem;
+          padding: 0.75rem 1.75rem; border-radius: 999px;
+          border: 1px solid rgba(122,48,69,0.38);
+          background: rgba(122,48,69,0.05);
+          font-family: var(--font-roboto), system-ui, sans-serif;
+          font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase;
+          text-decoration: none; color: #7a3045;
+          transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .sm-donation-btn:hover { background: rgba(122,48,69,0.1); border-color: rgba(122,48,69,0.6); }
+
 
         /* ── Responsive ── */
         @media (max-width: 600px) {
@@ -424,6 +566,7 @@ export default function SineMuratPage() {
           .sm-schedule-row   { grid-template-columns: 60px 1fr; column-gap: 0.75rem; }
           .sm-location-img img { height: 13rem; }
           .sm-location-card  { padding: 2rem 1.25rem; }
+          .sm-family-card    { padding: 2rem 1.25rem; }
         }
         @media (max-width: 380px) {
           .sm-title { font-size: clamp(2.6rem, 13vw, 3.5rem); }
@@ -478,11 +621,54 @@ export default function SineMuratPage() {
 
         <main>
 
+          {/* ── AİLE ── */}
+          <section className="sm-section" id="family">
+            <div className="sm-family-card sm-glass">
+              <div className="sm-title-row">
+                <h2 className="sm-family-title">Ailelerimiz</h2>
+              </div>
+              <p className="sm-family-subtitle">Bu mutlu günde bizimle olan sevgili ailelerimiz</p>
+
+              <div className="sm-donation-divider">
+                <span className="sm-donation-divider-line" />
+                <span className="sm-donation-divider-dot">✦</span>
+                <span className="sm-donation-divider-line" />
+              </div>
+
+              <div className="sm-family-layout">
+                <div className="sm-family-side">
+                  <span className="sm-family-role">Gelin Tarafı</span>
+                  <span className="sm-family-ornament">✦</span>
+                  <span className="sm-family-name">Nesrin Gökhan</span>
+                  <span className="sm-family-sep">&amp;</span>
+                  <span className="sm-family-name">Sinan Gökhan</span>
+                </div>
+
+                <div className="sm-family-side">
+                  <span className="sm-family-role">Damat Tarafı</span>
+                  <span className="sm-family-ornament">✦</span>
+                  <span className="sm-family-name">Müzeyyen Seven</span>
+                  <span className="sm-family-sep">&amp;</span>
+                  <span className="sm-family-name">Nihat Seven</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+
+
           {/* ── GERİ SAYIM ── */}
           <section className="sm-section" id="countdown">
-            <div className="sm-section-inner">
-              <h2>Geri Sayım</h2>
+            <div className="sm-countdown-card sm-glass">
+              <div className="sm-title-row">
+                <h2>Geri Sayım</h2>
+              </div>
               <p className="sm-section-subtitle">Hayatımızın en özel günü için</p>
+              <div className="sm-donation-divider">
+                <span className="sm-donation-divider-line" />
+                <span className="sm-donation-divider-dot">✦</span>
+                <span className="sm-donation-divider-line" />
+              </div>
               <div className="sm-countdown-grid">
                 {[
                   { value: countdown.days, label: "Gün" },
@@ -506,55 +692,57 @@ export default function SineMuratPage() {
             </div>
           </section>
 
-          {/* ── ETKİNLİK AKIŞI ── */}
-          {/* <section className="sm-section" id="schedule">
-            <div className="sm-section-inner">
-              <h2>Etkinlik Akışı</h2>
-              <p className="sm-section-subtitle">24 Mayıs 2026</p>
 
-              <div className="sm-schedule-card sm-glass">
-                <div className="sm-schedule-header">
-                  <div className="sm-schedule-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="sm-schedule-title">Etkinlik Programı</p>
-                  </div>
-                </div>
-
-                <div className="sm-schedule-list">
-                  {SCHEDULE.map((item, i) => (
-                    <div className="sm-schedule-row" key={i}>
-                      <span className="sm-schedule-time">{item.time}</span>
-                      <div className="sm-schedule-content">
-                        <span className="sm-schedule-label">{item.label}</span>
-                        <span className="sm-schedule-desc">{item.desc}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {/* ── BAĞIŞ ── */}
+          <section className="sm-section" id="donation">
+            <div className="sm-donation-card sm-glass">
+              <div className="sm-donation-header">
+                <span className="sm-donation-icon">🌱</span>
+                <h2 className="sm-donation-title">Bağış</h2>
               </div>
+
+              <div className="sm-donation-divider">
+                <span className="sm-donation-divider-line" />
+                <span className="sm-donation-divider-dot">✦</span>
+                <span className="sm-donation-divider-line" />
+              </div>
+
+              <p className="sm-donation-text">
+                Bu özel günde sizin adınıza geleceğimizi birlikte yeşertmek adına{" "}
+                <strong>TEMA Vakfı</strong>'na bağışta bulunduk.
+              </p>
+
+              <em className="sm-donation-quote">
+                "Bir ağaç dikmek, geleceğe mektup yazmaktır."
+              </em>
             </div>
-          </section> */}
+          </section>
+
+
 
           {/* ── KONUM ── */}
           <section className="sm-section" id="location" style={{ paddingBottom: "4rem" }}>
             <div className="sm-location-card sm-glass">
-              <div className="sm-location-pin">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
+              <div className="sm-title-row">
+                <p className="sm-location-label">Konum</p>
+              </div>
+
+              <div className="sm-donation-divider">
+                <span className="sm-donation-divider-line" />
+                <span className="sm-donation-divider-dot">✦</span>
+                <span className="sm-donation-divider-line" />
               </div>
 
               <h3 className="sm-location-title">Vedat Dalokay Nikah Salonu</h3>
-              <span className="sm-location-name">Fidanlık, Prof. Dr. Nusret Fişek Cd. No:39, 06420 Çankaya/Ankara</span>
+              <a
+                href="https://maps.app.goo.gl/1YD5SPwiD4wCZz1R6"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sm-location-name"
+                style={{ textDecoration: "underline", textDecorationColor: "rgba(160,96,112,0.35)", textUnderlineOffset: "3px" }}
+              >
+                Fidanlık, Prof. Dr. Nusret Fişek Cd. No:39, 06420 Çankaya/Ankara
+              </a>
 
               <div className="sm-location-time-row">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -595,6 +783,7 @@ export default function SineMuratPage() {
               </a>
             </div>
           </section>
+
 
           {/* ── FOOTER ── */}
           <footer className="sm-footer">
