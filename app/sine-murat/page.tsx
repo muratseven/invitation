@@ -82,11 +82,11 @@ export default function SineMuratPage() {
           position: fixed;
           inset: 0; width: 100%; height: 110%;
           object-fit: cover;
-          object-position: center 20%;
+          object-position: center top;
           z-index: -1;
         }
         @media (min-width: 768px) {
-          .sm-bg-video { object-position: center 20%; }
+          .sm-bg-video { object-position: center top; }
         }
 
         /* ── Kök ── */
