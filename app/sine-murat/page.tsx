@@ -635,7 +635,7 @@ export default function SineMuratPage() {
 
       {/* ── Video arka plan ── */}
       <video className="sm-bg-video" autoPlay muted playsInline loop>
-        <source src="/bg-new.mp4" type="video/mp4" />
+        <source src="/bg-new.MP4" type="video/mp4" />
       </video>
 
       <div className="sm-root">
