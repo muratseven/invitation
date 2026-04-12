@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-// ─── Countdown ───────────────────────────────────────────────────────────────
+// ─── Countdoswn ───────────────────────────────────────────────────────────────
 
 type Countdown = {
   days: number;
