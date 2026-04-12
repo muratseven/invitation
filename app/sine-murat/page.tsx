@@ -82,7 +82,7 @@ export default function SineMuratPage() {
           position: fixed;
           inset: 0; width: 100%; height: 110%;
           object-fit: cover;
-          object-position: center 30%;
+          object-position: center 60%;
           z-index: -1;
         }
         @media (min-width: 768px) {
