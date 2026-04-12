@@ -82,7 +82,7 @@ export default function SineMuratPage() {
           position: fixed;
           inset: 0; width: 100%; height: 110%;
           object-fit: cover;
-          object-position: center center;
+          object-position: center 30%;
           z-index: -1;
         }
         @media (min-width: 768px) {
@@ -204,7 +204,7 @@ export default function SineMuratPage() {
         }
         .sm-hero-family-item {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1.2rem, 4vw, 2rem);
+          font-size: clamp(1rem, 3vw, 1.5rem);
           white-space: nowrap;
           color: #780f19;
           font-weight: 700;
