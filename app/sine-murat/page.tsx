@@ -80,7 +80,7 @@ export default function SineMuratPage() {
         /* ── Video arka plan ── */
         .sm-bg-video {
           position: fixed;
-          inset: 0; width: 100%; height: 100%;
+          inset: 0; width: 100%; height: 110%;
           object-fit: cover;
           object-position: center center;
           z-index: -1;
@@ -140,7 +140,7 @@ export default function SineMuratPage() {
           align-items: center;
           justify-content: center;
           gap: 1rem;
-          margin: 0.6rem 0;
+          margin: 0;
         }
         .sm-divider-line {
           height: 1px;
@@ -187,7 +187,7 @@ export default function SineMuratPage() {
         }
         .sm-hero-location-name {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1.45rem, 3.5vw, 1.8rem);
+          font-size: clamp(1.1rem, 2.5vw, 1.35rem);
           color: #4a1525;
           font-weight: 700;
           letter-spacing: 0.08em;
@@ -632,6 +632,9 @@ export default function SineMuratPage() {
           .sm-title { font-size: clamp(2.6rem, 13vw, 3.5rem); }
         }
       `}</style>
+
+      {/* ── Warm fallback arka plan (dark mode siyah sorununu önler) ── */}
+      <div style={{ position: "fixed", inset: 0, backgroundColor: "#f5e8dd", zIndex: -2 }} />
 
       {/* ── Video arka plan ── */}
       <video className="sm-bg-video" autoPlay muted playsInline loop>
