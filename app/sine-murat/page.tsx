@@ -648,7 +648,7 @@ export default function SineMuratPage() {
         {/* ── HERO: arka plan yok, sadece metin ── */}
         <header className="sm-hero" id="top">
           <div className="sm-hero-inner">
-            <p className="sm-subtitle">Bu özel günde sizleri de aramızda görmekten<br />mutluluk duyarız</p>
+            <p className="sm-subtitle">Bu özel günde sizleri de aramızda görmekten<br />mutluluk duyarız...</p>
 
             <h1 className="sm-title">
               <span className="sm-title-line">Sine</span>
