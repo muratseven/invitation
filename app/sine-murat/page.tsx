@@ -140,7 +140,7 @@ export default function SineMuratPage() {
           align-items: center;
           justify-content: center;
           gap: 1rem;
-          margin: 1.4rem 0;
+          margin: 0.6rem 0;
         }
         .sm-divider-line {
           height: 1px;
@@ -151,7 +151,7 @@ export default function SineMuratPage() {
 
         .sm-date {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1.2rem, 3vw, 1.5rem);
+          font-size: clamp(1.5rem, 4vw, 2rem);
           letter-spacing: 0.06em;
           color: #4a1525;
           margin-bottom: 0.5rem;
@@ -164,12 +164,72 @@ export default function SineMuratPage() {
           gap: 0.4rem;
           margin-top: 0.3rem;
         }
-        .sm-time-icon { width: 1rem; height: 1rem; opacity: 0.55; color: #a06070; }
+        .sm-time-label {
+          font-family: var(--font-charm), cursive;
+          font-size: 1.5rem;
+          color: #a06070;
+          font-weight: 700;
+        }
         .sm-time-text {
           font-family: var(--font-charm), cursive;
           font-size: 1.5rem;
           color: #7a3045;
           font-weight: 700;
+        }
+
+        .sm-hero-location {
+          margin-top: 0.4rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.4rem 0.8rem;
+        }
+        .sm-hero-location-name {
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1.45rem, 3.5vw, 1.8rem);
+          color: #4a1525;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+        }
+        .sm-hero-families {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.7rem;
+          width: 100%;
+          padding-bottom: 0.7rem;
+          border-bottom: 1px solid rgba(196,132,154,0.3);
+          margin-bottom: 0.2rem;
+        }
+        .sm-hero-family-item {
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1rem, 2.5vw, 1.5rem);
+          color: #4a1525;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          flex: 1;
+        }
+        .sm-hero-family-item:first-child { text-align: center; }
+        .sm-hero-family-item:last-child  { text-align: center; }
+        .sm-hero-family-surname {
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: #7a3045;
+        }
+        .sm-hero-family-sep {
+          color: #c4849a;
+          font-size: 0.7rem;
+          opacity: 0.8;
+        }
+        .sm-hero-location-addr {
+          font-family: var(--font-roboto), sans-serif;
+          font-size: clamp(1rem, 2.5vw, 1.15rem);
+          color: #a06070;
+          letter-spacing: 0.03em;
+          border-top: 1px solid rgba(196,132,154,0.35);
+          padding-top: 0.45rem;
+          margin-top: 0.1rem;
         }
 
         /* Scroll butonu */
@@ -450,7 +510,7 @@ export default function SineMuratPage() {
           padding: 2.5rem 2rem; text-align: center;
         }
         .sm-section .sm-family-title {
-          font-family: var(--font-great-vibes), cursive;
+          font-family: var(--font-charm), cursive;
           font-size: clamp(2.2rem, 5.5vw, 3rem);
           letter-spacing: 0.04em; color: #4a1525;
           margin-bottom: 0.3rem;
@@ -466,13 +526,10 @@ export default function SineMuratPage() {
           margin-top: 0.5rem;
         }
         .sm-family-side {
-          flex: 1; min-width: 0; padding: 1.5rem 1rem 1.75rem;
+          flex: 1; min-width: 0; padding: 0.8rem 0.8rem 1rem;
           text-align: center;
           display: flex; flex-direction: column; align-items: center;
-          background: rgba(255, 248, 244, 0.5);
-          border: 1px solid rgba(196,132,154,0.2);
           border-radius: 18px;
-          box-shadow: 0 4px 20px rgba(74,21,37,0.06), inset 0 1px 0 rgba(255,255,255,0.7);
         }
         .sm-family-divider-dot { font-size: 0.75rem; color: #c4849a; }
         .sm-family-role {
@@ -482,15 +539,18 @@ export default function SineMuratPage() {
           text-transform: uppercase; font-weight: 600;
           display: block;
         }
-        .sm-family-ornament {
-          font-size: 0.75rem; color: #c4849a;
-          margin-bottom: 0.9rem; display: block;
+
+        .sm-family-surname {
+          font-family: var(--font-charm), cursive;
+          letter-spacing: 0.12em;
+          font-weight: 700;
+          text-transform: uppercase;
         }
         .sm-family-name {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1.15rem, 3vw, 1.4rem);
+          font-size: clamp(2rem, 4.5vw, 2.6rem);
           color: #4a1525; line-height: 1.5;
-          display: block; font-weight: 700;
+          display: block; font-weight: 800;
         }
         .sm-family-sep {
           display: block;
@@ -500,8 +560,8 @@ export default function SineMuratPage() {
         }
         @media (max-width: 600px) {
           .sm-family-layout { gap: 0.6rem; }
-          .sm-family-side { padding: 1.2rem 0.7rem 1.4rem; }
-          .sm-family-name { font-size: 1rem; }
+          .sm-family-side { padding: 0.6rem 0.5rem 0.8rem; }
+          .sm-family-name { font-size: 1.75rem; }
           .sm-family-role { font-size: 0.68rem; letter-spacing: 0.16em; }
         }
 
@@ -574,8 +634,8 @@ export default function SineMuratPage() {
       `}</style>
 
       {/* ── Video arka plan ── */}
-      <video className="sm-bg-video" autoPlay muted playsInline>
-        <source src="/bg.mp4" type="video/mp4" />
+      <video className="sm-bg-video" autoPlay muted playsInline loop>
+        <source src="/bg-new.mp4" type="video/mp4" />
       </video>
 
       <div className="sm-root">
@@ -600,12 +660,18 @@ export default function SineMuratPage() {
             <p className="sm-date">{dateText}</p>
 
             <div className="sm-time-row">
-              <svg className="sm-time-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
+              <span className="sm-time-label">Saat:</span>
               <span className="sm-time-text">13:30</span>
+            </div>
+
+            <div className="sm-hero-location">
+              <div className="sm-hero-families">
+                <span className="sm-hero-family-item">Nesrin - Sinan <span className="sm-hero-family-surname">Gökhan</span></span>
+                <span className="sm-hero-family-sep">✦</span>
+                <span className="sm-hero-family-item">Müzeyyen - Nihat <span className="sm-hero-family-surname">Seven</span></span>
+              </div>
+              <span className="sm-hero-location-name">Vedat Dalokay Nikah Salonu</span>
+              <span className="sm-hero-location-addr">Fidanlık, Prof. Dr. Nusret Fişek Cd. No:39, Çankaya / Ankara</span>
             </div>
 
             <div className="sm-scroll">
@@ -638,18 +704,12 @@ export default function SineMuratPage() {
               <div className="sm-family-layout">
                 <div className="sm-family-side">
                   <span className="sm-family-role">Gelin Tarafı</span>
-                  <span className="sm-family-ornament">✦</span>
-                  <span className="sm-family-name">Nesrin Gökhan</span>
-                  <span className="sm-family-sep">&amp;</span>
-                  <span className="sm-family-name">Sinan Gökhan</span>
+                  <span className="sm-family-name">Nesrin - Sinan <span className="sm-family-surname">Gökhan</span></span>
                 </div>
 
                 <div className="sm-family-side">
                   <span className="sm-family-role">Damat Tarafı</span>
-                  <span className="sm-family-ornament">✦</span>
-                  <span className="sm-family-name">Müzeyyen Seven</span>
-                  <span className="sm-family-sep">&amp;</span>
-                  <span className="sm-family-name">Nihat Seven</span>
+                  <span className="sm-family-name">Müzeyyen - Nihat <span className="sm-family-surname">Seven</span></span>
                 </div>
               </div>
             </div>
