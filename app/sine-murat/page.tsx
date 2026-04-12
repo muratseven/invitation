@@ -80,7 +80,7 @@ export default function SineMuratPage() {
         /* ── Video arka plan ── */
         .sm-bg-video {
           position: fixed;
-          inset: 0; width: 100%; height: 110%;
+          top: 0; left: 0; width: 100%; height: 118%;
           object-fit: cover;
           object-position: center top;
           z-index: -1;
