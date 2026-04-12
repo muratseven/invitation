@@ -691,7 +691,7 @@ export default function SineMuratPage() {
         <main>
 
           {/* ── AİLE ── */}
-          <section className="sm-section" id="family">
+          <section className="sm-section" id="family" style={{ paddingTop: "24rem" }}>
             <div className="sm-family-card sm-glass">
               <div className="sm-title-row">
                 <h2 className="sm-family-title">Ailelerimiz</h2>
