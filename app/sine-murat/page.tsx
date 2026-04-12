@@ -113,7 +113,7 @@ export default function SineMuratPage() {
           font-size: clamp(1rem, 2.2vw, 1.2rem);
           letter-spacing: 0.08em;
           text-transform: none;
-          color: #49520b;
+          color: #4B5320;
           margin-bottom: 1.4rem;
           font-weight: 600;
         }
@@ -123,7 +123,7 @@ export default function SineMuratPage() {
           line-height: 1.05;
           letter-spacing: 0.04em;
           margin-bottom: 0.5rem;
-          color: #780f19;
+          color: #6B0F18;
         }
         .sm-title-line { display: block; }
         .sm-ampersand {
@@ -153,7 +153,7 @@ export default function SineMuratPage() {
           font-family: var(--font-charm), cursive;
           font-size: clamp(1.5rem, 4vw, 2rem);
           letter-spacing: 0.06em;
-          color: #780f19;
+          color: #6B0F18;
           margin-bottom: 0.5rem;
           font-weight: 700;
         }
@@ -167,13 +167,13 @@ export default function SineMuratPage() {
         .sm-time-label {
           font-family: var(--font-charm), cursive;
           font-size: 1.5rem;
-          color: #49520b;
+          color: #4B5320;
           font-weight: 700;
         }
         .sm-time-text {
           font-family: var(--font-charm), cursive;
           font-size: 1.5rem;
-          color: #49520b;
+          color: #4B5320;
           font-weight: 700;
         }
 
@@ -188,7 +188,7 @@ export default function SineMuratPage() {
         .sm-hero-location-name {
           font-family: var(--font-charm), cursive;
           font-size: clamp(1.3rem, 3vw, 1.6rem);
-          color: #780f19;
+          color: #6B0F18;
           font-weight: 700;
           letter-spacing: 0.08em;
         }
@@ -206,7 +206,7 @@ export default function SineMuratPage() {
           font-family: var(--font-charm), cursive;
           font-size: clamp(1rem, 3vw, 1.5rem);
           white-space: nowrap;
-          color: #780f19;
+          color: #6B0F18;
           font-weight: 700;
           letter-spacing: 0.04em;
           flex: 1;
@@ -216,7 +216,7 @@ export default function SineMuratPage() {
         .sm-hero-family-surname {
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          color: #49520b;
+          color: #4B5320;
           display: block;
         }
         .sm-hero-family-sep {
@@ -227,7 +227,7 @@ export default function SineMuratPage() {
         .sm-hero-location-addr {
           font-family: var(--font-roboto), sans-serif;
           font-size: clamp(1rem, 2.5vw, 1.15rem);
-          color: #49520b;
+          color: #4B5320;
           letter-spacing: 0.03em;
           border-top: 1px solid rgba(196,132,154,0.35);
           padding-top: 0.45rem;
