@@ -187,7 +187,7 @@ export default function SineMuratPage() {
         }
         .sm-hero-location-name {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+          font-size: clamp(1.3rem, 3vw, 1.6rem);
           color: #780f19;
           font-weight: 700;
           letter-spacing: 0.08em;
@@ -204,7 +204,8 @@ export default function SineMuratPage() {
         }
         .sm-hero-family-item {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1rem, 2.5vw, 1.5rem);
+          font-size: clamp(1.2rem, 4vw, 2rem);
+          white-space: nowrap;
           color: #780f19;
           font-weight: 700;
           letter-spacing: 0.04em;
@@ -216,6 +217,7 @@ export default function SineMuratPage() {
           text-transform: uppercase;
           letter-spacing: 0.12em;
           color: #4f590a;
+          display: block;
         }
         .sm-hero-family-sep {
           color: #c4849a;
@@ -637,7 +639,7 @@ export default function SineMuratPage() {
       <div style={{ position: "fixed", inset: 0, backgroundColor: "#f5e8dd", zIndex: -2 }} />
 
       {/* ── Video arka plan ── */}
-      <video className="sm-bg-video" autoPlay muted playsInline loop>
+      <video className="sm-bg-video" autoPlay muted playsInline>
         <source src="/bg-new.MP4" type="video/mp4" />
       </video>
 
@@ -677,14 +679,14 @@ export default function SineMuratPage() {
               <span className="sm-hero-location-addr">Fidanlık, Prof. Dr. Nusret Fişek Cd. No:39, Çankaya / Ankara</span>
             </div>
 
-            <div className="sm-scroll">
+            {/* <div className="sm-scroll">
               <button className="sm-scroll-btn" onClick={scrollToCountdown} aria-label="Aşağı kaydır">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </button>
-            </div>
+            </div> */}
           </div>
         </header>
 
