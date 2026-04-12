@@ -110,9 +110,9 @@ export default function SineMuratPage() {
 
         .sm-subtitle {
           font-family: var(--font-charm), cursive;
-          font-size: clamp(1.3rem, 3.8vw, 1.6rem);
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
+          font-size: clamp(1rem, 2.2vw, 1.2rem);
+          letter-spacing: 0.08em;
+          text-transform: none;
           color: #4f590a;
           margin-bottom: 1.4rem;
           font-weight: 600;
@@ -648,7 +648,7 @@ export default function SineMuratPage() {
         {/* ── HERO: arka plan yok, sadece metin ── */}
         <header className="sm-hero" id="top">
           <div className="sm-hero-inner">
-            <p className="sm-subtitle">Biz evleniyoruz</p>
+            <p className="sm-subtitle">Bu özel günde sizleri de aramızda görmekten<br />mutluluk duyarız</p>
 
             <h1 className="sm-title">
               <span className="sm-title-line">Sine</span>
