@@ -41,11 +41,29 @@ export default function SineMuratDavetiye({ guestName }: Props) {
   const [countdown, setCountdown] = useState<Countdown>({
     days: 0, hours: 0, minutes: 0, seconds: 0, finished: false,
   });
+  const [nameVisible, setNameVisible] = useState(false);
 
   useEffect(() => {
     setCountdown(computeCountdown(EVENT_DATE));
     const id = setInterval(() => setCountdown(computeCountdown(EVENT_DATE)), 1000);
     return () => clearInterval(id);
+  }, []);
+
+  // Scroll reveal
+  useEffect(() => {
+    const els = document.querySelectorAll(".sm-reveal");
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { (e.target as HTMLElement).classList.add("sm-visible"); obs.unobserve(e.target); } }),
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  // Guest name entrance
+  useEffect(() => {
+    const t = setTimeout(() => setNameVisible(true), 300);
+    return () => clearTimeout(t);
   }, []);
 
   const dateText = EVENT_DATE.toLocaleDateString("tr-TR", {
@@ -72,6 +90,53 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           Charm              → tarih/saat hero, aile isimleri
           Roboto             → adres, küçük etiket, teknik metin
         */
+
+        /* ── Scroll reveal ── */
+        .sm-reveal {
+          opacity: 0;
+          transform: translateY(28px);
+          transition: opacity 0.75s ease, transform 0.75s ease;
+        }
+        .sm-reveal.sm-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* ── Petal animasyonu ── */
+        @keyframes sm-petal-fall {
+          0%   { transform: translateY(-5vh) rotate(0deg) translateX(0);   opacity: 0; }
+          10%  { opacity: 0.55; }
+          90%  { opacity: 0.3; }
+          100% { transform: translateY(105vh) rotate(540deg) translateX(30px); opacity: 0; }
+        }
+        .sm-petal {
+          position: fixed; top: 0; pointer-events: none; z-index: 0;
+          width: 9px; height: 12px; border-radius: 50% 0 50% 0;
+          background: rgba(107,15,24,0.35);
+          animation: sm-petal-fall linear infinite;
+        }
+
+        /* ── Monogram watermark ── */
+        .sm-monogram {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -52%);
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(8rem, 28vw, 18rem);
+          color: rgba(107,15,24,0.06);
+          pointer-events: none; user-select: none;
+          white-space: nowrap; line-height: 1;
+          z-index: 0;
+        }
+
+        /* ── Davetli isim giriş animasyonu ── */
+        @keyframes sm-name-in {
+          0%   { opacity: 0; transform: translateY(14px) scale(0.97); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .sm-name-enter {
+          animation: sm-name-in 0.8s cubic-bezier(0.22,1,0.36,1) both;
+        }
 
         /* ── Video arka plan ── */
         .sm-bg-video {
@@ -143,7 +208,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           width: 3rem;
           background: linear-gradient(90deg, transparent, rgba(196,132,154,0.5) 40%, rgba(196,132,154,0.5) 60%, transparent);
         }
-        .sm-divider-icon { font-size: 0.75rem; color: #c4849a; }
+        .sm-divider-icon { font-size: 0.75rem; color: #C9A96E; }
 
         .sm-date {
           font-family: var(--font-charm), cursive;
@@ -312,20 +377,21 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         }
         .sm-count-number {
           display: block;
-          font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 2.1rem;
-          font-weight: 700;
+          font-family: var(--font-cormorant), Georgia, serif;
+          font-size: 2.6rem;
+          font-weight: 600;
           letter-spacing: 0.02em;
           color: #6B0F18;
+          line-height: 1;
         }
         .sm-count-label {
           display: block;
           font-family: var(--font-roboto), system-ui, sans-serif;
-          font-size: 0.72rem;
+          font-size: 0.68rem;
           text-transform: uppercase;
-          letter-spacing: 0.14em;
-          color: #a06070;
-          margin-top: 0.25rem;
+          letter-spacing: 0.16em;
+          color: #C9A96E;
+          margin-top: 0.35rem;
         }
 
         /* ── Etkinlik Akışı ── */
@@ -375,8 +441,8 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           position: absolute;
           left: -1.22rem; top: 50%; transform: translateY(-50%);
           width: 7px; height: 7px; border-radius: 50%;
-          background: #c4849a;
-          box-shadow: 0 0 6px rgba(196,132,154,0.5);
+          background: #C9A96E;
+          box-shadow: 0 0 6px rgba(201,169,110,0.5);
           border: 1.5px solid rgba(255,248,244,0.9);
         }
         .sm-schedule-time {
@@ -468,12 +534,6 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           -webkit-backdrop-filter: blur(22px);
           border-top: 1px solid rgba(122, 48, 69, 0.12);
         }
-        .sm-footer::before {
-          content: "";
-          display: block; width: 50%; height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(196,132,154,0.35) 30%, rgba(196,132,154,0.35) 70%, transparent);
-          margin: 0 auto 2.5rem;
-        }
         .sm-footer-heart {
           width: 1.7rem; height: 1.7rem;
           margin: 0 auto 1rem;
@@ -498,10 +558,20 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           color: #a06070; margin-bottom: 0.4rem;
           font-weight: 600;
         }
+        .sm-footer-quote {
+          font-family: var(--font-cormorant), Georgia, serif;
+          font-style: italic;
+          font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+          color: #a06070;
+          letter-spacing: 0.03em;
+          line-height: 1.6;
+          margin-bottom: 1.5rem;
+          opacity: 0.85;
+        }
         .sm-footer-credit {
           font-family: var(--font-charm), cursive;
           font-size: 0.95rem; letter-spacing: 0.18em;
-          color: #a06070; margin-top: 0.5rem;
+          color: #C9A96E; margin-top: 0.5rem;
         }
 
         /* ── Aile ── */
@@ -570,7 +640,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           height: 1px; width: 2.5rem;
           background: linear-gradient(90deg, transparent, rgba(196,132,154,0.5), transparent);
         }
-        .sm-donation-divider-dot { font-size: 0.7rem; color: #c4849a; }
+        .sm-donation-divider-dot { font-size: 0.7rem; color: #C9A96E; }
 
         /* ── Responsive ── */
         @media (max-width: 600px) {
@@ -594,14 +664,49 @@ export default function SineMuratDavetiye({ guestName }: Props) {
       <div style={{ position: "fixed", inset: 0, backgroundColor: "#f5e8dd", zIndex: -2 }} />
 
       {/* ── Video arka plan ── */}
-      <video className="sm-bg-video" autoPlay muted playsInline>
+      <video className="sm-bg-video" autoPlay muted playsInline loop>
         <source src="/bg-new.MP4" type="video/mp4" />
       </video>
 
+      {/* ── Video warm vignette overlay ── */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at center, transparent 40%, rgba(74,21,37,0.22) 100%)",
+      }} />
+
+      {/* ── Düşen yapraklar ── */}
+      {[
+        { left: "8%",  delay: "0s",   dur: "9s",  size: "8px 11px" },
+        { left: "22%", delay: "2.5s", dur: "11s", size: "7px 9px"  },
+        { left: "38%", delay: "5s",   dur: "8s",  size: "9px 12px" },
+        { left: "55%", delay: "1.2s", dur: "12s", size: "6px 8px"  },
+        { left: "70%", delay: "3.8s", dur: "10s", size: "8px 10px" },
+        { left: "85%", delay: "6.5s", dur: "9.5s",size: "7px 10px" },
+      ].map((p, i) => (
+        <div key={i} className="sm-petal" style={{
+          left: p.left,
+          animationDelay: p.delay,
+          animationDuration: p.dur,
+          width: p.size.split(" ")[0],
+          height: p.size.split(" ")[1],
+        }} />
+      ))}
+
       <div className="sm-root">
 
-        <header className="sm-hero" id="top">
-          <div className="sm-hero-inner">
+        <header className="sm-hero" id="top" style={{ position: "relative" }}>
+          {/* Monogram watermark */}
+          <div className="sm-monogram" aria-hidden>S &amp; M</div>
+
+          {/* Hero → içerik geçiş degradesi */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0,
+            height: "120px", pointerEvents: "none",
+            background: "linear-gradient(to bottom, transparent, rgba(245,232,221,0.7))",
+            zIndex: 1,
+          }} />
+
+          <div className="sm-hero-inner" style={{ position: "relative", zIndex: 2 }}>
             <p className="sm-subtitle">Bu özel günde sizleri de aramızda görmekten<br />mutluluk duyarız...</p>
 
             <h1 className="sm-title">
@@ -640,13 +745,15 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           <section className="sm-section" id="guest" style={{ paddingTop: "0" }}>
             <div className="sm-guest-card sm-glass">
               <span className="sm-guest-label">Sevgili</span>
-              <span className="sm-guest-name">{guestName ?? "—"}</span>
+              <span className={`sm-guest-name${nameVisible ? " sm-name-enter" : ""}`} style={{ opacity: nameVisible ? 1 : 0 }}>
+                {guestName ?? "—"}
+              </span>
             </div>
           </section>
 
           {/* ── AİLE ── */}
           <section className="sm-section" id="family">
-            <div className="sm-family-card sm-glass">
+            <div className="sm-family-card sm-glass sm-reveal">
               <div className="sm-title-row">
                 <h2 className="sm-family-title">Ailelerimiz</h2>
               </div>
@@ -681,7 +788,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
 
           {/* ── GERİ SAYIM ── */}
           <section className="sm-section" id="countdown">
-            <div className="sm-countdown-card sm-glass">
+            <div className="sm-countdown-card sm-glass sm-reveal">
               <div className="sm-title-row">
                 <h2>Geri Sayım</h2>
               </div>
@@ -716,7 +823,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
 
           {/* ── KONUM ── */}
           <section className="sm-section" id="location" style={{ paddingBottom: "4rem" }}>
-            <div className="sm-location-card sm-glass">
+            <div className="sm-location-card sm-glass sm-reveal">
               <div className="sm-title-row">
                 <p className="sm-location-label">Konum</p>
               </div>
@@ -759,6 +866,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Mekan Haritası"
+                  style={{ filter: "sepia(0.35) saturate(0.85) hue-rotate(-8deg) brightness(0.95)" }}
                 />
               </div>
 
