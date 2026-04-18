@@ -265,7 +265,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           margin-bottom: 0.6rem;
         }
         .sm-guest-name {
-          font-family: var(--font-great-vibes), cursive;
+          font-family: var(--font-charm), cursive;
           font-size: clamp(2.4rem, 6vw, 3.4rem);
           color: #a06070;
           line-height: 1.15;
@@ -539,11 +539,21 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           text-transform: uppercase;
           color: #6B0F18;
         }
+        .sm-family-firstnames {
+          display: flex; align-items: center; justify-content: center;
+          gap: 0.35rem; flex-wrap: nowrap;
+        }
         .sm-family-name {
           font-family: var(--font-charm), cursive;
           font-size: clamp(1.4rem, 3.2vw, 1.9rem);
-          color: #6B0F18; line-height: 1.5;
-          display: block; font-weight: 800;
+          color: #6B0F18; line-height: 1.3;
+          font-weight: 800;
+          white-space: nowrap;
+        }
+        .sm-family-name-dash {
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1.2rem, 2.8vw, 1.6rem);
+          color: #c4849a; font-weight: 400;
         }
         .sm-family-sep {
           display: block;
@@ -572,7 +582,8 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           .sm-family-card    { padding: 2rem 1.25rem; }
           .sm-family-layout  { gap: 0.6rem; }
           .sm-family-side    { padding: 0.6rem 0.5rem 0.8rem; }
-          .sm-family-name    { font-size: 1.3rem; }
+          .sm-family-name    { font-size: 1.1rem; }
+          .sm-family-name-dash { font-size: 1rem; }
         }
         @media (max-width: 380px) {
           .sm-title { font-size: clamp(2.6rem, 13vw, 3.5rem); }
@@ -649,10 +660,20 @@ export default function SineMuratDavetiye({ guestName }: Props) {
 
               <div className="sm-family-layout">
                 <div className="sm-family-side">
-                  <span className="sm-family-name">Nesrin - Sinan <span className="sm-family-surname">Gökhan</span></span>
+                  <div className="sm-family-firstnames">
+                    <span className="sm-family-name">Nesrin</span>
+                    <span className="sm-family-name-dash">-</span>
+                    <span className="sm-family-name">Sinan</span>
+                  </div>
+                  <span className="sm-family-surname">Gökhan</span>
                 </div>
                 <div className="sm-family-side">
-                  <span className="sm-family-name">Müzeyyen - Nihat <span className="sm-family-surname">Seven</span></span>
+                  <div className="sm-family-firstnames">
+                    <span className="sm-family-name">Müzeyyen</span>
+                    <span className="sm-family-name-dash">-</span>
+                    <span className="sm-family-name">Nihat</span>
+                  </div>
+                  <span className="sm-family-surname">Seven</span>
                 </div>
               </div>
             </div>
