@@ -13,22 +13,8 @@ import {
   Charm,
   Playfair_Display,
   Beth_Ellen,
-  Special_Elite,
-  Cinzel_Decorative,
-  Josefin_Sans,
+  Special_Elite
 } from "next/font/google";
-
-const cinzelDecorative = Cinzel_Decorative({
-  subsets: ["latin"],
-  weight: ["400", "700", "900"],
-  variable: "--font-cinzel",
-});
-
-const josefinSans = Josefin_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "600", "700"],
-  variable: "--font-josefin",
-});
 
 const bethEllen = Beth_Ellen({
   subsets: ["latin"],
@@ -137,8 +123,6 @@ export default function RootLayout({
           charm.variable,
           bethEllen.variable,
           specialElite.variable,
-          cinzelDecorative.variable,
-          josefinSans.variable,
         ].join(" ")}
       >
         {children}

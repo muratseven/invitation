@@ -121,7 +121,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           position: absolute;
           top: 50%; left: 50%;
           transform: translate(-50%, -52%);
-          font-family: var(--font-parisienne), cursive;
+          font-family: var(--font-great-vibes), cursive;
           font-size: clamp(8rem, 28vw, 18rem);
           color: rgba(107,15,24,0.06);
           pointer-events: none; user-select: none;
@@ -170,7 +170,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         .sm-hero-inner { max-width: 560px; width: 100%; }
 
         .sm-subtitle {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: clamp(1rem, 2.2vw, 1.2rem);
           letter-spacing: 0.08em;
           text-transform: none;
@@ -179,13 +179,12 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           font-weight: 600;
         }
         .sm-title {
-          font-family: var(--font-parisienne), cursive;
+          font-family: var(--font-great-vibes), cursive;
           font-size: clamp(3.8rem, 13vw, 7.5rem);
           line-height: 1.05;
           letter-spacing: 0.04em;
           margin-bottom: 0.5rem;
           color: #6B0F18;
-          font-weight: 400;
         }
         .sm-title-line { display: block; }
         .sm-ampersand {
@@ -212,7 +211,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         .sm-divider-icon { font-size: 0.75rem; color: #C9A96E; }
 
         .sm-date {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: clamp(1.5rem, 4vw, 2rem);
           letter-spacing: 0.06em;
           color: #6B0F18;
@@ -227,13 +226,13 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           margin-top: 0.3rem;
         }
         .sm-time-label {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: 1.5rem;
           color: #a06070;
           font-weight: 700;
         }
         .sm-time-text {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: 1.5rem;
           color: #a06070;
           font-weight: 700;
@@ -250,7 +249,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           margin-bottom: 0.2rem;
         }
         .sm-hero-family-item {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: clamp(0.38rem, 0.9vw, 0.5rem);
           white-space: nowrap;
           color: #6B0F18;
@@ -295,18 +294,16 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         .sm-section { padding: 4rem 1.5rem; }
         .sm-section-inner { max-width: 960px; margin: 0 auto; }
         .sm-section h2 {
-          font-family: var(--font-playfair), Georgia, serif;
-          font-size: clamp(1.7rem, 4vw, 2.3rem);
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(2.2rem, 5vw, 2.8rem);
           text-align: center;
           margin-bottom: 0.4rem;
           letter-spacing: 0.04em;
           color: #6B0F18;
-          font-weight: 700;
-          font-style: italic;
         }
         .sm-section-subtitle {
           text-align: center;
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: 1.25rem;
           letter-spacing: 0.06em;
           color: #a06070;
@@ -325,18 +322,16 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           padding: 2rem 2rem; text-align: center;
         }
         .sm-guest-label {
-          font-family: var(--font-playfair), Georgia, serif;
-          font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-          letter-spacing: 0.08em;
-          font-weight: 400;
-          font-style: italic;
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(2.2rem, 5.5vw, 3rem);
+          letter-spacing: 0.04em;
           color: #6B0F18;
           display: block;
           margin-bottom: 0.6rem;
         }
         .sm-guest-name {
-          font-family: var(--font-parisienne), cursive;
-          font-size: clamp(2.6rem, 6.5vw, 3.8rem);
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(2.4rem, 6vw, 3.4rem);
           color: #a06070;
           line-height: 1.15;
           display: block;
@@ -391,7 +386,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         }
         .sm-count-label {
           display: block;
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.68rem;
           text-transform: uppercase;
           letter-spacing: 0.16em;
@@ -416,12 +411,12 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         }
         .sm-schedule-icon svg { width: 17px; height: 17px; stroke: #a06070; fill: none; stroke-width: 1.6; }
         .sm-schedule-title {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.82rem; font-weight: 600; letter-spacing: 0.14em;
           text-transform: uppercase; color: #6B0F18;
         }
         .sm-schedule-sub {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.74rem; color: #a06070; margin-top: 0.1rem;
         }
         .sm-schedule-list {
@@ -451,17 +446,17 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           border: 1.5px solid rgba(255,248,244,0.9);
         }
         .sm-schedule-time {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.75rem; font-weight: 600;
           color: #a06070; letter-spacing: 0.08em; text-transform: uppercase;
         }
         .sm-schedule-content { display: flex; flex-direction: column; gap: 0.12rem; }
         .sm-schedule-label {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.88rem; font-weight: 500; color: #6B0F18;
         }
         .sm-schedule-desc {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.75rem; color: #a06070; line-height: 1.4;
         }
 
@@ -474,24 +469,23 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         }
         .sm-location-pin svg { width: 1.6rem; height: 1.6rem; color: #a06070; }
         .sm-location-label {
-          font-family: var(--font-cormorant), Georgia, serif;
-          font-size: clamp(0.85rem, 2vw, 1rem);
-          letter-spacing: 0.28em;
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(1.4rem, 3.5vw, 1.7rem);
+          letter-spacing: 0.26em;
           text-transform: uppercase;
-          color: #C9A96E;
+          color: #6B0F18;
           margin-bottom: 0.6rem;
-          font-weight: 600;
+          font-weight: 700;
         }
         .sm-location-title {
-          font-family: var(--font-playfair), Georgia, serif;
-          font-size: clamp(1.4rem, 3.5vw, 2rem);
-          font-style: italic;
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(2rem, 5vw, 2.8rem);
           margin-bottom: 0.75rem;
           letter-spacing: 0.04em;
           color: #6B0F18;
         }
         .sm-location-name {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: clamp(0.8rem, 1.8vw, 0.9rem);
           margin-bottom: 0.75rem; display: block;
           color: #a06070; line-height: 1.6;
@@ -520,7 +514,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           padding: 0.65rem 1.5rem; border-radius: 999px;
           border: 1px solid rgba(122,48,69,0.38);
           background: rgba(122,48,69,0.05);
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-roboto), system-ui, sans-serif;
           font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
           text-decoration: none; color: #a06070;
           transition: background 0.2s ease, border-color 0.2s ease;
@@ -551,15 +545,15 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           50%       { transform: scale(1.2); opacity: 1;   }
         }
         .sm-footer-names {
-          font-family: var(--font-parisienne), cursive;
-          font-size: clamp(2rem, 5vw, 2.8rem);
+          font-family: var(--font-great-vibes), cursive;
+          font-size: clamp(2.2rem, 6vw, 3rem);
           letter-spacing: 0.04em;
           margin-bottom: 0.75rem;
           line-height: 1.1;
           color: #6B0F18;
         }
         .sm-footer-date {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: 1.15rem; letter-spacing: 0.1em;
           color: #a06070; margin-bottom: 0.4rem;
           font-weight: 600;
@@ -575,7 +569,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           opacity: 0.85;
         }
         .sm-footer-credit {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: 0.95rem; letter-spacing: 0.18em;
           color: #C9A96E; margin-top: 0.5rem;
         }
@@ -586,13 +580,13 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           padding: 2.5rem 2rem; text-align: center;
         }
         .sm-section .sm-family-title {
-          font-family: var(--font-playfair), Georgia, serif;
-          font-size: clamp(1.7rem, 4vw, 2.3rem);
+          font-family: var(--font-charm), cursive;
+          font-size: clamp(2.2rem, 5.5vw, 3rem);
           letter-spacing: 0.04em; color: #6B0F18;
-          margin-bottom: 0.3rem; font-weight: 700; font-style: italic;
+          margin-bottom: 0.3rem;
         }
         .sm-family-subtitle {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: 1.1rem; color: #a06070;
           margin-bottom: 2rem;
         }
@@ -609,7 +603,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
         }
         .sm-family-divider-dot { font-size: 0.75rem; color: #c4849a; }
         .sm-family-surname {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           letter-spacing: 0.12em;
           font-weight: 700;
           text-transform: uppercase;
@@ -620,14 +614,14 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           gap: 0.35rem; flex-wrap: nowrap;
         }
         .sm-family-name {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: clamp(1.4rem, 3.2vw, 1.9rem);
           color: #6B0F18; line-height: 1.3;
           font-weight: 800;
           white-space: nowrap;
         }
         .sm-family-name-dash {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-charm), cursive;
           font-size: clamp(1.2rem, 2.8vw, 1.6rem);
           color: #c4849a; font-weight: 400;
         }
