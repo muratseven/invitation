@@ -91,16 +91,17 @@ export default function SineMuratDavetiye({ guestName: _guestName }: Props) {
 
         /* ── Petal animasyonu ── */
         @keyframes sm-petal-fall {
-          0%   { transform: translateY(-5vh) rotate(0deg) translateX(0);   opacity: 0; }
-          10%  { opacity: 0.55; }
+          0%   { transform: translateY(0) rotate(0deg) translateX(0);      opacity: 0; }
+          8%   { opacity: 0.55; }
           90%  { opacity: 0.3; }
-          100% { transform: translateY(105vh) rotate(540deg) translateX(30px); opacity: 0; }
+          100% { transform: translateY(125vh) rotate(540deg) translateX(30px); opacity: 0; }
         }
         .sm-petal {
-          position: fixed; top: 0; pointer-events: none; z-index: 0;
+          position: fixed; top: -18vh; pointer-events: none; z-index: 0;
           width: 9px; height: 12px; border-radius: 50% 0 50% 0;
           background: rgba(107,15,24,0.35);
           animation: sm-petal-fall linear infinite;
+          animation-fill-mode: both;
         }
 
         /* ── Monogram watermark ── */
@@ -147,7 +148,7 @@ export default function SineMuratDavetiye({ guestName: _guestName }: Props) {
 
         /* ── HERO ── */
         .sm-hero {
-          min-height: 90svh;
+          min-height: 100svh;
           display: flex;
           align-items: flex-start;
           justify-content: center;
