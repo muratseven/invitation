@@ -24,24 +24,16 @@ function computeCountdown(target: Date): Countdown {
 
 const EVENT_DATE = new Date("2026-05-24T13:30:00");
 
-const SCHEDULE = [
-  { time: "18:00", label: "Karşılama ve Kokteyl", desc: "Müzik eşliğinde sohbet ve ikramlar" },
-  { time: "19:00", label: "Yemek Servisi", desc: "Yemek servisi başlıyor" },
-  { time: "20:00", label: "Pasta Kesimi", desc: "Pasta kesimi ve kutlama" },
-  { time: "∞", label: "DJ & Dans", desc: "Müzik durmayacak, pistin ortası her zaman açık." },
-];
-
 const C = "#973a47";
 
 type Props = {
   guestName?: string;
 };
 
-export default function SineMuratDavetiye({ guestName }: Props) {
+export default function SineMuratDavetiye({ guestName: _guestName }: Props) {
   const [countdown, setCountdown] = useState<Countdown>({
     days: 0, hours: 0, minutes: 0, seconds: 0, finished: false,
   });
-  const [nameVisible, setNameVisible] = useState(false);
 
   useEffect(() => {
     setCountdown(computeCountdown(EVENT_DATE));
@@ -60,11 +52,6 @@ export default function SineMuratDavetiye({ guestName }: Props) {
     return () => obs.disconnect();
   }, []);
 
-  // Guest name entrance
-  useEffect(() => {
-    const t = setTimeout(() => setNameVisible(true), 300);
-    return () => clearTimeout(t);
-  }, []);
 
   const dateText = EVENT_DATE.toLocaleDateString("tr-TR", {
     year: "numeric", month: "long", day: "numeric", weekday: "long",
@@ -72,7 +59,7 @@ export default function SineMuratDavetiye({ guestName }: Props) {
 
   const scrollToCountdown = (e: React.MouseEvent) => {
     e.preventDefault();
-    document.getElementById("guest")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("family")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -175,7 +162,8 @@ export default function SineMuratDavetiye({ guestName }: Props) {
           letter-spacing: 0.08em;
           text-transform: none;
           color: #a06070;
-          margin-bottom: 1.4rem;
+          margin-top: -2.5rem;
+          margin-bottom: 3.9rem;
           font-weight: 600;
         }
         .sm-title {
@@ -741,18 +729,8 @@ export default function SineMuratDavetiye({ guestName }: Props) {
 
         <main>
 
-          {/* ── DAVETLİ ── */}
-          <section className="sm-section" id="guest" style={{ paddingTop: "0" }}>
-            <div className="sm-guest-card sm-glass">
-              <span className="sm-guest-label">Sevgili</span>
-              <span className={`sm-guest-name${nameVisible ? " sm-name-enter" : ""}`} style={{ opacity: nameVisible ? 1 : 0 }}>
-                {guestName ?? "—"}
-              </span>
-            </div>
-          </section>
-
           {/* ── AİLE ── */}
-          <section className="sm-section" id="family">
+          <section className="sm-section" id="family" style={{ paddingTop: "7rem" }}>
             <div className="sm-family-card sm-glass sm-reveal">
               <div className="sm-title-row">
                 <h2 className="sm-family-title">Ailelerimiz</h2>
