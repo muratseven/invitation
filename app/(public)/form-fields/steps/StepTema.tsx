@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useCallback, useMemo } from "react";
-import type { InvitationSettings } from "../../../page";
-import { THEMES } from "../../../page";
+import type { InvitationSettings } from "../../../editor/page";
+import { THEMES } from "../../../editor/page";
 import { ThemePreviewMini } from "../components/ThemePreviewMini";
 
 interface StepTemaProps {

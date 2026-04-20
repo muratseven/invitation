@@ -2,8 +2,8 @@
 
 import React, { useCallback, useReducer, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import type { InvitationSettings, Countdown } from "../../page";
-import { DEFAULT_SETTINGS, THEMES } from "../../page";
+import type { InvitationSettings, Countdown } from "../../editor/page";
+import { DEFAULT_SETTINGS, THEMES } from "../../editor/page";
 import type { WizardState, WizardAction } from "./types";
 import { wizardSteps } from "./types";
 import { GuestManager } from "./components/GuestManager";

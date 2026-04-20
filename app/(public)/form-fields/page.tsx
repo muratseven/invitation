@@ -179,10 +179,10 @@ export default function FormFieldsPage() {
               <a href="#sss" className="text-slate-600 hover:text-slate-900">SSS</a>
             </div>
             <Link
-              href="/"
+              href="/editor"
               className="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition"
             >
-              Anasayfa
+              Editör
             </Link>
           </div>
         </div>

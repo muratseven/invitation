@@ -1,8 +1,8 @@
 "use client";
 
 import React, { Suspense, useState, useMemo } from "react";
-import type { InvitationSettings, Countdown } from "../../../page";
-import { InvitationPreview } from "../../../page";
+import type { InvitationSettings, Countdown } from "../../../editor/page";
+import { InvitationPreview } from "../../../editor/page";
 
 interface StepOnizlemeProps {
   settings: InvitationSettings;

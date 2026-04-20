@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { InvitationSettings, Countdown } from "../page";
-import { InvitationPreview, DEFAULT_SETTINGS } from "../page";
+import type { InvitationSettings, Countdown } from "../editor/page";
+import { InvitationPreview, DEFAULT_SETTINGS } from "../editor/page";
 
 function hexToRgba(hex: string, alpha: number): string {
   let clean = hex.replace("#", "").trim();
@@ -88,7 +88,7 @@ export default function PreviewPage() {
           <p className="text-white font-medium">Davetiye bulunamadı</p>
           <p className="text-white/50 text-sm">Önce editörde davetiyenizi hazırlayın.</p>
           <a
-            href="/"
+            href="/editor"
             className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-5 py-2.5 text-sm text-white transition-colors"
           >
             ← Editöre dön
@@ -116,7 +116,7 @@ export default function PreviewPage() {
 
           {/* Editöre dön */}
           <a
-            href="/"
+            href="/editor"
             className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

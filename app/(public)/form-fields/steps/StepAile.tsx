@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useMemo } from "react";
-import type { InvitationSettings } from "../../../page";
+import type { InvitationSettings } from "../../../editor/page";
 
 interface StepAileProps {
   settings: InvitationSettings;

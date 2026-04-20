@@ -119,11 +119,11 @@ export default function TokenPage() {
         {/* Navbar */}
         <nav className="sticky top-0 z-40 backdrop-blur-md bg-white/80 border-b border-slate-100">
           <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a href="/" className="text-base font-bold bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">
+            <a href="/editor" className="text-base font-bold bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">
               Dijital Davetiye
             </a>
-            <a href="/" className="text-xs text-slate-500 hover:text-slate-700 transition-colors">
-              ← Anasayfa
+            <a href="/editor" className="text-xs text-slate-500 hover:text-slate-700 transition-colors">
+              ← Editör
             </a>
           </div>
         </nav>
@@ -160,7 +160,7 @@ export default function TokenPage() {
       {/* Navbar */}
       <nav className="sticky top-0 z-40 backdrop-blur-md bg-white/80 border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <a href="/" className="text-base font-bold bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">
+          <a href="/editor" className="text-base font-bold bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">
             Dijital Davetiye
           </a>
         </div>

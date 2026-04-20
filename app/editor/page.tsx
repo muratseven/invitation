@@ -1,18 +1,18 @@
-// app/page.tsx
+// app/editor/page.tsx
 
 "use client";
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import React, { useEffect, useRef, useState } from "react";
-import { parseMapInput } from "./lib/mapUtils"; // relative path’i dosya yapına göre düzelt
+import { parseMapInput } from "../lib/mapUtils";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { EnvelopeHero } from "./components/EnvelopeHero";
+import { EnvelopeHero } from "../components/EnvelopeHero";
 const API_BASE =
   process.env.NEXT_PUBLIC_API ?? "http://localhost:8888/backend/api";
 
 const MapPicker = dynamic(
-  () => import("./components/MapPicker").then((m) => m.MapPicker),
+  () => import("../components/MapPicker").then((m) => m.MapPicker),
   { ssr: false }
 );
 

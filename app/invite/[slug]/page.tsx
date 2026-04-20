@@ -9,7 +9,7 @@ import {
   DEFAULT_SETTINGS,
   type InvitationSettings,
   type Countdown,
-} from "../../page";
+} from "../../editor/page";
 import { EnvelopeHero } from "../../components/EnvelopeHero";
 
 const API_BASE =

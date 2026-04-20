@@ -3,7 +3,7 @@
 import type {
   InvitationSettings,
   Countdown,
-} from "../../page";
+} from "../../editor/page";
 
 export type WizardStep = 1 | 2 | 3 | 4 | 5;
 

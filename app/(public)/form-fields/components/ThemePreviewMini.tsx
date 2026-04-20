@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { ThemeId } from "../../../page";
+import type { ThemeId } from "../../../editor/page";
 
 /**
  * THEME_ART — ThemePreviewArt (app/page.tsx) kullanılan aynı tema tanımları

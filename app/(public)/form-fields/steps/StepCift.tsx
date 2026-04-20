@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useCallback } from "react";
-import type { InvitationSettings } from "../../../page";
-import { HERO_SUBTITLE_OPTIONS } from "../../../page";
+import type { InvitationSettings } from "../../../editor/page";
+import { HERO_SUBTITLE_OPTIONS } from "../../../editor/page";
 
 const HERO_SUBTITLE_CHIPS = HERO_SUBTITLE_OPTIONS.slice(0, 8);
 

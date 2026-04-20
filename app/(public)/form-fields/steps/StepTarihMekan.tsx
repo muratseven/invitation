@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useCallback, useMemo } from "react";
-import type { InvitationSettings, Countdown } from "../../../page";
-import { SCHEDULE_PRESETS } from "../../../page";
+import type { InvitationSettings, Countdown } from "../../../editor/page";
+import { SCHEDULE_PRESETS } from "../../../editor/page";
 
 interface StepTarihMekanProps {
   settings: InvitationSettings;
