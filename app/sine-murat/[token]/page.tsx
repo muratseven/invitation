@@ -31,7 +31,7 @@ export async function generateMetadata({
       locale: "tr_TR",
       images: [
         {
-          url: "/thumbnail.png",
+          url: "/thumbnail.jpg",
           width: 1200,
           height: 630,
           alt: "Sine & Murat Düğün Davetiyesi",
@@ -42,7 +42,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: ["/thumbnail.png"],
+      images: ["/thumbnail.jpg"],
     },
   };
 }

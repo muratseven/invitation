@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     images: [
       {
-        url: "/thumbnail.png",
+        url: "/thumbnail.jpg",
         width: 1200,
         height: 630,
         alt: "Sine & Murat Düğün Davetiyesi",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/thumbnail.png"],
+    images: ["/thumbnail.jpg"],
   },
 };
 
