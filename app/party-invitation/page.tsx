@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     images: [
       {
-        url: "/thumbnail.jpg",
+        url: "/party-thumbnail.jpg",
         width: 1200,
         height: 630,
         alt: TITLE,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/thumbnail.jpg"],
+    images: ["/party-thumbnail.jpg"],
   },
   other: {
     "refresh": `0;url=${PDF_PATH}`,
